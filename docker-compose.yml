@@ -1,0 +1,19 @@
+version: '3'
+services:
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false   # Désactive l'authentification de base, à activer si tu veux sécuriser l'accès
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - VUE_APP_URL_BASE_API=http://localhost:5678
+    ports:
+      - 5678:5678  # Port de N8N exposé sur le port 5678 de ta machine
+    volumes:
+      - n8n_data:/home/node/.n8n  # Volume persistant pour stocker les données
+    restart: always  # Assure-toi que N8N redémarre automatiquement si le container s'arrête
+
+volumes:
+  n8n_data:  # Déclare un volume pour stocker les données N8N
