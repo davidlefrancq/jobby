@@ -34,3 +34,18 @@ Le projet peut être étendu pour inclure un modèle LLM local via [Ollama](http
 ```bash
 ollama pull llama3
 ```
+
+## Google OAuth Config
+Go to [Google Cloud Console](https://console.cloud.google.com/) > [API Dashboard](https://console.cloud.google.com/apis/dashboard)
+- [Library](https://console.cloud.google.com/apis/library)
+  - Activate GMail API
+- [Credentials](https://console.cloud.google.com/apis/credentials) : Create OAuth Client
+  - Set field OAuth Redirect URL with : http://localhost:5678/rest/oauth2-credential/callback
+- [Scopes](https://console.cloud.google.com/auth/scopes), adds data access :
+    - https://www.googleapis.com/auth/gmail.addons.current.action.compose
+    - https://www.googleapis.com/auth/gmail.addons.current.message.action
+    - https://www.googleapis.com/auth/gmail.labels
+    - https://mail.google.com/
+    - https://www.googleapis.com/auth/gmail.modify
+    - https://www.googleapis.com/auth/gmail.compose
+
