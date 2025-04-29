@@ -2,8 +2,6 @@
 
 Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via Docker Compose. L'objectif est de gérer facilement un environnement n8n auto-hébergé à l’aide de commandes `npm`.
 
----
-
 ## Prérequis
 
 - [Docker](https://www.docker.com/)
@@ -11,7 +9,10 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 - [Node.js](https://nodejs.org/) (pour exécuter les scripts `npm`)
 - [Ollama](https://ollama.com/)
 
----
+**Optionnel** (NVIDIA AI Tools) :
+- [CUDNN Library](https://developer.nvidia.com/cudnn)
+- [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit)
+
 
 ## Commandes disponibles
 
@@ -21,8 +22,6 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 | `npm run n8n:stop`    | Arrête et supprime les conteneurs    |
 | `npm run n8n:logs`    | Affiche les logs en temps réel       |
 | `npm run n8n:restart` | Redémarre les conteneurs n8n         |
-
----
 
 ## Intégration d'un Agent IA local avec Ollama
 
@@ -49,3 +48,4 @@ Go to [Google Cloud Console](https://console.cloud.google.com/) > [API Dashboard
     - https://www.googleapis.com/auth/gmail.modify
     - https://www.googleapis.com/auth/gmail.compose
 
+In N8N **GMail Node**, setup OAuth Account with **Client ID** and **Client Secret**
