@@ -14,6 +14,20 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n  # Volume persistant pour stocker les données
     restart: always  # Assure-toi que N8N redémarre automatiquement si le container s'arrête
-
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_MODELS=/models
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama_data:/root/.ollama
+      - E:/AI/ollama/models:/models
+    restart: always
+    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull llama3 && wait"]
 volumes:
   n8n_data:  # Déclare un volume pour stocker les données N8N
+  ollama_data:

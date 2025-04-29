@@ -25,14 +25,11 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 
 ## Intégration d'un Agent IA local avec Ollama
 
-Le projet peut être étendu pour inclure un modèle LLM local via [Ollama](https://ollama.com/), permettant d'utiliser des agents IA directement dans vos workflows `n8n` sans dépendre d’un service cloud.
+### Ollama local
+Dans le fichier docker-compose, une instance de l'image docker ollama/ollama est démarer pour fonctionnner avec l'option GPU. Le server Ollama est disponible depuis l'adress ip de votre machine:
+ - http://[@ip]:11434
 
-- [Ollama installé localement](https://ollama.com/download)
-- Un modèle LLM téléchargé, par exemple : `gemma`, `llama3`, `mistral`, etc.
-
-```bash
-ollama pull llama3
-```
+Attention `E:/AI/ollama/models:/models` permet de persisté les modèles dans un dossier pour éviter de les télécharger à nouveau en cas de reset de du container. A modifier si nécéssaire.
 
 ## Google OAuth Config
 Go to [Google Cloud Console](https://console.cloud.google.com/) > [API Dashboard](https://console.cloud.google.com/apis/dashboard)
