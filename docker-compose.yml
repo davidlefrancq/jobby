@@ -31,7 +31,7 @@ services:
     networks:
       - ai_net
     restart: always
-    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull llama3 && wait"]
+    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral && wait"]
 volumes:
   n8n_data:  # Déclare un volume pour stocker les données N8N
   ollama_data:
