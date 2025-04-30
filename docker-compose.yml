@@ -13,6 +13,8 @@ services:
       - 5678:5678  # Port de N8N exposé sur le port 5678 de ta machine
     volumes:
       - n8n_data:/home/node/.n8n  # Volume persistant pour stocker les données
+    networks:
+      - ai_net
     restart: always  # Assure-toi que N8N redémarre automatiquement si le container s'arrête
   ollama:
     image: ollama/ollama
@@ -26,8 +28,13 @@ services:
     volumes:
       - ollama_data:/root/.ollama
       - E:/AI/ollama/models:/models
+    networks:
+      - ai_net
     restart: always
     entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull llama3 && wait"]
 volumes:
   n8n_data:  # Déclare un volume pour stocker les données N8N
   ollama_data:
+networks:
+  ai_net:
+    driver: bridge

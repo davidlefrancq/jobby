@@ -23,12 +23,15 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 | `npm run n8n:logs`    | Affiche les logs en temps réel       |
 | `npm run n8n:restart` | Redémarre les conteneurs n8n         |
 
-## Intégration d'un Agent IA local avec Ollama
+## Agent IA local avec Ollama
 
-### Ollama local
-Dans le fichier docker-compose, une instance de l'image docker ollama/ollama est démarer pour fonctionnner avec l'option GPU. Le server Ollama est disponible depuis l'adress ip de votre machine:
- - http://[@ip]:11434
+### N8N AI Agent
+Dans le fichier docker-compose, une instance de l'image docker ollama/ollama est configuré pour fonctionnner avec l'option GPU.
 
+Depuis l'interface N8N, utilisez:
+- http://ollama:11434
+
+### Stockage des models
 Attention `E:/AI/ollama/models:/models` permet de persisté les modèles dans un dossier pour éviter de les télécharger à nouveau en cas de reset de du container. A modifier si nécéssaire.
 
 ## Google OAuth Config
