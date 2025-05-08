@@ -9,6 +9,7 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - VUE_APP_URL_BASE_API=http://localhost:5678
+      - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio
     ports:
       - 5678:5678  # Port de N8N exposé sur le port 5678 de ta machine
     volumes:
@@ -32,9 +33,38 @@ services:
       - ai_net
     restart: always
     entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral && wait"]
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - 59117:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - ai_net
+  nextjs:
+    build:
+      context: ./web-manager
+      dockerfile: Dockerfile
+    container_name: nextjs
+    volumes:
+      - ./web-manager:/usr/src/app
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}
+    depends_on:
+      - mongodb
+    networks:
+      - ai_net
 volumes:
   n8n_data:  # Déclare un volume pour stocker les données N8N
   ollama_data:
+  mongo_data:
 networks:
   ai_net:
     driver: bridge
