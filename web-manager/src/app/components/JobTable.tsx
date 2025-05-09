@@ -1,12 +1,12 @@
 'use client';
 
-import { IJob } from '@/models/IJob';
+import { IJobEntity } from '@/types/IJobEntity';
 import React from 'react';
 
 interface JobTableProps {
-  jobs: IJob[];
-  onView: (job: IJob) => void;
-  onEdit: (job: IJob) => void;
+  jobs: IJobEntity[];
+  onView: (job: IJobEntity) => void;
+  onEdit: (job: IJobEntity) => void;
 }
 
 export default function JobTable({ jobs, onView, onEdit }: JobTableProps) {

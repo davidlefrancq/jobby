@@ -1,10 +1,10 @@
 'use client';
 
-import { IJob } from '@/models/IJob';
+import { IJobEntity } from '@/types/IJobEntity';
 import { useState, FormEvent } from 'react';
 
 interface JobEditProps {
-  job?: IJob;
+  job?: IJobEntity;
   onCreated: () => void;
   onCancel: () => void;
 }

@@ -1,7 +1,8 @@
-import dbConnect from '@/lib/dbConnect';
-import { IJob } from '@/models/IJob';
-import { Job } from '@/models/Job';
-import { FilterQuery, UpdateQuery } from 'mongoose';
+import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
+import dbConnect from '@/backend/lib/dbConnect';
+import { IJob } from '@/backend/models/IJob';
+import { Job } from '@/backend/models/Job';
+import { UpdateQuery } from 'mongoose';
 
 /**
  * Repository for Job model CRUD operations.
@@ -28,9 +29,14 @@ export class JobRepository {
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll(filter: FilterQuery<IJob> = {}): Promise<IJob[]> {
+  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
     await dbConnect();
-    return Job.find(filter).exec();
+    
+    if (!filter) filter = {};
+    const query = Job.find(filter)
+    if (limit) query.limit(limit);
+    if (skip) query.skip(skip);
+    return query.exec();
   }
 
   /**

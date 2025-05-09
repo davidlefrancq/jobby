@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import jobService from '@/services/JobService';
+import jobService from '@/backend/services/JobService';
+import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
 
 /**
  * Controller for handling HTTP requests related to Jobs.
@@ -11,10 +12,21 @@ export default class JobController {
    * Lists all jobs, optionally filtered via query parameters.
    */
   public static async list(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a GET request
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
     try {
-      const filter = req.query || {};
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const jobs = await jobService.listJobs(filter as any);
+      // Extract query parameters for pagination
+      const jobsRequest: JobsSelectRequestProps = {}
+      const query = req.query || {};
+      if (query.limit) jobsRequest.limit = parseInt(query.limit as string, 10);
+      if (query.skip) jobsRequest.skip = parseInt(query.skip as string, 10);
+      
+      // Execute the service method to list jobs
+      const jobs = await jobService.listJobs(jobsRequest);
       return res.status(200).json(jobs);
     } catch (error) {
       return res.status(500).json({ error: (error as Error).message });
@@ -26,6 +38,12 @@ export default class JobController {
    * Retrieves a single job by its ID.
    */
   public static async get(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a GET request
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
     try {
       const { id } = req.query;
       const job = await jobService.getJobById(id as string);
@@ -40,6 +58,12 @@ export default class JobController {
    * Creates a new job document.
    */
   public static async create(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a POST request
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', ['POST']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
     try {
       const data = req.body;
       const created = await jobService.createJob(data);
@@ -54,6 +78,12 @@ export default class JobController {
    * Updates an existing job document.
    */
   public static async update(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a PUT request
+    if (req.method !== 'PUT') {
+      res.setHeader('Allow', ['PUT']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
     try {
       const { id } = req.query;
       const data = req.body;
@@ -70,6 +100,12 @@ export default class JobController {
    * Deletes a job document.
    */
   public static async remove(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a DELETE request
+    if (req.method !== 'DELETE') {
+      res.setHeader('Allow', ['DELETE']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
     try {
       const { id } = req.query;
       await jobService.deleteJob(id as string);

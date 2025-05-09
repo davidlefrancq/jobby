@@ -1,6 +1,7 @@
-import { IJob } from '@/models/IJob';
-import jobRepository from '@/repositories/JobRepository';
-import { FilterQuery, UpdateQuery } from 'mongoose';
+import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
+import { IJob } from '@/backend/models/IJob';
+import jobRepository from '@/backend/repositories/JobRepository';
+import { UpdateQuery } from 'mongoose';
 
 /**
  * Service layer for Job operations.
@@ -28,8 +29,8 @@ export class JobService {
    * Retrieves all jobs matching an optional filter.
    * @param filter - Mongoose filter query
    */
-  public async listJobs(filter: FilterQuery<IJob> = {}): Promise<IJob[]> {
-    return this.repo.getAll(filter);
+  public async listJobs(req: JobsSelectRequestProps): Promise<IJob[]> {
+    return this.repo.getAll(req);
   }
 
   /**

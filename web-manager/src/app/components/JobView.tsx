@@ -1,13 +1,13 @@
 'use client';
 
-import { IJob } from '@/models/IJob';
+import { IJobEntity } from '@/types/IJobEntity';
 import { useState } from 'react';
 
 interface JobViewProps {
-  job: IJob;
+  job: IJobEntity;
   onDeleted: () => void;
   onCancel: () => void;
-  onEdit: (job: IJob) => void;
+  onEdit: (job: IJobEntity) => void;
 }
 
 export default function JobView({ job, onCancel, onDeleted, onEdit }: JobViewProps) {
@@ -28,8 +28,8 @@ export default function JobView({ job, onCancel, onDeleted, onEdit }: JobViewPro
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-2xl p-6">
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">{job.title}</h2>
+    <>
+      <h1 className="text-4xl font-bold text-gray-800 mb-6">{job.title}</h1>
       <p className="text-gray-600 mb-2"><span className="font-semibold">Entreprise :</span> {job.company}</p>
       <p className="text-gray-600 mb-4"><span className="font-semibold">Localisation :</span> {job.location}</p>
       <div className="mt-4">
@@ -57,6 +57,6 @@ export default function JobView({ job, onCancel, onDeleted, onEdit }: JobViewPro
           Return
         </button>
       </div>
-    </div>
+    </>
   );
 }

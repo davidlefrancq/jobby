@@ -4,43 +4,27 @@ import { useEffect, useState } from 'react';
 import JobTable from '@/app/components/JobTable';
 import JobView from '@/app/components/JobView';
 import JobEdit from '@/app/components/JobEdit';
-import { IJob } from '@/models/IJob';
+import JobBoard from './components/JobBoard';
+import { IJobEntity } from '@/types/IJobEntity';
 
 export default function HomePage() {
-  const [jobs, setJobs] = useState<IJob[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewing, setViewing] = useState<IJob | null>(null);
-  const [editing, setEditing] = useState<IJob | null>(null);
+  const [viewing, setViewing] = useState<IJobEntity | null>(null);
+  const [editing, setEditing] = useState<IJobEntity | null>(null);
   const [creating, setCreating] = useState(false);
-  const [prevViewing, setPrevViewing] = useState<IJob | null>(null);
+  const [prevViewing, setPrevViewing] = useState<IJobEntity | null>(null);
 
-  const loadJobs = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/jobs');
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setJobs(await res.json());
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { loadJobs(); }, []);
-
-  const handleView = (job: IJob) => {
+  const handleView = (job: IJobEntity) => {
     setViewing(job); setEditing(null); setCreating(false);
   };
-  const handleEditFromTable = (job: IJob) => {
+  const handleEditFromTable = (job: IJobEntity) => {
     setPrevViewing(null); setEditing(job); setViewing(null); setCreating(false);
   };
-  const handleEditFromView = (job: IJob) => {
+  const handleEditFromView = (job: IJobEntity) => {
     setPrevViewing(job); setEditing(job); setViewing(null); setCreating(false);
   };
-  const handleDelete = () => { setViewing(null); loadJobs(); };
-  const handleCreated = () => { setCreating(false); loadJobs(); };
+  const handleDelete = () => { setViewing(null); };
+  const handleCreated = () => { setCreating(false); };
   const cancelCreate = () => setCreating(false);
   const cancelEditFromTable = () => setEditing(null);
   const cancelEditFromView = () => {
@@ -52,13 +36,6 @@ export default function HomePage() {
   };
   const cancelView = () => { setViewing(null); setEditing(null); setCreating(false); };
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <span className="text-xl text-gray-500">Loading...</span>
-      </div>
-    );
-
   if (error)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -68,7 +45,7 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto p-6">
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8">
+      {/* <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
           Jobs
         </h1>
@@ -80,7 +57,7 @@ export default function HomePage() {
             Add
           </button>
         )}
-      </header>
+      </header> */}
 
       <section className="space-y-6">
         {creating && (
@@ -92,7 +69,7 @@ export default function HomePage() {
         {editing && prevViewing === null && (
           <div className="bg-white p-6">
             <JobEdit
-              onCreated={() => { cancelEditFromTable(); loadJobs(); }}
+              onCreated={() => { cancelEditFromTable(); }}
               onCancel={cancelEditFromTable}
               job={editing}
             />
@@ -102,7 +79,7 @@ export default function HomePage() {
         {editing && prevViewing && (
           <div className="bg-white p-6">
             <JobEdit
-              onCreated={() => { cancelEditFromView(); loadJobs(); }}
+              onCreated={() => { cancelEditFromView(); }}
               onCancel={cancelEditFromView}
               job={editing}
             />
@@ -122,7 +99,8 @@ export default function HomePage() {
 
         {!viewing && !editing && !creating && (
           <div className="overflow-x-auto rounded-lg">
-            <JobTable jobs={jobs} onView={handleView} onEdit={handleEditFromTable} />
+            <JobBoard onView={handleView} />
+            {/* <JobTable jobs={jobs} onView={handleView} onEdit={handleEditFromTable} /> */}
           </div>
         )}
       </section>

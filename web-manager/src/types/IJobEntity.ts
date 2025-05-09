@@ -1,9 +1,6 @@
-import { Document, Types } from 'mongoose';
+import { Types } from 'mongoose';
 
-/**
- * Interface representing a Job document in MongoDB.
- */
-export interface IJob extends Document {
+export interface IJobEntity {
   _id: Types.ObjectId;
   company: string;
   contract_type?: string | null;

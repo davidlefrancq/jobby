@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import JobController from '@/controllers/JobController';
+import JobController from '@/backend/controllers/JobController';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const {

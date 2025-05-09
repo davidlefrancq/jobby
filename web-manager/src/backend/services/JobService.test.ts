@@ -1,7 +1,7 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
-import jobService from '@/services/JobService';
-import { IJob } from '@/models/IJob';
+import jobService from '@/backend/services/JobService';
+import { IJob } from '@/backend/models/IJob';
 
 let mongoServer: MongoMemoryServer;
 
