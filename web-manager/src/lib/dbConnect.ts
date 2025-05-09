@@ -1,6 +1,8 @@
 import { connect } from "mongoose";
 import { IMongooseCache } from "./IMongooseCache";
 
+const MONGODB_URI = process.env.MONGODB_URI;
+
 declare global {
 // eslint-disable-next-line no-var, @typescript-eslint/no-explicit-any
   var mongoose: any; // This must be a `var` and not a `let / const`
@@ -24,10 +26,9 @@ async function mongooseConnect(uri: string) {
  * Throws if MONGODB_URI env var is undefined.
  */
 async function dbConnect() {
-  const MONGODB_URI = process.env.MONGODB_URI!;
   if (!MONGODB_URI) {
     throw new Error(
-      "Define MONGODB_URI in .env.local before connecting"
+      "🔴 MONGODB_URI is not defined."
     );
   }
 
@@ -47,7 +48,8 @@ async function dbConnect() {
   } catch (error) {
     // reset promise on failure
     cached.promise = null;
-    throw error;
+    const err = new Error(`🔴 Mongoose connection error: ${(error as Error).message}`);
+    throw err;
   }
 
   return cached.conn;

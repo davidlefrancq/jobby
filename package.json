@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "n8n": "docker-compose up -d",
-    "n8n:build": "docker-compose build --no-cache nextjs",
+    "n8n:build": "docker-compose build",
+    "n8n:rebuild": "docker-compose build --no-cache",
+    "n8n:rebuild:nextjs": "docker-compose build --no-cache nextjs",
     "n8n:stop": "docker-compose down",
     "n8n:logs": "docker-compose logs -f",
+    "n8n:logs:nextjs": "docker-compose logs -f nextjs",
     "n8n:restart": "docker-compose restart",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
