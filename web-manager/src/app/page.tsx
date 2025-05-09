@@ -3,12 +3,9 @@
 import { useEffect, useState } from 'react';
 import JobTable from '@/app/components/JobTable';
 import JobView from '@/app/components/JobView';
-import JobCreate from '@/app/components/JobCreate';
+import JobEdit from '@/app/components/JobEdit';
 import { IJob } from '@/models/IJob';
 
-/**
- * Single-page application component for jobs management with cancel support.
- */
 export default function HomePage() {
   const [jobs, setJobs] = useState<IJob[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +15,6 @@ export default function HomePage() {
   const [creating, setCreating] = useState(false);
   const [prevViewing, setPrevViewing] = useState<IJob | null>(null);
 
-  // Load jobs list
   const loadJobs = async () => {
     setLoading(true);
     try {
@@ -32,50 +28,21 @@ export default function HomePage() {
     }
   };
 
-  useEffect(() => {
-    loadJobs();
-  }, []);
+  useEffect(() => { loadJobs(); }, []);
 
-  // Handlers
   const handleView = (job: IJob) => {
-    setViewing(job);
-    setEditing(null);
-    setCreating(false);
+    setViewing(job); setEditing(null); setCreating(false);
   };
-
   const handleEditFromTable = (job: IJob) => {
-    setPrevViewing(null);
-    setEditing(job);
-    setViewing(null);
-    setCreating(false);
+    setPrevViewing(null); setEditing(job); setViewing(null); setCreating(false);
   };
-
   const handleEditFromView = (job: IJob) => {
-    setPrevViewing(job);
-    setEditing(job);
-    setViewing(null);
-    setCreating(false);
+    setPrevViewing(job); setEditing(job); setViewing(null); setCreating(false);
   };
-
-  const handleDelete = () => {
-    setViewing(null);
-    loadJobs();
-  };
-
-  const handleCreated = () => {
-    setCreating(false);
-    loadJobs();
-  };
-
-  // Cancel callbacks
-  const cancelCreate = () => {
-    setCreating(false);
-  };
-
-  const cancelEditFromTable = () => {
-    setEditing(null);
-  };
-
+  const handleDelete = () => { setViewing(null); loadJobs(); };
+  const handleCreated = () => { setCreating(false); loadJobs(); };
+  const cancelCreate = () => setCreating(false);
+  const cancelEditFromTable = () => setEditing(null);
   const cancelEditFromView = () => {
     if (prevViewing) {
       setEditing(null);
@@ -83,67 +50,82 @@ export default function HomePage() {
       setPrevViewing(null);
     }
   };
+  const cancelView = () => { setViewing(null); setEditing(null); setCreating(false); };
 
-  const cancelView = () => {
-    setViewing(null);
-    setEditing(null);
-    setCreating(false);
-  };
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="text-xl text-gray-500">Loading...</span>
+      </div>
+    );
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="text-xl text-red-600">Error: {error}</span>
+      </div>
+    );
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Job Offers</h1>
+    <div className="container mx-auto p-6">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4 sm:mb-0">
+          Jobs
+        </h1>
+        {!viewing && !editing && !creating && (
+          <button
+            onClick={() => setCreating(true)}
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition"
+          >
+            Add
+          </button>
+        )}
+      </header>
 
-      {/* Show create button when no action */}
-      {!viewing && !editing && !creating && (
-        <button
-          onClick={() => setCreating(true)}
-          className="mb-4 bg-blue-500 text-white py-2 px-4 rounded"
-        >
-          Create New Job
-        </button>
-      )}
+      <section className="space-y-6">
+        {creating && (
+          <div className="bg-white p-6">
+            <JobEdit onCreated={handleCreated} onCancel={cancelCreate} />
+          </div>
+        )}
 
-      {/* Create form */}
-      {creating && (
-        <JobCreate onCreated={handleCreated} onCancel={cancelCreate} />
-      )}
+        {editing && prevViewing === null && (
+          <div className="bg-white p-6">
+            <JobEdit
+              onCreated={() => { cancelEditFromTable(); loadJobs(); }}
+              onCancel={cancelEditFromTable}
+              job={editing}
+            />
+          </div>
+        )}
 
-      {/* Edit form from table */}
-      {editing && prevViewing === null && (
-        <JobCreate
-          onCreated={() => { cancelEditFromTable(); loadJobs(); }}
-          onCancel={cancelEditFromTable}
-          job={editing}
-        />
-      )}
+        {editing && prevViewing && (
+          <div className="bg-white p-6">
+            <JobEdit
+              onCreated={() => { cancelEditFromView(); loadJobs(); }}
+              onCancel={cancelEditFromView}
+              job={editing}
+            />
+          </div>
+        )}
 
-      {/* Edit form from view */}
-      {editing && prevViewing && (
-        <JobCreate
-          onCreated={() => { cancelEditFromView(); loadJobs(); }}
-          onCancel={cancelEditFromView}
-          job={editing}
-        />
-      )}
+        {viewing && !editing && !creating && (
+          <div className="bg-white p-6">
+            <JobView
+              job={viewing}
+              onDeleted={handleDelete}
+              onCancel={cancelView}
+              onEdit={handleEditFromView}
+            />
+          </div>
+        )}
 
-      {/* Detail view */}
-      {viewing && !editing && !creating && (
-        <JobView
-          job={viewing}
-          onDeleted={handleDelete}
-          onCancel={cancelView}
-          onEdit={handleEditFromView}
-        />
-      )}
-
-      {/* Table list */}
-      {!viewing && !editing && !creating && (
-        <JobTable jobs={jobs} onView={handleView} onEdit={handleEditFromTable} />
-      )}
+        {!viewing && !editing && !creating && (
+          <div className="overflow-x-auto rounded-lg">
+            <JobTable jobs={jobs} onView={handleView} onEdit={handleEditFromTable} />
+          </div>
+        )}
+      </section>
     </div>
   );
 }
