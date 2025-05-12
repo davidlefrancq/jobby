@@ -1,58 +1,81 @@
-import { connect } from "mongoose";
-import { IMongooseCache } from "./IMongooseCache";
+import mongoose, { ConnectOptions } from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || "";
 
-declare global {
-// eslint-disable-next-line no-var, @typescript-eslint/no-explicit-any
-  var mongoose: any; // This must be a `var` and not a `let / const`
+export class MongoConnection {
+  private static instance: MongoConnection;
+  private connection: typeof mongoose | null = null;
+  private uri: string | null = null;
+
+  private constructor() {}
+
+  public static getInstance(): MongoConnection {
+    if (!MongoConnection.instance) {
+      MongoConnection.instance = new MongoConnection();
+    }
+    return MongoConnection.instance;
+  }
+
+  public async connect(uri: string, options: ConnectOptions = {}): Promise<typeof mongoose> {
+    if (this.connection) return this.connection;
+
+    if (!uri) {
+      throw new Error("🔴 MONGODB_URI must be defined.");
+    }
+
+    if (this.connection) {
+      if (this.uri !== uri) {
+        throw new Error("🔴 Can't connect: different URI used on existing Mongoose connection.");
+      }
+      return this.connection;
+    }
+
+    this.uri = uri;
+
+    try {
+      this.connection = await mongoose.connect(uri, {
+        ...options,
+        bufferCommands: false,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new Error(`🔴 Mongoose connection failed: ${message}`);
+    }
+
+    return this.connection;
+  }
+
+  public getConnection(): typeof mongoose | null {
+    return this.connection;
+  }
+
+  public getCollections(): mongoose.Collection<mongoose.mongo.BSON.Document>[] {
+    if (!this.connection) {
+      throw new Error("🔴 No connection to MongoDB.");
+    }
+    return Object.values(this.connection.connection.collections);
+  }
+
+  public async disconnect(): Promise<void> {
+    if (this.connection) {
+      await this.connection.disconnect();
+      this.connection = null;
+      this.uri = null;
+    }
+  }
 }
 
-// retrieve or initialize global cache
-let cached: IMongooseCache = global.mongoose;
-if (!cached) cached = global.mongoose = { conn: null, promise: null };
-
-/**
- * Establishes a new Mongoose connection.
- * @param uri - MongoDB connection string
- */
-async function mongooseConnect(uri: string) {
-  const opts = { bufferCommands: false }; // disable command buffering
-  return connect(uri, opts);
+export async function dbConnect(uri: string = MONGODB_URI) {
+  return await MongoConnection.getInstance().connect(uri);
 }
 
-/**
- * Returns a singleton Mongoose connection, caching in global scope.
- * Throws if MONGODB_URI env var is undefined.
- */
-async function dbConnect() {
-  if (!MONGODB_URI) {
-    throw new Error(
-      "🔴 MONGODB_URI is not defined."
-    );
-  }
-
-  // return cached connection if available
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  // initiate connection promise once
-  if (!cached.promise) {
-    cached.promise = mongooseConnect(MONGODB_URI).then((mongoose) => mongoose);
-  }
-
-  try {
-    // await and cache final connection
-    cached.conn = await cached.promise;
-  } catch (error) {
-    // reset promise on failure
-    cached.promise = null;
-    const err = new Error(`🔴 Mongoose connection error: ${(error as Error).message}`);
-    throw err;
-  }
-
-  return cached.conn;
+export function getCollections() {
+  let collections = null
+  const connection = MongoConnection.getInstance().getConnection();
+  if (connection) collections = MongoConnection.getInstance().getCollections();
+  return collections;
 }
 
-export default dbConnect;
+export async function dbDisconnect() {
+  return await MongoConnection.getInstance().disconnect();
+}

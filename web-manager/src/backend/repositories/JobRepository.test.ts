@@ -1,29 +1,33 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
 import jobRepoDefault from '@/backend/repositories/JobRepository';
 import { JobRepository } from '@/backend/repositories/JobRepository';
 import { IJob } from '@/backend/models/IJob';
+import { dbDisconnect, getCollections, MongoConnection } from '../lib/dbConnect';
 
 let mongoServer: MongoMemoryServer;
+let db: MongoConnection;
 
 // Set up an in-memory MongoDB server before running tests
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   process.env.MONGODB_URI = mongoServer.getUri();
-  await mongoose.connect(process.env.MONGODB_URI!);
+  db = MongoConnection.getInstance();
+  await db.connect(mongoServer.getUri()!);
 });
 
 // Clear all data from collections after each test
 afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    await collections[key].deleteMany({});
+  const collections = await getCollections()
+  if (collections) {
+    for (const key in collections) {
+      await collections[key].deleteMany({});
+    }
   }
 });
 
 // Stop MongoDB server and disconnect Mongoose after all tests
 afterAll(async () => {
-  await mongoose.disconnect();
+  await dbDisconnect()
   await mongoServer.stop();
 });
 
@@ -67,7 +71,7 @@ describe('JobRepository CRUD operations', () => {
 
   it('should retrieve all job documents', async () => {
     await jobRepoDefault.create(sample);
-    const all = await jobRepoDefault.getAll();
+    const all = await jobRepoDefault.getAll({ limit: 9, skip: 0 });
     expect(all).toHaveLength(1);
     expect(all[0].title).toBe(sample.title);
   });
@@ -89,7 +93,7 @@ describe('JobRepository CRUD operations', () => {
   it('should delete a job document', async () => {
     const created = await jobRepoDefault.create(sample);
     await jobRepoDefault.delete(created._id.toString());
-    const allAfterDelete = await jobRepoDefault.getAll();
+    const allAfterDelete = await jobRepoDefault.getAll({ limit: 9, skip: 0 });
     expect(allAfterDelete).toHaveLength(0);
   });
 });

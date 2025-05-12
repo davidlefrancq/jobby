@@ -1,8 +1,8 @@
 import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
-import dbConnect from '@/backend/lib/dbConnect';
+import { dbConnect } from '@/backend/lib/dbConnect';
 import { IJob } from '@/backend/models/IJob';
 import { Job } from '@/backend/models/Job';
-import { UpdateQuery } from 'mongoose';
+import mongoose, { UpdateQuery } from 'mongoose';
 
 /**
  * Repository for Job model CRUD operations.
@@ -11,9 +11,13 @@ import { UpdateQuery } from 'mongoose';
 export class JobRepository {
   // Holds the singleton instance
   private static instance: JobRepository | null = null;
+  private connection: typeof mongoose | null = null;
 
   // Private constructor to prevent direct instantiation
-  private constructor() {}
+  private constructor() {
+    // Initialize the connection
+    this.connection = null;
+  }
 
   /**
    * Retrieves the singleton instance.
@@ -30,7 +34,7 @@ export class JobRepository {
    * @param filter - Mongoose filter query
    */
   public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
-    await dbConnect();
+    if (!this.connection) this.connection = await dbConnect();
     
     if (!filter) filter = {};
     const query = Job.find(filter)
@@ -44,7 +48,7 @@ export class JobRepository {
    * @param id - Job document ID
    */
   public async getById(id: string): Promise<IJob | null> {
-    await dbConnect();
+    if (!this.connection) this.connection = await dbConnect();
     return Job.findById(id).exec();
   }
 
@@ -53,7 +57,7 @@ export class JobRepository {
    * @param data - Partial job data
    */
   public async create(data: Partial<IJob>): Promise<IJob> {
-    await dbConnect();
+    if (!this.connection) this.connection = await dbConnect();
     const job = new Job(data);
     return job.save();
   }
@@ -64,7 +68,7 @@ export class JobRepository {
    * @param data - Fields to update
    */
   public async update(id: string, data: UpdateQuery<IJob>): Promise<IJob | null> {
-    await dbConnect();
+    if (!this.connection) this.connection = await dbConnect();
     return Job.findByIdAndUpdate(id, data, { new: true }).exec();
   }
 
@@ -73,7 +77,7 @@ export class JobRepository {
    * @param id - Job document ID
    */
   public async delete(id: string): Promise<IJob | null> {
-    await dbConnect();
+    if (!this.connection) this.connection = await dbConnect();
     return Job.findByIdAndDelete(id).exec();
   }
 }

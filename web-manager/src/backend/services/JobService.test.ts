@@ -1,28 +1,32 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
 import jobService from '@/backend/services/JobService';
 import { IJob } from '@/backend/models/IJob';
+import { getCollections, MongoConnection } from '../lib/dbConnect';
 
 let mongoServer: MongoMemoryServer;
+let db: MongoConnection;
 
 // Start in-memory MongoDB server before all tests
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   process.env.MONGODB_URI = mongoServer.getUri();
-  await mongoose.connect(process.env.MONGODB_URI!);
+  db = MongoConnection.getInstance();
+  await db.connect(mongoServer.getUri()!);
 });
 
 // Clear database after each test
 afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    await collections[key].deleteMany({});
+  const collections = await getCollections()
+  if (collections) {
+    for (const key in collections) {
+      await collections[key].deleteMany({});
+    }
   }
 });
 
 // Stop server and disconnect after all tests
 afterAll(async () => {
-  await mongoose.disconnect();
+  await db.disconnect()
   await mongoServer.stop();
 });
 
@@ -52,7 +56,7 @@ describe('JobService Integration Tests', () => {
 
   it('should list all jobs', async () => {
     await jobService.createJob(sampleData);
-    const list = await jobService.listJobs();
+    const list = await jobService.listJobs({ limit:9, skip:0 });
     expect(Array.isArray(list)).toBe(true);
     expect(list).toHaveLength(1);
   });
@@ -89,7 +93,7 @@ describe('JobService Integration Tests', () => {
     await expect(
       jobService.deleteJob(created._id.toString())
     ).resolves.toBeUndefined();
-    const listAfterDelete = await jobService.listJobs();
+    const listAfterDelete = await jobService.listJobs({ limit: 9, skip: 0 });
     expect(listAfterDelete).toHaveLength(0);
   });
 
