@@ -3,19 +3,20 @@ services:
     image: n8nio/n8n
     container_name: n8n
     environment:
-      - N8N_BASIC_AUTH_ACTIVE=false   # Désactive l'authentification de base, à activer si tu veux sécuriser l'accès
       - N8N_HOST=localhost
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - VUE_APP_URL_BASE_API=http://localhost:5678
-      - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio
     ports:
-      - 5678:5678  # Port de N8N exposé sur le port 5678 de ta machine
+      - 5678:5678
     volumes:
-      - n8n_data:/home/node/.n8n  # Volume persistant pour stocker les données
+      # - n8n_data:/home/node/.n8n
+      - ./data/n8n:/home/node
+    depends_on:
+      - ollama
     networks:
       - ai_net
-    restart: always  # Assure-toi que N8N redémarre automatiquement si le container s'arrête
+    restart: always
   ollama:
     image: ollama/ollama
     container_name: ollama
@@ -38,11 +39,15 @@ services:
     ports:
       - 59117:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+      - MONGO_INITDB_COLLECTION_NAME=${MONGO_DB_COLLECTION}
+      - MONGO_NON_ROOT_USERNAME=${MONGO_DB_NAME}
+      - MONGO_NON_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
     volumes:
       - mongo_data:/data/db
+      - ./data/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - ai_net
   nextjs:
@@ -55,13 +60,13 @@ services:
     ports:
       - "3000:3000"
     environment: 
-      - MONGODB_URI="mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}"
+      - MONGODB_URI=mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
     depends_on:
       - mongodb
     networks:
       - ai_net
 volumes:
-  n8n_data:  # Déclare un volume pour stocker les données N8N
+  n8n_data:
   ollama_data:
   mongo_data:
   nextjs_data:
