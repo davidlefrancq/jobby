@@ -18,7 +18,9 @@ services:
       - ai_net
     restart: always
   ollama:
-    image: ollama/ollama
+    build:
+      context: ./ollama
+      dockerfile: Dockerfile
     container_name: ollama
     runtime: nvidia
     environment:
@@ -28,7 +30,8 @@ services:
       - 11434:11434
     volumes:
       - ollama_data:/root/.ollama
-      - E:/AI/ollama/models:/models
+      - ollama_models:/models
+      # - E:/AI/ollama/models:/models
     networks:
       - ai_net
     restart: always
@@ -68,6 +71,7 @@ services:
 volumes:
   n8n_data:
   ollama_data:
+  ollama_models:
   mongo_data:
   nextjs_data:
 networks:
