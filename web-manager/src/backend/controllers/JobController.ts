@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import jobService from '@/backend/services/JobService';
 import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
+import { IJobEntity } from '@/types/IJobEntity';
 
 /**
  * Controller for handling HTTP requests related to Jobs.
@@ -24,6 +25,17 @@ export default class JobController {
       const query = req.query || {};
       if (query.limit) jobsRequest.limit = parseInt(query.limit as string, 10);
       if (query.skip) jobsRequest.skip = parseInt(query.skip as string, 10);
+
+      // Extract filter parameters from body
+      const filters = req.body || {};
+      if (filters) {
+        jobsRequest.filter = {};
+        console.log({ filters });
+        if (filters.title) {
+          const titleRegex = new RegExp(`\\b${filters.title}\\b`, 'i');
+          jobsRequest.filter.title = { $regex: titleRegex };
+        }
+      }
       
       // Execute the service method to list jobs
       const jobs = await jobService.listJobs(jobsRequest);
@@ -78,6 +90,8 @@ export default class JobController {
    * Updates an existing job document.
    */
   public static async update(req: NextApiRequest, res: NextApiResponse) {
+    console.log('update');
+
     // Check if the request is a PUT request
     if (req.method !== 'PUT') {
       res.setHeader('Allow', ['PUT']);
@@ -86,9 +100,17 @@ export default class JobController {
 
     try {
       const { id } = req.query;
-      const data = req.body;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updated = await jobService.updateJob(id as string, data as any);
+      if (!id) {
+        return res.status(400).json({ error: 'Job ID is required' });
+      }
+      if (typeof id !== 'string') {
+        return res.status(400).json({ error: 'Job ID must be a string' });
+      }
+
+      console.log('id', id);
+      const data: Partial<IJobEntity> = req.body;
+      console.log('data', data);
+      const updated = await jobService.updateJob(id, data);
       return res.status(200).json(updated);
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });

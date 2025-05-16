@@ -1,22 +1,25 @@
 import { Types } from 'mongoose';
 
+export type JobPreference = 'like' | 'dislike' | null;
+
 export interface IJobEntity {
   _id: Types.ObjectId;
   company: string;
   contract_type?: string | null;
-  date: string;
-  description: string;
+  date: string | null;
+  description: string | null;
   interest_indicator: string;
   level?: string | null;
-  location: string;
-  methodology: string[];
+  location: string | null;
+  methodology: string[] | null;
+  preference: JobPreference;
   salary: {
     currency: string;
     min?: number | null;
     max?: number | null;
   };
   source: string;
-  technologues: null;
+  technologies: string[] | null;
   teleworking: boolean;
   title: string;
 }
