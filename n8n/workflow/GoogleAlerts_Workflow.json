@@ -1,0 +1,859 @@
+{
+  "name": "GoogleAlerts Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2500,
+        620
+      ],
+      "id": "0d924dfd-17c7-4ca9-a748-6f58db8a6902",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "model": "mistral-nemo:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        780,
+        680
+      ],
+      "id": "d3b5e3fb-b628-4bdc-93b5-7cd69d04bbc5",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "hUQ2PIddLcOWeePn",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2220,
+        480
+      ],
+      "id": "da6e9305-830f-4d84-9547-8210b656f072",
+      "name": "Get Labels",
+      "webhookId": "4082dee3-6eee-43fd-bafb-8c0286ca1b67",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Liste des labels qu'on souhaite vérifier\nconst requiredLabels = [\"Emploi\", \"Emploi/LinkedIn\", \"Emploi/Google-Alerte\", \"Emploi/Pole-Emploi\"];\n\n// Liste des labels déjà existants (récupérés de Gmail)\nconst existingLabels = items.map(item => item.json.name);\n\n// Labels manquants à créer\nconst missing = requiredLabels.filter(name => !existingLabels.includes(name));\n\n// On retourne un item par label à créer\nreturn missing.map(name => ({\n  json: {\n    name,\n    labelListVisibility: \"labelShow\",\n    messageListVisibility: \"show\"\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2040,
+        580
+      ],
+      "id": "21f503b2-7e76-41e6-adaa-beb3920bd995",
+      "name": "MissingLabels",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $json.name }}",
+        "options": {
+          "labelListVisibility": "labelShow",
+          "messageListVisibility": "show"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1880,
+        580
+      ],
+      "id": "3639fd83-e5ef-4246-95c0-3048f03b0e41",
+      "name": "Create Labels",
+      "webhookId": "20805d82-3abc-44ed-ab69-29945ec7351b",
+      "executeOnce": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -1700,
+        480
+      ],
+      "id": "51d23dc0-8b2f-489c-9f2d-1f9b68411074",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const labels = items.map(item => item.json.name);\n\nconst required = [\"Emploi\", \"Emploi/LinkedIn\", \"Emploi/Google-Alerte\", \"Emploi/Pole-Emploi\"];\n\nconst allPresent = required.every(r => labels.includes(r));\n\nif (allPresent) {\n  return [{ json: { ready: true } }];\n} else {\n  return [];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        480
+      ],
+      "id": "65352190-5949-44aa-9a99-c6a6014fea9f",
+      "name": "CheckLabels"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b35100d-dcaa-4f0e-81e5-cd7a787ba93d",
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1320,
+        480
+      ],
+      "id": "35ead07d-78f9-4090-90ee-71ca53c22af7",
+      "name": "If Labels Ready",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "simple": false,
+        "filters": {
+          "sender": "googlealerts-noreply@google.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1080,
+        480
+      ],
+      "id": "9073460a-6292-45f7-8657-dfed59ecf51e",
+      "name": "Get David Mails",
+      "webhookId": "a78ec4c4-96ed-4cb4-98d9-278c5a562fd3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_109"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        640
+      ],
+      "id": "61f1b032-1d3b-43f3-81d4-b97f63026b9c",
+      "name": "Set Label to Emploi/Google-Alerte",
+      "webhookId": "e909a7e7-b389-4b89-b763-1df091ca6edf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Labels Check",
+        "height": 400,
+        "width": 1120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2280,
+        380
+      ],
+      "id": "71723075-c696-478b-a4e8-f972746f5a5d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Get Mails",
+        "height": 400,
+        "width": 200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        380
+      ],
+      "id": "e7ea7322-8031-4541-8380-ac674852fc30",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Switch",
+        "height": 580,
+        "width": 520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        300
+      ],
+      "id": "8883fc92-62bb-4d0b-adc3-2958fd8c8206",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.from.value[0].address }}",
+                    "rightValue": "jobalerts-noreply@linkedin.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "08174c47-f7b7-4ee2-acb8-52f2638fe94b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LinkedIn"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e4ffe735-ec03-4878-9038-0afb9ce35603",
+                    "leftValue": "={{ $json.from.value[0].address }}",
+                    "rightValue": "service-candidat@francetravail.fr",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FranceTravail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fc448396-41e7-4cf3-9c0f-74685465e21b",
+                    "leftValue": "={{ $json.from.value[0].address }}",
+                    "rightValue": "googlealerts-noreply@google.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "GoogleAlerts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -600,
+        480
+      ],
+      "id": "bb5dcaf3-ee4f-4cf7-9b30-7299a5bff413",
+      "name": "Switch from Sender"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f54662fc-a378-4b56-9e3c-be341ef17b5a",
+              "leftValue": "={{ $json.subject.toLowerCase() }}",
+              "rightValue": "emploi",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -360,
+        740
+      ],
+      "id": "6b13293e-ac39-4fd3-9a3e-a6d0c52a6f31",
+      "name": "If Goocle Alerts for Job"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc04684b-256c-49da-a5fd-97f4ced2a422",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_107\") }}",
+              "rightValue": "no-reply@twitch.tv",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "676cc4da-d457-4234-8f44-616b52c6a179",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_108\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "580a63d8-a896-480d-8fc0-f59f27ed9e82",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_109\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "91ff16f6-e8e0-415b-9a92-9d04d7c15b01",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_110\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -840,
+        600
+      ],
+      "id": "dfe0eb90-1475-4ba0-b6a2-eb1890df62ec",
+      "name": "if not labeled",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Not Job Labeled",
+        "height": 400,
+        "width": 200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        380
+      ],
+      "id": "7f9b4ce9-abc2-4e46-9dcf-725124f19fcb",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Google Alerts Email Processing",
+        "height": 440,
+        "width": 1640
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        380
+      ],
+      "id": "71cfc732-ea03-482d-b9e1-14ed49d42247",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "function nettoyerTitre(titreBrut) {\n  const match = titreBrut.match(/\\[([^\\]]+)\\]/); // Capture ce qu’il y a entre [ ]\n  if (match) {\n    return match[1].trim(); // Garde seulement ce qu’il y a entre les crochets\n  }\n  return titreBrut.trim(); // Sinon, retourne tel quel\n}\n\nfunction extraireOffres(rawString) {\n  const propre = rawString\n    .replace(/-+\\s*-+/g, '') \n    .replace(/\\n+/g, '\\n')\n    .trim();\n\n  const regexOffre = /(.+?)\\n(.+?)\\n([\\s\\S]*?)<https(.*?)>/g;\n  const offres = [];\n  let match;\n\n  while ((match = regexOffre.exec(propre)) !== null) {\n    let titre = match[1].trim();\n    titre = nettoyerTitre(titre);\n    const site = match[2].trim();\n    const extrait = match[3].trim();\n    const url = 'https' + match[4].trim();\n\n    if (url.includes('google.fr/alerts')) {\n      continue;\n    }\n\n    offres.push({\n      json: { titre, site, extrait, url }\n    });\n  }\n\n  return offres;\n}\n\n// Maintenant on traite tous les inputs\nconst allInputs = $input.all();\nconst allOffres = [];\n\nfor (const inputItem of allInputs) {\n  const texte = inputItem.json.text;\n  const offres = extraireOffres(texte);\n  allOffres.push(...offres); // Ajoute toutes les offres extraites\n}\n\nreturn allOffres;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "id": "51025275-7cc2-4a4d-9468-0aa19828d9ee",
+      "name": "Google Alerts Job Splitter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.  \nTu reçois ci-dessous une description d’offre d’emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente pour une recherche d’emploi. Concentre-toi sur les informations disponibles. Ignore tout commentaire ou explication.\n\nContenu :\n```\n{{ JSON.stringify($json, null, 2) }}\n```\n\nRetour attendu : uniquement un objet JSON strictement conforme à la structure cible ci-dessous. Ne rien ajouter ni modifier.\n```\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.entreprise }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"string\",\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ | 🟡 | ❌\"\n}\n```",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        820,
+        480
+      ],
+      "id": "66d8e534-80f6-4183-bec6-9da53b7f8902",
+      "name": "AI Agent  for Google Alerts"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "title,date,company,location,teleworking,contract_type,salary,technologues,description,methodology,level,source,interest_indicator",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        480
+      ],
+      "id": "6da72f31-7213-4a92-9c86-205c70c81ddd",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "IvgXVbITa4k6FOtz",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        480
+      ],
+      "id": "47a4129f-1ccf-4793-b821-23a32939c1c0",
+      "name": "HTTP Request1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "function getUrl(data) {\n  const regex = /redirectUrl='([^']+)'/g;\n  const match = regex.exec(data)\n  return match && match[1] ? match[1] : null\n}\n\nconst response = []\nfor (const item of $input.all()) {\n  const url = getUrl(item.json.data)\n  if (url) response.push({ json: { url } })\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        480
+      ],
+      "id": "bd99af8c-b26e-4732-88e6-e46371f1999b",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        480
+      ],
+      "id": "2da555d2-918e-46f6-b93b-d161270f46f2",
+      "name": "HTTP Request2",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function dataExtractor(data){\n  let response = null\n  const match = data.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || data.match(/{[\\s\\S]+}/);\n  if (match) {\n    if (match[1]) response = match[1];\n    else if (match[0]) response = match[0];\n  }\n  return response;\n}\n\nlet data = null\n\ntry {\n  const rawOutput = $json.output;\n  const dataExtracted = dataExtractor(rawOutput);\n  data = dataExtracted ? JSON.parse(dataExtracted) : null;\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data ? data : {} };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        480
+      ],
+      "id": "67282760-8b29-41b5-a120-2556dd352734",
+      "name": "GoogleAlert JSON Parser",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = [];\n\nfor (const item of $input.all()) {\n  const elt = item.json;\n  \n  // 1. Cas d’erreur fourni par la source\n  if (!elt.data) {\n    console.log({ json: { error: elt.error || 'donnée \"data\" manquante' } });\n    continue;\n  }\n  \n  // 2. Nettoyer HTML des caractères de contrôle\n  const html = elt.data.replace(/[\\x00-\\x1F\\x7F]/g, '');\n\n  // 2.1 Extractions d’URL dans le <head>\n  const sourceUrl = elt.url || elt.requestUrl || null;\n  const cano = html.match(\n    /<link[^>]*rel=[\"']canonical[\"'][^>]*href=[\"']([^\"']+)[\"']/i\n  );\n  const og   = html.match(\n    /<meta[^>]*property=[\"']og:url[\"'][^>]*content=[\"']([^\"']+)[\"']/i\n  );\n  const pageUrl = sourceUrl\n    || (cano && cano[1])\n    || (og   && og[1])\n    || null;\n  \n  // 3. Extraire JSON-LD\n  const match = html.match(\n    /<script\\s+type=[\"']application\\/ld\\+json[\"'][^>]*>([\\s\\S]*?)<\\/script>/i\n  );\n  if (!match) {\n    console.log({ json: { error: 'JSON-LD introuvable' } });\n    continue;\n  }\n  \n  // 4. Nettoyer et parser le fragment JSON-LD\n  const rawLd = match[1].trim().replace(/[\\x00-\\x1F\\x7F]/g, '');\n  let jsonLd;\n  try {\n    jsonLd = JSON.parse(rawLd);\n  } catch (err) {\n    console.log({ json: { error: 'JSON-LD invalide : ' + err.message } });\n    continue;\n  }\n  \n  // 5. Construire l’objet métier\n  const addr = jsonLd.jobLocation?.address || {};\n  const profileMatch = html.match(\n    /<div\\s+id=[\"']profile_required[\"']>([\\s\\S]*?)<\\/div>/i\n  );\n  const offre = {\n    source       : pageUrl,\n    title        : jsonLd.title              || null,\n    date         : jsonLd.datePosted         || null,\n    contrat      : jsonLd.employmentType     || null,\n    location : [addr.postalCode, addr.addressLocality]\n                     .filter(Boolean).join(' '),\n    entreprise   : jsonLd.hiringOrganization?.name || null,\n    description  : jsonLd.description        || null,\n    missions     : jsonLd.responsibilities    || null,\n    profil       : profileMatch\n                     ? profileMatch[1].replace(/<[^>]+>/g, '').trim()\n                     : null,\n  };\n  \n  if (offre.source && offre.title) result.push(offre)\n}\n\nreturn result.map(entry => ({ json: entry }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        480
+      ],
+      "id": "72149c01-9a1c-44ba-acb5-8b12ba121d9d",
+      "name": "Code2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "path": "0486e783-1460-43ba-b5bb-54f979cb3ca7",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2500,
+        480
+      ],
+      "id": "a5fd541e-ac2e-4a80-80d6-0fce9e1ae0e1",
+      "name": "Webhook",
+      "webhookId": "0486e783-1460-43ba-b5bb-54f979cb3ca7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent  for Google Alerts",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MissingLabels": {
+      "main": [
+        [
+          {
+            "node": "Create Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Labels": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Labels": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MissingLabels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "CheckLabels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CheckLabels": {
+      "main": [
+        [
+          {
+            "node": "If Labels Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Labels Ready": {
+      "main": [
+        [
+          {
+            "node": "Get David Mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get David Mails": {
+      "main": [
+        [
+          {
+            "node": "if not labeled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch from Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch from Sender": {
+      "main": [
+        [],
+        [],
+        [
+          {
+            "node": "If Goocle Alerts for Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Goocle Alerts for Job": {
+      "main": [
+        [
+          {
+            "node": "Google Alerts Job Splitter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Label to Emploi/Google-Alerte",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if not labeled": {
+      "main": [
+        [
+          {
+            "node": "Switch from Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Alerts Job Splitter": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent  for Google Alerts": {
+      "main": [
+        [
+          {
+            "node": "GoogleAlert JSON Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent  for Google Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GoogleAlert JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9b5d45ce-7e78-46e9-9945-989a30e08bbf",
+  "meta": {
+    "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
+  },
+  "id": "jgm7qgZk9LLR1bGq",
+  "tags": []
+}

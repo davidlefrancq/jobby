@@ -1,0 +1,858 @@
+{
+  "name": "LinkedIn Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "mistral-nemo:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        780,
+        680
+      ],
+      "id": "f6afbd39-f511-4c1e-91f0-2c25a0f95a9d",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "hUQ2PIddLcOWeePn",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2220,
+        480
+      ],
+      "id": "c75eb05c-7c8c-446b-9729-f4278655861c",
+      "name": "Get Labels",
+      "webhookId": "4082dee3-6eee-43fd-bafb-8c0286ca1b67",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Liste des labels qu'on souhaite vérifier\nconst requiredLabels = [\"Emploi\", \"Emploi/LinkedIn\", \"Emploi/Google-Alerte\", \"Emploi/Pole-Emploi\"];\n\n// Liste des labels déjà existants (récupérés de Gmail)\nconst existingLabels = items.map(item => item.json.name);\n\n// Labels manquants à créer\nconst missing = requiredLabels.filter(name => !existingLabels.includes(name));\n\n// On retourne un item par label à créer\nreturn missing.map(name => ({\n  json: {\n    name,\n    labelListVisibility: \"labelShow\",\n    messageListVisibility: \"show\"\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2040,
+        580
+      ],
+      "id": "593ee652-c31c-4c3b-a2f2-aa5d8aa20f33",
+      "name": "MissingLabels",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $json.name }}",
+        "options": {
+          "labelListVisibility": "labelShow",
+          "messageListVisibility": "show"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1880,
+        580
+      ],
+      "id": "622b4ce5-8d3e-4e55-96f1-5302ac20e4cf",
+      "name": "Create Labels",
+      "webhookId": "20805d82-3abc-44ed-ab69-29945ec7351b",
+      "executeOnce": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        -1700,
+        480
+      ],
+      "id": "f3757e3d-a430-4f27-b1e1-a4965c9f090f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const labels = items.map(item => item.json.name);\n\nconst required = [\"Emploi\", \"Emploi/LinkedIn\", \"Emploi/Google-Alerte\", \"Emploi/Pole-Emploi\"];\n\nconst allPresent = required.every(r => labels.includes(r));\n\nif (allPresent) {\n  return [{ json: { ready: true } }];\n} else {\n  return [];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1520,
+        480
+      ],
+      "id": "9eda2e9c-abdc-4159-a538-da0216afd4b3",
+      "name": "CheckLabels"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b35100d-dcaa-4f0e-81e5-cd7a787ba93d",
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1320,
+        480
+      ],
+      "id": "dda26d94-02cf-42a3-be0f-16465a4f0b19",
+      "name": "If Labels Ready",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "simple": false,
+        "filters": {
+          "sender": "jobalerts-noreply@linkedin.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -1080,
+        480
+      ],
+      "id": "7210efc7-b08a-447f-9f34-e1bea781cacb",
+      "name": "Get David Mails",
+      "webhookId": "a78ec4c4-96ed-4cb4-98d9-278c5a562fd3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_108"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        640
+      ],
+      "id": "da85ecb6-6452-4701-8231-0f8c58f24af2",
+      "name": "Set Label to Emploi/LinkedIn",
+      "webhookId": "e909a7e7-b389-4b89-b763-1df091ca6edf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "9lTsmisJjlDGMYXq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Labels Check",
+        "height": 400,
+        "width": 1120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2280,
+        380
+      ],
+      "id": "278acc27-a550-49a1-8e74-139fcfa80275",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Get Mails",
+        "height": 400,
+        "width": 200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        380
+      ],
+      "id": "6fecbe99-7444-477b-95b8-3befbd18b340",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst data = []\n\nfor (const item of $input.all()) {\n  const dataFromItem = item.json.textAsHtml.split(/<p>[-–—]{10,}<\\/p>/i);\n  for (const job of dataFromItem) {\n    if (job) data. push({ job })\n  }\n}\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        480
+      ],
+      "id": "6b5067c7-8b7b-4145-8a96-2371bcdd8673",
+      "name": "LinkedIn Job Splitter"
+    },
+    {
+      "parameters": {
+        "content": "## LinkedIn Email Processing",
+        "height": 440,
+        "width": 1660
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        380
+      ],
+      "id": "9b29470f-1b9b-41f8-9b68-6075073b8125",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Switch",
+        "height": 580,
+        "width": 520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        300
+      ],
+      "id": "da1bc25e-1530-4449-ac0e-e3d97cc6cc14",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.from.value[0].address }}",
+                    "rightValue": "jobalerts-noreply@linkedin.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "08174c47-f7b7-4ee2-acb8-52f2638fe94b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "LinkedIn"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e4ffe735-ec03-4878-9038-0afb9ce35603",
+                    "leftValue": "={{ $json.from.value[0].address }}",
+                    "rightValue": "service-candidat@francetravail.fr",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FranceTravail"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fc448396-41e7-4cf3-9c0f-74685465e21b",
+                    "leftValue": "={{ $json.from.value[0].address }}",
+                    "rightValue": "googlealerts-noreply@google.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "GoogleAlerts"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -600,
+        480
+      ],
+      "id": "e058cf5a-3af3-45d0-93f7-f242472d5119",
+      "name": "Switch from Sender"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f54662fc-a378-4b56-9e3c-be341ef17b5a",
+              "leftValue": "={{ $json.subject.toLowerCase() }}",
+              "rightValue": "emploi",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -360,
+        740
+      ],
+      "id": "b4847066-9894-4da3-89c9-221bd249c878",
+      "name": "If Goocle Alerts for Job"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc04684b-256c-49da-a5fd-97f4ced2a422",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_107\") }}",
+              "rightValue": "no-reply@twitch.tv",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "676cc4da-d457-4234-8f44-616b52c6a179",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_108\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "580a63d8-a896-480d-8fc0-f59f27ed9e82",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_109\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "91ff16f6-e8e0-415b-9a92-9d04d7c15b01",
+              "leftValue": "={{ $json.labelIds.includes(\"Label_110\") }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -840,
+        600
+      ],
+      "id": "bef2b662-f5a3-4247-9731-d08a78062c93",
+      "name": "if not labeled",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Not Job Labeled",
+        "height": 400,
+        "width": 200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        380
+      ],
+      "id": "3cfef473-c80c-4935-b87d-54f5950fe58e",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "jsCode": "function getJobIdFromUrl(url) {\n  let jobId = null\n  \n  const regex = /\\/jobs\\/view\\/(\\d+)/;\n  let match = url.match(regex);\n  if (match && match[1]) jobId = match[1]\n\n  if (!jobId) {\n    match = url.match(/[?&]savedSearchId=(\\d+)/);\n    if (match && match[1]) jobId = match[1];\n  }\n\n  if (!jobId) {\n    match = url.match(/[?&]trackingId=([a-zA-Z0-9%-]+)/);\n    if (match && match[1]) jobId = match[1];\n  }\n  \n  return jobId;\n}\n\nreturn $input.all().map(item => {\n  const html = item.json.job;\n\n  // Récupération du lien\n  const lienMatch = html.match(/href=\"([^\"]+)\"/);\n  const lien = lienMatch ? lienMatch[1] : null;\n  let jobId = null\n\n  let source = null\n  if (lien) jobId = getJobIdFromUrl(lien)\n  if (jobId) source = `https://www.linkedin.com/jobs/view/${jobId}`;\n\n  return { json: { source } };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        480
+      ],
+      "id": "35b32c61-b716-44a7-8d51-db68c9f87ddf",
+      "name": "LinkedIn Job Preprocessing"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function getTitle(html) {\n  let title = null\n\n  if (html) {\n    const titleRegex = /<title>(.*?)<\\/title>/i;\n    const h1Regex = /<h1[^>]*>(.*?)<\\/h1>/i;\n\n    let titleMatch = html.match(h1Regex);\n    if (titleMatch && !titleMatch[1]) {\n      title = titleMatch[1].trim();\n    }\n    else if (!title) {\n      titleMatch = html.match(titleRegex);\n      if (titleMatch && titleMatch[1]) {\n        title = titleMatch[1].trim();\n      }\n    }\n  }\n\n  return title;\n}\n\nfunction getDate(html) {\n  let date = null;\n  if (html) {\n    const dateRegex = /<span[^>]*class=\"[^\"]*posted-time-ago__text[^\"]*\"[^>]*>(.*?)<\\/span>/is;\n    const dateMatch = html.match(dateRegex);\n    if (dateMatch && dateMatch[1]) date = dateMatch[1].trim()\n  }\n  return date;\n}\n\nfunction toIsoDate(date) {\n  let publishedAtIso = null;\n  if (date) {\n    const now = new Date();\n    const lower = date.toLowerCase();\n  \n    if (lower.includes('day')) {\n      const days = parseInt(lower);\n      if (!isNaN(days)) {\n        const date = new Date(now);\n        date.setDate(now.getDate() - days);\n        publishedAtIso = date.toISOString();\n      }\n    } else if (lower.includes('hour')) {\n      const hours = parseInt(lower);\n      if (!isNaN(hours)) {\n        const date = new Date(now.getTime() - hours * 3600000);\n        publishedAtIso = date.toISOString();\n      }\n    }\n  }\n  return publishedAtIso;\n}\n\nfunction getCompany(html) {\n  let company = null\n  if (html) {\n    const companyRegex = /<a[^>]*class=\"[^\"]*topcard__org-name-link[^\"]*\"[^>]*>(.*?)<\\/a>/is;\n    const companyMatch = html.match(companyRegex);\n    if (companyMatch && companyMatch[1]) {\n      company = companyMatch[1].trim();\n    }\n  }\n  return company;\n}\n\nfunction getLocation(html) {\n  let location = null;\n  if (html) {\n    const locationRegex = /<span[^>]*class=\"[^\"]*topcard__flavor[^\"]*topcard__flavor--bullet[^\"]*\"[^>]*>([^<]*)<\\/span>/gis;\n    const locationMatch = html.match(locationRegex);\n    if (locationMatch && locationMatch[0]) location = locationMatch[0].replace(/<[^>]*>/g, '').trim();\n    }\n  return location;\n}\n\nfunction getDescription(html) {\n  let description = null;\n  if (html) {\n    const regex = /<div[^>]*class=\"[^\"]*show-more-less-html__markup[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div>/i;\n    const match = html.match(regex);\n    if (match && match[1]) description = match[1].replace(/<[^>]+>/g, '').trim();\n  }\n  return description;\n}\n\nfunction getJobId(html) {\n  let jobId = null;\n  if (html) {\n    const regex = /<link[^>]*rel=\"canonical\"[^>]*href=\"[^\"]*\\/jobs\\/view\\/[^\\/]+-(\\d+)\"[^>]*>/i;\n    const match = html.match(regex);\n    if (match && match[1]) jobId = match[1];\n  }\n  return jobId\n}\n\nconst html = $json.data;\nconst title = getTitle(html)\nconst date = toIsoDate(getDate(html));\nconst company = getCompany(html);\nconst location = getLocation(html);\nconst description = getDescription(html);\nconst jobId = getJobId(html);\nlet source = null\nif (jobId) source = `https://www.linkedin.com/jobs/view/${jobId}`;\nconst data = { json: { title, date, company, location, description, source } };\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        480
+      ],
+      "id": "4e5844a7-4b95-4524-b9aa-17e1151a2470",
+      "name": "LinkedIn Job Data Extractor"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description, mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology, tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level, il faut détecter si c'est un profil sénior, confirmé ou junior\n- pour source, c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator, tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title, si {{ $json.title }} est null, essaie de trouver un titre adéquat.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"string\",\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        800,
+        480
+      ],
+      "id": "139ba908-3875-4b24-ac29-087c6df5f93b",
+      "name": "AI Agent for LinkedIn"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "title,date,company,location,teleworking,contract_type,salary,technologues,description,methodology,level,source,interest_indicator",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1300,
+        480
+      ],
+      "id": "edac099b-72ca-407c-92cc-fd2aabc26531",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "IvgXVbITa4k6FOtz",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.source ? $json.source : \"\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        480
+      ],
+      "id": "fe456002-45b9-4f6d-86f9-c659513423f4",
+      "name": "LinkedIn HTTP Request",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let data = null\n\nconst rawOutput = $json.output;\n\n// Étape 1 : Extraire le bloc JSON (entre ```json ... ``` ou juste {...})\nconst match = rawOutput.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || rawOutput.match(/{[\\s\\S]+}/);\nif (!match) {\n  console.log(Error(\"Aucun JSON détecté dans le champ 'output'\"));\n}\n\nlet jsonString = match ? match[1] || match[0] : \"\";\n\n// Étape 2 : Nettoyer les caractères échappés\n// Important : JSON.parse nécessite des doubles quotes correctes\ntry {\n  const clean = jsonString.replace(/\\\\\"/g, '\"'); // déséchapper les guillemets\n  data = JSON.parse(clean);\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        480
+      ],
+      "id": "15fc4f53-c9f7-4597-868a-4b8e5d187ad9",
+      "name": "LinkedIn JSON Parser",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = []\n\nfor (const item of $input.all()) {\n  if (item.json.source) response.push(item)\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        480
+      ],
+      "id": "751b59b6-76fc-4023-8e48-43a34aa477d5",
+      "name": "LinkedIn Job Checking"
+    },
+    {
+      "parameters": {
+        "path": "1a900821-b2b8-41d5-80c3-0e41752178e9",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2500,
+        480
+      ],
+      "id": "e52777e2-6d43-440f-88ae-39483cd16af7",
+      "name": "Webhook",
+      "webhookId": "1a900821-b2b8-41d5-80c3-0e41752178e9"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2500,
+        640
+      ],
+      "id": "30726364-aaff-4305-b412-72a77393fc3c",
+      "name": "When clicking ‘Test workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent for LinkedIn",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MissingLabels": {
+      "main": [
+        [
+          {
+            "node": "Create Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Labels": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get Labels": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MissingLabels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "CheckLabels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CheckLabels": {
+      "main": [
+        [
+          {
+            "node": "If Labels Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Labels Ready": {
+      "main": [
+        [
+          {
+            "node": "Get David Mails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get David Mails": {
+      "main": [
+        [
+          {
+            "node": "if not labeled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch from Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Job Splitter": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Job Preprocessing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch from Sender": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Job Splitter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set Label to Emploi/LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "If Goocle Alerts for Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Goocle Alerts for Job": {
+      "main": [
+        []
+      ]
+    },
+    "if not labeled": {
+      "main": [
+        [
+          {
+            "node": "Switch from Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Job Preprocessing": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Job Data Extractor": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Job Checking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent for LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn JSON Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Job Data Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Job Checking": {
+      "main": [
+        [
+          {
+            "node": "AI Agent for LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "386d53a1-cf1d-4e5e-851d-0a56f2562ddf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
+  },
+  "id": "7IfC8Gv4RexRTqt3",
+  "tags": []
+}
