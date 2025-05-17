@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { RefreshCcw } from 'lucide-react';
 import JobCard from '@/app/components/JobCard';
 import { useAppDispatch, useAppSelector } from '@/app/store';
 import { setJobs, setSkip } from '@/app/store/jobsReducer'
@@ -9,6 +10,8 @@ import { N8NWorkflow } from '../lib/N8NWorkflow';
 import BtnLoading from './BtnLoading';
 import { N8N_WORKFLOW_NAMES } from '@/constants/n8n-webhooks';
 import ProgressBar from './ProgressBar';
+import NotificationsPanel from './NotificationsPanel';
+import { addNotification, removeNotification } from '../store/notificationsReducer';
 
 interface JobBoardProps {
   onView: (job: IJobEntity) => void;
@@ -22,6 +25,7 @@ const n8nWorkflow = new N8NWorkflow();
 export default function JobBoard({}: JobBoardProps) {
   const dispatch = useAppDispatch()
   const { jobs, limit, skip } = useAppSelector(state => state.jobsReducer)
+  const { notifications } = useAppSelector(state => state.notificationsReducer)
 
   const [jobsUnpreferenced, setJobsUnpreferenced] = useState<IJobEntity[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -106,6 +110,18 @@ export default function JobBoard({}: JobBoardProps) {
       dispatch(setJobs(newJobs));
   };
 
+  const handleAddNotification = (message: string) => {
+    const notification = {
+      id: Date.now(),
+      message,
+    };
+    dispatch(addNotification(notification));
+  }
+
+  const handleRemoveNotification = (id: number) => {
+    dispatch(removeNotification(id));
+  }
+
   // Initial load
   useEffect(() => {
     console.log('Initial load');
@@ -132,6 +148,7 @@ export default function JobBoard({}: JobBoardProps) {
           setStartedFtWorkflow(true);
           await n8nWorkflow.startWorkflow({ workflow: N8N_WORKFLOW_NAMES.FranceTravail, setError });
           setStartedFtWorkflow(false);
+          handleAddNotification('Workflow FranceTravail finished');
         }
         break;
       case N8N_WORKFLOW_NAMES.GoogleAlerts:
@@ -139,6 +156,7 @@ export default function JobBoard({}: JobBoardProps) {
           setStartedGoogleAlertsWorkflow(true);
           await n8nWorkflow.startWorkflow({ workflow: N8N_WORKFLOW_NAMES.GoogleAlerts, setError });
           setStartedGoogleAlertsWorkflow(false);
+          handleAddNotification('Workflow GoogleAlerts finished');
         }
         break;
       case N8N_WORKFLOW_NAMES.LinkedIn:
@@ -146,6 +164,7 @@ export default function JobBoard({}: JobBoardProps) {
           setStartedLinkedInWorkflow(true);
           await n8nWorkflow.startWorkflow({ workflow: N8N_WORKFLOW_NAMES.LinkedIn, setError });
           setStartedLinkedInWorkflow(false);
+          handleAddNotification('Workflow LinkedIn finished');
         }
         break;
       default:
@@ -172,16 +191,18 @@ export default function JobBoard({}: JobBoardProps) {
   return (
     <div className="relative min-h-screen pb-12">
       <div className="container mx-auto p-6">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6">Job Board</h1>
-
-        {error && <div className="text-red-600 mb-4">Erreur : {error}</div>}
-
-        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-6 gap-6">
-          {/* All Workflows Button */}
-          <div className="flex justify-center">
-            <BtnLoading title={'Workflow'} loading={startedFtWorkflow || startedGoogleAlertsWorkflow || startedLinkedInWorkflow} onClick={() => workflowsBtnHandler()} />
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-800">Job Board</h1>
+          
+          <div className="flex items-center gap-2">
+            {/* Ajoute ici tous les boutons à regrouper */}
+            <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflow || startedGoogleAlertsWorkflow || startedLinkedInWorkflow} onClick={() => workflowsBtnHandler()} />
+            <NotificationsPanel notifications={notifications} removeNotification={(id: number) => handleRemoveNotification(id)} />
+            {/* <AutreBouton /> */}
           </div>
         </div>
+
+        {error && <div className="text-red-600 mb-4">Erreur : {error}</div>}
 
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
           { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null }
