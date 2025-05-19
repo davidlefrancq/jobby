@@ -177,7 +177,7 @@ export default function JobBoard({}: JobBoardProps) {
       setTimeout(() => {
         setWorkflowProgressPercent(100);
         reload();
-      }, 100);
+      }, 500);
     }
   }
 
@@ -207,12 +207,10 @@ export default function JobBoard({}: JobBoardProps) {
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold text-gray-800">Job Board</h1>
-          
+          {/* Actions bar */}
           <div className="flex items-center gap-2">
-            {/* Ajoute ici tous les boutons à regrouper */}
             <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflow || startedGoogleAlertsWorkflow || startedLinkedInWorkflow} onClick={() => workflowsBtnHandler()} />
             <NotificationsPanel notifications={notifications} removeNotification={(id: number) => handleRemoveNotification(id)} />
-            {/* <AutreBouton /> */}
           </div>
         </div>
 

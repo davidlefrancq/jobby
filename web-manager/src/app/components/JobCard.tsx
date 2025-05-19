@@ -1,7 +1,8 @@
 'use client';
 
-import { IJobEntity } from '@/types/IJobEntity';
 import Link from 'next/link';
+import { IJobEntity } from '@/types/IJobEntity';
+import AlertMessage from './AlertMessage';
 
 interface JobCardProps {
   job: IJobEntity;
@@ -29,6 +30,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       <button
         onClick={() => onDislike(job)}
         className="absolute left-0 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-red-600 transition group"
+        style={{ cursor: 'pointer' }}
       >
         <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-red-400">
           <span className="text-2xl">✕</span>
@@ -37,7 +39,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       </button>
 
       {/* Carte principale */}
-      <div className="bg-white rounded-xl p-8 shadow-sm w-full max-w-xl text-center">
+      <div className="bg-white rounded-xl p-8 shadow-lg w-full max-w-xl text-center">
         <div className="text-left">
           <h2 className="text-xl font-bold">{job.title}</h2>
           <p className="text-gray-700 font-medium">{job.company}</p>
@@ -50,10 +52,21 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             {job.salary && (job.salary.min || job.salary.max) ? ' · ' : null}
             {job.salary ? <Salary job={job} /> : null}
           </p>
-          <p className="mt-4 text-gray-700">{job.description}</p>
-          <Link href={job.source} target="_blank" className="mt-4 inline-block text-blue-500 hover:underline">
+          <p className="mt-4 text-gray-700">
+            {job.description}
+          </p>
+          {job.source ? <Link href={job.source} target="_blank" className="mt-4 inline-block text-blue-500 hover:underline">
             Source
-          </Link>
+          </Link> : <AlertMessage type='warning' message='Unknown source link.' /> }
+          {job.technologies && job.technologies.length > 0 ? (
+             <div className="px-6 pt-4 pb-2">
+              {job.technologies.map((tech, index) => (
+                <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  #{tech}
+                </span>
+              ))}
+              </div>
+          ) : null}
         </div>
       </div>
 
@@ -61,6 +74,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       <button
         onClick={() => onLike(job)}
         className="absolute right-0 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-green-600 transition group"
+        style={{ cursor: 'pointer' }}
       >
         <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-green-400">
           <span className="text-2xl">♥</span>
