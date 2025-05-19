@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import JobCard from '@/app/components/JobCard';
 import { useAppDispatch, useAppSelector } from '@/app/store';
-import { setJobs, setSkip } from '@/app/store/jobsReducer'
+import { setJobs, setLimit, setSkip } from '@/app/store/jobsReducer'
 import { IJobEntity } from '@/types/IJobEntity';
 import { N8NWorkflow } from '../lib/N8NWorkflow';
 import BtnLoading from './BtnLoading';
@@ -17,10 +17,9 @@ interface JobBoardProps {
   onView: (job: IJobEntity) => void;
 }
 
+const n8nWorkflow = new N8NWorkflow(); // N8N Workflow manager
 let loading = false;
 let updating = false;
-
-const n8nWorkflow = new N8NWorkflow();
 
 export default function JobBoard({}: JobBoardProps) {
   const dispatch = useAppDispatch()
@@ -39,19 +38,22 @@ export default function JobBoard({}: JobBoardProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Fetch 9 jobs per page
-  const fetchJobs = async () => {
+  const loadJobs = async () => {
     if (!hasMore) return;
     if (loading) return;
-    console.log('Fetching jobs...');
     loading = true;
     try {
+      // Fetch jobs from the API
       const res = await fetch(`/api/jobs?limit=${limit}&skip=${skip}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: IJobEntity[] = await res.json();
-      console.log({ data });
+
+      // Persist the jobs in the Redux store
       const newJobs = data.filter(job => !jobs.some(j => j._id === job._id && (j.preference === null || j.preference === undefined)));
       dispatch(setJobs([...jobs, ...newJobs]));
       dispatch(setSkip(skip + data.length));
+      
+      // Check if there are more jobs to load
       if (data.length < limit) {
         setHasMore(false);
       }
@@ -63,7 +65,7 @@ export default function JobBoard({}: JobBoardProps) {
     }
   };
 
-  const fetchUpdatedJobs = async ({ job }: { job: IJobEntity }) => {
+  const sendUpdatedJobs = async ({ job }: { job: IJobEntity }) => {
     let response: IJobEntity | null = null
     if (!updating) {
       updating = true;
@@ -92,7 +94,7 @@ export default function JobBoard({}: JobBoardProps) {
     try {
       // Handle like action (e.g., update job status, send to server, etc.)
       const updatedJob: IJobEntity = { ...job, preference: 'like' };
-      await fetchUpdatedJobs({ job: updatedJob });
+      await sendUpdatedJobs({ job: updatedJob });
       const newJobs = jobs.filter(j => j._id !== job._id);
       dispatch(setJobs(newJobs));
     } catch (error) {
@@ -105,7 +107,7 @@ export default function JobBoard({}: JobBoardProps) {
     // Handle dislike action (e.g., update job status, send to server, etc.)
     const updatedJob: IJobEntity = { ...job, preference: 'dislike' };
     console.log('Disliked job:', updatedJob);
-      await fetchUpdatedJobs({ job: updatedJob });
+      await sendUpdatedJobs({ job: updatedJob });
       const newJobs = jobs.filter(j => j._id !== job._id);
       dispatch(setJobs(newJobs));
   };
@@ -122,24 +124,14 @@ export default function JobBoard({}: JobBoardProps) {
     dispatch(removeNotification(id));
   }
 
-  // Initial load
-  useEffect(() => {
-    console.log('Initial load');
-    fetchJobs();
-  }, []);
-
-  useEffect(() => {
-    setJobsUnpreferenced(jobs.filter(job => job.preference === null || job.preference === undefined));
-  }, [jobs]);
-
-  useEffect(() => {
-    setJobTargeted(jobsUnpreferenced[0] || null);
-    if (jobsUnpreferenced.length <= 1) {
-      console.log({ jobsUnpreferenced });
-      console.log('Getting more jobs...');
-      fetchJobs();
-    }
-  }, [jobsUnpreferenced]);
+  const reload = () => {
+    loading = false;
+    dispatch(setLimit(9));
+    dispatch(setSkip(0));
+    setHasMore(true);
+    dispatch(setJobs([]));
+    setJobsUnpreferenced([]);
+  }
 
   const workflowHandler = async (workflow: N8N_WORKFLOW_NAMES) => {
     switch (workflow) {
@@ -184,9 +176,31 @@ export default function JobBoard({}: JobBoardProps) {
       setWorkflowProgressPercent(99.99);
       setTimeout(() => {
         setWorkflowProgressPercent(100);
-      }, 1000);
+        reload();
+      }, 100);
     }
   }
+
+  // Initial loading
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  // Jobs filtering
+  useEffect(() => {
+    setJobsUnpreferenced(jobs.filter(job => job.preference === null || job.preference === undefined));
+  }, [jobs]);
+
+  // Jobs unpreferenced actions
+  useEffect(() => {
+    // Focus on the first job in the list
+    setJobTargeted(jobsUnpreferenced[0] || null);
+    
+    // Load more jobs when on the last job in list "jobs"
+    if (jobsUnpreferenced.length <= 1) {
+      loadJobs();
+    }
+  }, [jobsUnpreferenced]);
 
   return (
     <div className="relative min-h-screen pb-12">
