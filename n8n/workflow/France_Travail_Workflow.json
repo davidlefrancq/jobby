@@ -156,6 +156,7 @@
     {
       "parameters": {
         "operation": "getAll",
+        "limit": 15,
         "simple": false,
         "filters": {
           "sender": "service-candidat@francetravail.fr"
@@ -421,7 +422,7 @@
       "parameters": {
         "content": "## Pole Emploi Email Processing",
         "height": 460,
-        "width": 1420
+        "width": 1560
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -442,7 +443,7 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        920,
+        1120,
         480
       ],
       "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
@@ -456,49 +457,8 @@
     },
     {
       "parameters": {
-        "jsCode": "function getTitle(html) {\n  const m = html.match(/<span\\s+itemprop=\"title\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDate(html) {\n  const m = html.match(\n    /(?:Actualisé|Publié) le\\s+(\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+\\d{4})/i\n  );\n  return m && m[1] ? m[1] : null;\n}\n\nfunction toIsoDate(frDate) {\n  if (!frDate) return null;\n  // ex. \"07 mai 2025\"\n  const parts = frDate.split(' ');\n  const j = parts[0].padStart(2,'0');\n  const moisMap = {\n    janvier: '01', février: '02', mars: '03', avril: '04',\n    mai: '05', juin: '06', juillet: '07', août: '08',\n    septembre: '09', octobre: '10', novembre: '11', décembre: '12'\n  };\n  const m = moisMap[parts[1].toLowerCase()];\n  const a = parts[2];\n  return m ? `${a}-${m}-${j}` : null;\n}\n\nfunction getCompany(html) {\n  // 1) Schéma Organization\n  let m = html.match(\n    /<span\\s+itemtype=\"http:\\/\\/schema\\.org\\/Organization\"[\\s\\S]*?<span[^>]*itemprop=\"name\"[^>]*content=\"([^\"]+)\"/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  // 2) Section Employeur\n  m = html.match(\n    /<h2 class=\"t5 subtitle\">\\s*Employeur\\s*<\\/h2>[\\s\\S]*?<h3 class=\"t4 title\">\\s*([^<]+)\\s*<\\/h3>/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  return null;\n}\n\nfunction getLocation(html) {\n  const m = html.match(/<span\\s+class=\"location\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDescription(html) {\n  const m = html.match(\n    /<div\\s+itemprop=\"description\"[^>]*>([\\s\\S]*?)<\\/div>/\n  );\n  return m\n    ? m[1].replace(/<[^>]+>/g, '').trim()\n    : null;\n}\n\nfunction getJobId(html) {\n  const m = html.match(/Offre n°\\s*<span[^>]*>(\\d+)<\\/span>/);\n  return m ? m[1] : null;\n}\n\nconst response = []\nfor (const item of $input.all()) {\n  if (item.json.data) {\n    const html = item.json.data;\n    const title = getTitle(html)\n    const date = toIsoDate(getDate(html));\n    const company = getCompany(html);\n    const location = getLocation(html);\n    const description = getDescription(html);\n    const jobId = getJobId(html);\n    const source = jobId ? `https://candidat.francetravail.fr/offres/recherche/detail/${jobId}` : null;\n    response.push({ json: { title, date, company, location, description, source } });\n  }\n}\n\nreturn response;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        100,
-        480
-      ],
-      "id": "b653cd0c-2cec-4007-94fe-efa98331bbf3",
-      "name": "FranceTravail Job Data Extractor"
-    },
-    {
-      "parameters": {
-        "jsCode": "const response = []\n\nfor (const item of $input.all()) {\n  if (item.json.source) response.push(item)\n}\n\nreturn response;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        260,
-        480
-      ],
-      "id": "8d9cf289-3947-48e2-bbe6-73053a346077",
-      "name": "FranceTravail Job Checking"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "let data = null\n\nconst rawOutput = $json.output;\n\n// Étape 1 : Extraire le bloc JSON (entre ```json ... ``` ou juste {...})\nconst match = rawOutput.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || rawOutput.match(/{[\\s\\S]+}/);\nif (!match) {\n  console.log(Error(\"Aucun JSON détecté dans le champ 'output'\"));\n}\n\nlet jsonString = match ? match[1] || match[0] : \"\";\n\n// Étape 2 : Nettoyer les caractères échappés\n// Important : JSON.parse nécessite des doubles quotes correctes\ntry {\n  const clean = jsonString.replace(/\\\\\"/g, '\"'); // déséchapper les guillemets\n  data = JSON.parse(clean);\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data };"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        740,
-        480
-      ],
-      "id": "2d7e531a-258c-4560-a2d3-e491d4a858ed",
-      "name": "FranceTravail JSON Parser",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description, mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology, tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level, il faut détecter si c'est un profil sénior, confirmé ou junior\n- pour source, c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator, tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title, si {{ $json.title }} est null, essaie de trouver un titre adéquat.\n- pour language, tu dois identifier la langue utiliser dans la description de l'annonce et l'inscrire de manière concise dans \"language\"\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"language\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"string\",\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking: c'est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description: mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology: tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level: il faut détecter si c'est un profil \"sénior\" ou \"confirmé\" ou \"junior\" ou null si pas d'information.\n- pour source: c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator: tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title: si {{ $json.title }} est null, essaie de trouver un titre adéquat.\n- pour language: tu dois identifier la langue utiliser dans la description de l'annonce et l'inscrire de manière concise dans \"language\"\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"language\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"junior\" | \"confirmé | \"sénior\" | null,\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -509,35 +469,6 @@
       ],
       "id": "e3854a63-e5a8-429c-afe7-4a55614332df",
       "name": "AI Agent  for Pole Emploi"
-    },
-    {
-      "parameters": {
-        "url": "={{ $json.link }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        -60,
-        480
-      ],
-      "id": "c6a8e096-6bd6-4bad-8d4d-5973329affec",
-      "name": "FranceTravail HTTP Request",
-      "alwaysOutputData": true,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "jsCode": "const outputs = []; // Array to store parsed job offers\nlet finished = false; // Flag to stop parsing once general info is reached\n\nfor (const item of $input.all()) {\n  if (finished) break;\n\n  const htmlContent = item.json.textAsHtml || '';\n\n  // Split HTML content into blocks using sequences of '-' or '_'\n  // The <p> tags are optional\n  const offerBlocks = htmlContent\n    .split(/(?:<p>)?[-_]{3,}(?:<\\/p>)/gi)\n    .map(block => block.trim())\n    .filter(block => block.length > 0);\n\n  for (const block of offerBlocks) {\n    if (finished) break;\n\n    console.log({ block })\n\n    // Count the number of <p> tags in the block\n    const pCount = (block.match(/<p>/gi) || []).length;\n\n    // Process only blocks containing at least 3 <p> paragraphs\n    if (pCount > 2) {\n      let title = null;\n      let entreprise = null;\n      let departement = null;\n      let city = null;\n      let contract = null;\n      let fulltime = null;\n      let description = [];\n      let ref = null\n      let link = null\n\n      // Get ref from block\n      const refMatch = block.match(/num(?:é|e|&eacute;)ro\\s*(\\d+)/i);\n      if (refMatch) {\n        ref = refMatch[1];\n      }\n\n      if (ref) link = `https://candidat.francetravail.fr/offres/recherche/detail/${ref}`\n\n      // Extract each <p> content one by one\n      const regex = /<p>(.*?)<\\/p>/gi;\n      let match;\n      let i = 0;\n      while ((match = regex.exec(block)) !== null) {\n        if (finished) break;\n\n        const content = match[1].trim();\n\n        if (i === 0) {\n          // First paragraph → title\n          title = content;\n        } else if (i === 1) {\n          // Second paragraph → entreprise - departement - city\n          const parts = content.split('-');\n          if (parts.length >= 3) {\n            entreprise = parts[0].trim();\n            departement = parts[1].trim();\n            city = parts[2].trim();\n          } else {\n            entreprise = content;\n          }\n        } else if (i === 2) {\n          // Third paragraph → contract - fulltime\n          const parts = content.split('-');\n          if (parts.length >= 2) {\n            contract = parts[0].trim();\n            fulltime = parts[1].trim();\n          } else {\n            contract = content;\n          }\n        } else {\n          // From the fourth paragraph onwards → description\n          if (content.includes(\"rendez-vous sur le site\")) {\n            finished = true;\n          }\n          if (!finished) {\n            description.push(content);\n          }\n        }\n\n        i++;\n      }\n\n      // Save the parsed offer\n      outputs.push({\n        title,\n        entreprise,\n        departement,\n        city,\n        contract,\n        fulltime,\n        ref,\n        link,\n        description: description.join(' '), // Concatenate all description parts\n      });\n    }\n  }\n}\n\nreturn outputs;\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -220,
-        480
-      ],
-      "id": "9b369882-4e47-4130-ac7a-2473c4dcc26f",
-      "name": "FranceTravail Job Splitter"
     },
     {
       "parameters": {
@@ -555,6 +486,110 @@
       "id": "fee557c1-ec65-4fb6-9bd9-30ab22b033a1",
       "name": "Webhook",
       "webhookId": "9da789a5-4890-461c-b6a1-19286c0b2102"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a93d0718-5d47-479a-a300-5889d1896359",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        480
+      ],
+      "id": "d18f0e8e-cc57-4695-a4a9-591bdacc0eef",
+      "name": "If source not empty"
+    },
+    {
+      "parameters": {
+        "jsCode": "const outputs = [];\n\nfor (const item of $input.all()) {\n  const html = item.json.html || '';\n  const links = [...html.matchAll(/https:\\/\\/candidat\\.francetravail\\.fr\\/offres\\/recherche\\/detail\\/([\\w\\d]+)\\?[^\"]*/g)];\n\n  for (const match of links) {\n    const ref = match[1];\n    if (ref) outputs.push({\n      link: `https://candidat.francetravail.fr/offres/recherche/detail/${ref}`\n    })\n  }\n}\n\nreturn outputs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        480
+      ],
+      "id": "9b369882-4e47-4130-ac7a-2473c4dcc26f",
+      "name": "FT Job Splitter"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -60,
+        480
+      ],
+      "id": "c6a8e096-6bd6-4bad-8d4d-5973329affec",
+      "name": "Job Page Request",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "function getTitle(html) {\n  const m = html.match(/<span\\s+itemprop=\"title\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDate(html) {\n  const m = html.match(\n    /(?:Actualisé|Publié) le\\s+(\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+\\d{4})/i\n  );\n  return m && m[1] ? m[1] : null;\n}\n\nfunction toIsoDate(frDate) {\n  if (!frDate) return null;\n  // ex. \"07 mai 2025\"\n  const parts = frDate.split(' ');\n  const j = parts[0].padStart(2,'0');\n  const moisMap = {\n    janvier: '01', février: '02', mars: '03', avril: '04',\n    mai: '05', juin: '06', juillet: '07', août: '08',\n    septembre: '09', octobre: '10', novembre: '11', décembre: '12'\n  };\n  const m = moisMap[parts[1].toLowerCase()];\n  const a = parts[2];\n  return m ? `${a}-${m}-${j}` : null;\n}\n\nfunction getCompany(html) {\n  // 1) Schéma Organization\n  let m = html.match(\n    /<span\\s+itemtype=\"http:\\/\\/schema\\.org\\/Organization\"[\\s\\S]*?<span[^>]*itemprop=\"name\"[^>]*content=\"([^\"]+)\"/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  // 2) Section Employeur\n  m = html.match(\n    /<h2 class=\"t5 subtitle\">\\s*Employeur\\s*<\\/h2>[\\s\\S]*?<h3 class=\"t4 title\">\\s*([^<]+)\\s*<\\/h3>/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  return null;\n}\n\nfunction getLocation(html) {\n  const m = html.match(/<span\\s+class=\"location\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDescription(html) {\n  const m = html.match(\n    /<div\\s+itemprop=\"description\"[^>]*>([\\s\\S]*?)<\\/div>/\n  );\n  return m\n    ? m[1].replace(/<[^>]+>/g, '').trim()\n    : null;\n}\n\nfunction getJobId(html) {\n  const m = html.match(/Offre n°\\s*<span[^>]*>(\\d+)<\\/span>/);\n  return m ? m[1] : null;\n}\n\nconst response = []\nfor (const item of $input.all()) {\n  if (item.json.data) {\n    const html = item.json.data;\n    const title = getTitle(html)\n    const date = toIsoDate(getDate(html));\n    const company = getCompany(html);\n    const location = getLocation(html);\n    const description = getDescription(html);\n    const jobId = getJobId(html);\n    const source = jobId ? `https://candidat.francetravail.fr/offres/recherche/detail/${jobId}` : null;\n    response.push({ json: { title, date, company, location, description, source } });\n  }\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        480
+      ],
+      "id": "b653cd0c-2cec-4007-94fe-efa98331bbf3",
+      "name": "Job Data Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = []\n\nfor (const item of $input.all()) {\n  if (item.json.source) response.push(item)\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        480
+      ],
+      "id": "8d9cf289-3947-48e2-bbe6-73053a346077",
+      "name": "Job Checking"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let data = null\n\nconst rawOutput = $json.output;\n\n// Étape 1 : Extraire le bloc JSON (entre ```json ... ``` ou juste {...})\nconst match = rawOutput.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || rawOutput.match(/{[\\s\\S]+}/);\nif (!match) {\n  console.log(Error(\"Aucun JSON détecté dans le champ 'output'\"));\n}\n\nlet jsonString = match ? match[1] || match[0] : \"\";\n\n// Étape 2 : Nettoyer les caractères échappés\n// Important : JSON.parse nécessite des doubles quotes correctes\ntry {\n  const clean = jsonString.replace(/\\\\\"/g, '\"'); // déséchapper les guillemets\n  data = JSON.parse(clean);\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        480
+      ],
+      "id": "2d7e531a-258c-4560-a2d3-e491d4a858ed",
+      "name": "JSON Parser",
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -656,7 +691,7 @@
       "main": [
         [
           {
-            "node": "if not labeled",
+            "node": "Switch from Sender",
             "type": "main",
             "index": 0
           }
@@ -668,7 +703,7 @@
         [],
         [
           {
-            "node": "FranceTravail Job Splitter",
+            "node": "FT Job Splitter",
             "type": "main",
             "index": 0
           },
@@ -692,66 +727,11 @@
         ]
       ]
     },
-    "FranceTravail Job Data Extractor": {
-      "main": [
-        [
-          {
-            "node": "FranceTravail Job Checking",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FranceTravail Job Checking": {
-      "main": [
-        [
-          {
-            "node": "AI Agent  for Pole Emploi",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "AI Agent  for Pole Emploi": {
       "main": [
         [
           {
-            "node": "FranceTravail JSON Parser",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FranceTravail JSON Parser": {
-      "main": [
-        [
-          {
-            "node": "MongoDB",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FranceTravail HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "FranceTravail Job Data Extractor",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FranceTravail Job Splitter": {
-      "main": [
-        [
-          {
-            "node": "FranceTravail HTTP Request",
+            "node": "JSON Parser",
             "type": "main",
             "index": 0
           }
@@ -768,6 +748,72 @@
           }
         ]
       ]
+    },
+    "If source not empty": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FT Job Splitter": {
+      "main": [
+        [
+          {
+            "node": "Job Page Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Page Request": {
+      "main": [
+        [
+          {
+            "node": "Job Data Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Data Extractor": {
+      "main": [
+        [
+          {
+            "node": "Job Checking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Checking": {
+      "main": [
+        [
+          {
+            "node": "AI Agent  for Pole Emploi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "If source not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -779,7 +825,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "672a3602-5171-4849-ba49-7f48b577f740",
+  "versionId": "22e68a93-d08f-47bb-a4b5-9cc64d63814d",
   "meta": {
     "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
   },

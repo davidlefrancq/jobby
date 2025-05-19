@@ -454,7 +454,7 @@
       "parameters": {
         "content": "## Google Alerts Email Processing",
         "height": 460,
-        "width": 1640
+        "width": 1800
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -464,19 +464,6 @@
       ],
       "id": "71cfc732-ea03-482d-b9e1-14ed49d42247",
       "name": "Sticky Note7"
-    },
-    {
-      "parameters": {
-        "jsCode": "function nettoyerTitre(titreBrut) {\n  const match = titreBrut.match(/\\[([^\\]]+)\\]/); // Capture ce qu’il y a entre [ ]\n  if (match) {\n    return match[1].trim(); // Garde seulement ce qu’il y a entre les crochets\n  }\n  return titreBrut.trim(); // Sinon, retourne tel quel\n}\n\nfunction extraireOffres(rawString) {\n  const propre = rawString\n    .replace(/-+\\s*-+/g, '') \n    .replace(/\\n+/g, '\\n')\n    .trim();\n\n  const regexOffre = /(.+?)\\n(.+?)\\n([\\s\\S]*?)<https(.*?)>/g;\n  const offres = [];\n  let match;\n\n  while ((match = regexOffre.exec(propre)) !== null) {\n    let titre = match[1].trim();\n    titre = nettoyerTitre(titre);\n    const site = match[2].trim();\n    const extrait = match[3].trim();\n    const url = 'https' + match[4].trim();\n\n    if (url.includes('google.fr/alerts')) {\n      continue;\n    }\n\n    offres.push({\n      json: { titre, site, extrait, url }\n    });\n  }\n\n  return offres;\n}\n\n// Maintenant on traite tous les inputs\nconst allInputs = $input.all();\nconst allOffres = [];\n\nfor (const inputItem of allInputs) {\n  const texte = inputItem.json.text;\n  const offres = extraireOffres(texte);\n  allOffres.push(...offres); // Ajoute toutes les offres extraites\n}\n\nreturn allOffres;\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -60,
-        480
-      ],
-      "id": "51025275-7cc2-4a4d-9468-0aa19828d9ee",
-      "name": "Google Alerts Job Splitter"
     },
     {
       "parameters": {
@@ -503,7 +490,7 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1260,
+        1460,
         480
       ],
       "id": "6da72f31-7213-4a92-9c86-205c70c81ddd",
@@ -514,53 +501,6 @@
           "name": "MongoDB account"
         }
       }
-    },
-    {
-      "parameters": {
-        "url": "={{ $json.url }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        100,
-        480
-      ],
-      "id": "47a4129f-1ccf-4793-b821-23a32939c1c0",
-      "name": "HTTP Request1",
-      "alwaysOutputData": true,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "url": "={{ $json.url }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        420,
-        480
-      ],
-      "id": "2da555d2-918e-46f6-b93b-d161270f46f2",
-      "name": "HTTP Request2",
-      "alwaysOutputData": true,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "function dataExtractor(data){\n  let response = null\n  const match = data.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || data.match(/{[\\s\\S]+}/);\n  if (match) {\n    if (match[1]) response = match[1];\n    else if (match[0]) response = match[0];\n  }\n  return response;\n}\n\nlet data = null\n\ntry {\n  const rawOutput = $json.output;\n  const dataExtracted = dataExtractor(rawOutput);\n  data = dataExtracted ? JSON.parse(dataExtracted) : null;\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data ? data : {} };"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1080,
-        480
-      ],
-      "id": "67282760-8b29-41b5-a120-2556dd352734",
-      "name": "GoogleAlert JSON Parser",
-      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -592,6 +532,100 @@
     },
     {
       "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        480
+      ],
+      "id": "2da555d2-918e-46f6-b93b-d161270f46f2",
+      "name": "Job Page Request",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        100,
+        480
+      ],
+      "id": "47a4129f-1ccf-4793-b821-23a32939c1c0",
+      "name": "GA Job Request",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function dataExtractor(data){\n  let response = null\n  const match = data.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || data.match(/{[\\s\\S]+}/);\n  if (match) {\n    if (match[1]) response = match[1];\n    else if (match[0]) response = match[0];\n  }\n  return response;\n}\n\nlet data = null\n\ntry {\n  const rawOutput = $json.output;\n  const dataExtracted = dataExtractor(rawOutput);\n  data = dataExtracted ? JSON.parse(dataExtracted) : null;\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data ? data : {} };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        480
+      ],
+      "id": "67282760-8b29-41b5-a120-2556dd352734",
+      "name": "JSON Parser",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ef4e5b5f-66d3-495e-bc3b-86f2fe3cd66f",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1240,
+        480
+      ],
+      "id": "de4ad917-dcba-432a-bbac-c0a8c3e2e49c",
+      "name": "If source not empty"
+    },
+    {
+      "parameters": {
+        "jsCode": "function nettoyerTitre(titreBrut) {\n  const match = titreBrut.match(/\\[([^\\]]+)\\]/); // Capture ce qu’il y a entre [ ]\n  if (match) {\n    return match[1].trim(); // Garde seulement ce qu’il y a entre les crochets\n  }\n  return titreBrut.trim(); // Sinon, retourne tel quel\n}\n\nfunction extraireOffres(rawString) {\n  const propre = rawString\n    .replace(/-+\\s*-+/g, '') \n    .replace(/\\n+/g, '\\n')\n    .trim();\n\n  const regexOffre = /(.+?)\\n(.+?)\\n([\\s\\S]*?)<https(.*?)>/g;\n  const offres = [];\n  let match;\n\n  while ((match = regexOffre.exec(propre)) !== null) {\n    let titre = match[1].trim();\n    titre = nettoyerTitre(titre);\n    const site = match[2].trim();\n    const extrait = match[3].trim();\n    const url = 'https' + match[4].trim();\n\n    if (url.includes('google.fr/alerts')) {\n      continue;\n    }\n\n    offres.push({\n      json: { titre, site, extrait, url }\n    });\n  }\n\n  return offres;\n}\n\n// Maintenant on traite tous les inputs\nconst allInputs = $input.all();\nconst allOffres = [];\n\nfor (const inputItem of allInputs) {\n  const texte = inputItem.json.text;\n  const offres = extraireOffres(texte);\n  allOffres.push(...offres); // Ajoute toutes les offres extraites\n}\n\nreturn allOffres;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        480
+      ],
+      "id": "51025275-7cc2-4a4d-9468-0aa19828d9ee",
+      "name": "GA Job Splitter"
+    },
+    {
+      "parameters": {
         "jsCode": "const result = [];\n\nfor (const item of $input.all()) {\n  const elt = item.json;\n  \n  // 1. Cas d’erreur fourni par la source\n  if (!elt.data) {\n    console.log({ json: { error: elt.error || 'donnée \"data\" manquante' } });\n    continue;\n  }\n  \n  // 2. Nettoyer HTML des caractères de contrôle\n  const html = elt.data.replace(/[\\x00-\\x1F\\x7F]/g, '');\n\n  // 2.1 Extractions d’URL dans le <head>\n  const sourceUrl = elt.url || elt.requestUrl || null;\n  const cano = html.match(\n    /<link[^>]*rel=[\"']canonical[\"'][^>]*href=[\"']([^\"']+)[\"']/i\n  );\n  const og   = html.match(\n    /<meta[^>]*property=[\"']og:url[\"'][^>]*content=[\"']([^\"']+)[\"']/i\n  );\n  const pageUrl = sourceUrl\n    || (cano && cano[1])\n    || (og   && og[1])\n    || null;\n  \n  // 3. Extraire JSON-LD\n  const match = html.match(\n    /<script\\s+type=[\"']application\\/ld\\+json[\"'][^>]*>([\\s\\S]*?)<\\/script>/i\n  );\n  if (!match) {\n    console.log({ json: { error: 'JSON-LD introuvable' } });\n    continue;\n  }\n  \n  // 4. Nettoyer et parser le fragment JSON-LD\n  const rawLd = match[1].trim().replace(/[\\x00-\\x1F\\x7F]/g, '');\n  let jsonLd;\n  try {\n    jsonLd = JSON.parse(rawLd);\n  } catch (err) {\n    console.log({ json: { error: 'JSON-LD invalide : ' + err.message } });\n    continue;\n  }\n  \n  // 5. Construire l’objet métier\n  const addr = jsonLd.jobLocation?.address || {};\n  const profileMatch = html.match(\n    /<div\\s+id=[\"']profile_required[\"']>([\\s\\S]*?)<\\/div>/i\n  );\n  const offre = {\n    source       : pageUrl,\n    title        : jsonLd.title              || null,\n    date         : jsonLd.datePosted         || null,\n    contract_type      : jsonLd.employmentType     || null,\n    location : [addr.postalCode, addr.addressLocality]\n                     .filter(Boolean).join(' '),\n    company   : jsonLd.hiringOrganization?.name || null,\n    description  : jsonLd.description        || null,\n    missions     : jsonLd.responsibilities    || null,\n    profil       : profileMatch\n                     ? profileMatch[1].replace(/<[^>]+>/g, '').trim()\n                     : null,\n  };\n  \n  if (offre.source && offre.title) result.push(offre)\n}\n\nreturn result.map(entry => ({ json: entry }));"
       },
       "type": "n8n-nodes-base.code",
@@ -601,7 +635,7 @@
         480
       ],
       "id": "72149c01-9a1c-44ba-acb5-8b12ba121d9d",
-      "name": "Extract Job Data",
+      "name": "Job Data Extractor",
       "onError": "continueRegularOutput"
     }
   ],
@@ -728,7 +762,7 @@
       "main": [
         [
           {
-            "node": "Google Alerts Job Splitter",
+            "node": "GA Job Splitter",
             "type": "main",
             "index": 0
           },
@@ -751,55 +785,11 @@
         ]
       ]
     },
-    "Google Alerts Job Splitter": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "AI Agent  for Google Alerts": {
       "main": [
         [
           {
-            "node": "GoogleAlert JSON Parser",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request1": {
-      "main": [
-        [
-          {
-            "node": "Extract Job URL",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request2": {
-      "main": [
-        [
-          {
-            "node": "Extract Job Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "GoogleAlert JSON Parser": {
-      "main": [
-        [
-          {
-            "node": "MongoDB",
+            "node": "JSON Parser",
             "type": "main",
             "index": 0
           }
@@ -821,14 +811,69 @@
       "main": [
         [
           {
-            "node": "HTTP Request2",
+            "node": "Job Page Request",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Extract Job Data": {
+    "Job Page Request": {
+      "main": [
+        [
+          {
+            "node": "Job Data Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GA Job Request": {
+      "main": [
+        [
+          {
+            "node": "Extract Job URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "If source not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If source not empty": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GA Job Splitter": {
+      "main": [
+        [
+          {
+            "node": "GA Job Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Data Extractor": {
       "main": [
         [
           {
@@ -844,7 +889,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "4bc99c4d-834a-4ecb-9d9b-323aca195cd3",
+  "versionId": "a34c48f8-3735-44d2-90ad-97443052a18c",
   "meta": {
     "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
   },

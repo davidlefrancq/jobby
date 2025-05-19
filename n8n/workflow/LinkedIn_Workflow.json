@@ -9,7 +9,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        560,
+        680,
         680
       ],
       "id": "f6afbd39-f511-4c1e-91f0-2c25a0f95a9d",
@@ -145,6 +145,7 @@
     {
       "parameters": {
         "operation": "getAll",
+        "limit": 14,
         "simple": false,
         "filters": {
           "sender": "jobalerts-noreply@linkedin.com"
@@ -223,22 +224,9 @@
     },
     {
       "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst data = []\n\nfor (const item of $input.all()) {\n  const dataFromItem = item.json.textAsHtml.split(/<p>[-–—]{10,}<\\/p>/i);\n  for (const job of dataFromItem) {\n    if (job) data. push({ job })\n  }\n}\n\nreturn data;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -220,
-        480
-      ],
-      "id": "6b5067c7-8b7b-4145-8a96-2371bcdd8673",
-      "name": "LinkedIn Job Splitter"
-    },
-    {
-      "parameters": {
         "content": "## LinkedIn Email Processing",
         "height": 460,
-        "width": 1660
+        "width": 1940
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -436,41 +424,14 @@
     },
     {
       "parameters": {
-        "jsCode": "function getJobIdFromUrl(url) {\n  let jobId = null\n  \n  const regex = /\\/jobs\\/view\\/(\\d+)/;\n  let match = url.match(regex);\n  if (match && match[1]) jobId = match[1]\n\n  if (!jobId) {\n    match = url.match(/[?&]savedSearchId=(\\d+)/);\n    if (match && match[1]) jobId = match[1];\n  }\n\n  if (!jobId) {\n    match = url.match(/[?&]trackingId=([a-zA-Z0-9%-]+)/);\n    if (match && match[1]) jobId = match[1];\n  }\n  \n  return jobId;\n}\n\nreturn $input.all().map(item => {\n  const html = item.json.job;\n\n  // Récupération du lien\n  const lienMatch = html.match(/href=\"([^\"]+)\"/);\n  const lien = lienMatch ? lienMatch[1] : null;\n  let jobId = null\n\n  let source = null\n  if (lien) jobId = getJobIdFromUrl(lien)\n  if (jobId) source = `https://www.linkedin.com/jobs/view/${jobId}`;\n\n  return { json: { source } };\n});"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -60,
-        480
-      ],
-      "id": "35b32c61-b716-44a7-8d51-db68c9f87ddf",
-      "name": "LinkedIn Job Preprocessing"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "function getTitle(html) {\n  let title = null\n\n  if (html) {\n    const titleRegex = /<title>(.*?)<\\/title>/i;\n    const h1Regex = /<h1[^>]*>(.*?)<\\/h1>/i;\n\n    let titleMatch = html.match(h1Regex);\n    if (titleMatch && !titleMatch[1]) {\n      title = titleMatch[1].trim();\n    }\n    else if (!title) {\n      titleMatch = html.match(titleRegex);\n      if (titleMatch && titleMatch[1]) {\n        title = titleMatch[1].trim();\n      }\n    }\n  }\n\n  return title;\n}\n\nfunction getDate(html) {\n  let date = null;\n  if (html) {\n    const dateRegex = /<span[^>]*class=\"[^\"]*posted-time-ago__text[^\"]*\"[^>]*>(.*?)<\\/span>/is;\n    const dateMatch = html.match(dateRegex);\n    if (dateMatch && dateMatch[1]) date = dateMatch[1].trim()\n  }\n  return date;\n}\n\nfunction toIsoDate(date) {\n  let publishedAtIso = null;\n  if (date) {\n    const now = new Date();\n    const lower = date.toLowerCase();\n  \n    if (lower.includes('day')) {\n      const days = parseInt(lower);\n      if (!isNaN(days)) {\n        const date = new Date(now);\n        date.setDate(now.getDate() - days);\n        publishedAtIso = date.toISOString();\n      }\n    } else if (lower.includes('hour')) {\n      const hours = parseInt(lower);\n      if (!isNaN(hours)) {\n        const date = new Date(now.getTime() - hours * 3600000);\n        publishedAtIso = date.toISOString();\n      }\n    }\n  }\n  return publishedAtIso;\n}\n\nfunction getCompany(html) {\n  let company = null\n  if (html) {\n    const companyRegex = /<a[^>]*class=\"[^\"]*topcard__org-name-link[^\"]*\"[^>]*>(.*?)<\\/a>/is;\n    const companyMatch = html.match(companyRegex);\n    if (companyMatch && companyMatch[1]) {\n      company = companyMatch[1].trim();\n    }\n  }\n  return company;\n}\n\nfunction getLocation(html) {\n  let location = null;\n  if (html) {\n    const locationRegex = /<span[^>]*class=\"[^\"]*topcard__flavor[^\"]*topcard__flavor--bullet[^\"]*\"[^>]*>([^<]*)<\\/span>/gis;\n    const locationMatch = html.match(locationRegex);\n    if (locationMatch && locationMatch[0]) location = locationMatch[0].replace(/<[^>]*>/g, '').trim();\n    }\n  return location;\n}\n\nfunction getDescription(html) {\n  let description = null;\n  if (html) {\n    const regex = /<div[^>]*class=\"[^\"]*show-more-less-html__markup[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div>/i;\n    const match = html.match(regex);\n    if (match && match[1]) description = match[1].replace(/<[^>]+>/g, '').trim();\n  }\n  return description;\n}\n\nfunction getJobId(html) {\n  let jobId = null;\n  if (html) {\n    const regex = /<link[^>]*rel=\"canonical\"[^>]*href=\"[^\"]*\\/jobs\\/view\\/[^\\/]+-(\\d+)\"[^>]*>/i;\n    const match = html.match(regex);\n    if (match && match[1]) jobId = match[1];\n  }\n  return jobId\n}\n\nconst html = $json.data;\nconst title = getTitle(html)\nconst date = toIsoDate(getDate(html));\nconst company = getCompany(html);\nconst location = getLocation(html);\nconst description = getDescription(html);\nconst jobId = getJobId(html);\nlet source = null\nif (jobId) source = `https://www.linkedin.com/jobs/view/${jobId}`;\nconst data = { json: { title, date, company, location, description, source } };\n\nreturn data;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        260,
-        480
-      ],
-      "id": "4e5844a7-4b95-4524-b9aa-17e1151a2470",
-      "name": "LinkedIn Job Data Extractor"
-    },
-    {
-      "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description, mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology, tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level, il faut détecter si c'est un profil sénior, confirmé ou junior\n- pour source, c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator, tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title, si {{ $json.title }} est null, essaie de trouver un titre adéquat.\n- pour language, tu dois identifier la langue utiliser dans la description de l'annonce et l'inscrire de manière concise dans \"language\"\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"language\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"string\",\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking: c'est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description: mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology: tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level: il faut détecter si c'est un profil \"sénior\" ou \"confirmé\" ou \"junior\" ou null si pas d'information.\n- pour source: c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator: tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title: si {{ $json.title }} est null, essaie de trouver un titre adéquat.\n- pour language: tu dois identifier la langue utiliser dans la description de l'annonce et l'inscrire de manière concise dans \"language\"\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"language\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"junior\" | \"confirmé | \"sénior\" | null,\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.9,
       "position": [
-        580,
+        740,
         480
       ],
       "id": "139ba908-3875-4b24-ac29-087c6df5f93b",
@@ -486,7 +447,7 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1080,
+        1440,
         480
       ],
       "id": "edac099b-72ca-407c-92cc-fd2aabc26531",
@@ -497,50 +458,6 @@
           "name": "MongoDB account"
         }
       }
-    },
-    {
-      "parameters": {
-        "url": "={{ $json.source ? $json.source : \"\" }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        100,
-        480
-      ],
-      "id": "fe456002-45b9-4f6d-86f9-c659513423f4",
-      "name": "LinkedIn HTTP Request",
-      "alwaysOutputData": true,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "let data = null\n\nconst rawOutput = $json.output;\n\n// Étape 1 : Extraire le bloc JSON (entre ```json ... ``` ou juste {...})\nconst match = rawOutput.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || rawOutput.match(/{[\\s\\S]+}/);\nif (!match) {\n  console.log(Error(\"Aucun JSON détecté dans le champ 'output'\"));\n}\n\nlet jsonString = match ? match[1] || match[0] : \"\";\n\n// Étape 2 : Nettoyer les caractères échappés\n// Important : JSON.parse nécessite des doubles quotes correctes\ntry {\n  const clean = jsonString.replace(/\\\\\"/g, '\"'); // déséchapper les guillemets\n  data = JSON.parse(clean);\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data };"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        900,
-        480
-      ],
-      "id": "15fc4f53-c9f7-4597-868a-4b8e5d187ad9",
-      "name": "LinkedIn JSON Parser",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "jsCode": "const response = []\n\nfor (const item of $input.all()) {\n  if (item.json.source) response.push(item)\n}\n\nreturn response;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        420,
-        480
-      ],
-      "id": "751b59b6-76fc-4023-8e48-43a34aa477d5",
-      "name": "LinkedIn Job Checking"
     },
     {
       "parameters": {
@@ -569,6 +486,138 @@
       ],
       "id": "30726364-aaff-4305-b412-72a77393fc3c",
       "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst data = []\n\nfor (const item of $input.all()) {\n  const dataFromItem = item.json.textAsHtml.split(/<p>[-–—]{10,}<\\/p>/i);\n  for (const job of dataFromItem) {\n    if (job) data. push({ job })\n  }\n}\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        480
+      ],
+      "id": "6b5067c7-8b7b-4145-8a96-2371bcdd8673",
+      "name": "Job Splitter"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const html = $json.job || \"\"; // Assure-toi que la clé contient le HTML\n\nconst data = { json: { sources: [] } };\nconst regex = /<a\\s+[^>]*href=\"(https:\\/\\/www\\.linkedin\\.com\\/comm\\/jobs\\/view\\/\\d+[^\"]*)\"/gi;\nconst matches = [...html.matchAll(regex)];\n\nconsole.log(`--- ${matches.length} ---`)\nconsole.log({ matches })\nif (matches && matches.length > 0) {\n  for(let i = 0; i < matches.length; i++) {\n    const match = matches[i]\n    console.log({ match })\n    if (match && match[1]) data.json.sources.push(match[1]);\n  }\n}\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        480
+      ],
+      "id": "35b32c61-b716-44a7-8d51-db68c9f87ddf",
+      "name": "Job Url Preprocessing"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = []\n\nfor (const item of $input.all()) {\n  const { sources } = item.json\n  if (sources && sources.length > 0) {\n    for (let i = 0; i < sources.length; i++) {\n      const regex = /https:\\/\\/www\\.linkedin\\.com\\/(?:comm\\/)?jobs\\/view\\/(\\d+)/g;\n      const jobIdMatch = regex.exec(sources[i])\n      if (jobIdMatch && jobIdMatch[1]) data.push({ json: { source: `https://www.linkedin.com/jobs/view/${jobIdMatch[1]}` } })\n    }\n  }\n}\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        480
+      ],
+      "id": "c1619650-10d9-4b1b-8311-fbd68b604a8f",
+      "name": "Job Url Processing"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.source ? $json.source : \"\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        480
+      ],
+      "id": "fe456002-45b9-4f6d-86f9-c659513423f4",
+      "name": "Job Page Request",
+      "alwaysOutputData": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function getTitle(html) {\n  let title = null\n\n  if (html) {\n    const titleRegex = /<title>(.*?)<\\/title>/i;\n    const h1Regex = /<h1[^>]*>(.*?)<\\/h1>/i;\n\n    let titleMatch = html.match(h1Regex);\n    if (titleMatch && !titleMatch[1]) {\n      title = titleMatch[1].trim();\n    }\n    else if (!title) {\n      titleMatch = html.match(titleRegex);\n      if (titleMatch && titleMatch[1]) {\n        title = titleMatch[1].trim();\n      }\n    }\n  }\n\n  return title;\n}\n\nfunction getDate(html) {\n  let date = null;\n  if (html) {\n    const dateRegex = /<span[^>]*class=\"[^\"]*posted-time-ago__text[^\"]*\"[^>]*>(.*?)<\\/span>/is;\n    const dateMatch = html.match(dateRegex);\n    if (dateMatch && dateMatch[1]) date = dateMatch[1].trim()\n  }\n  return date;\n}\n\nfunction toIsoDate(date) {\n  let publishedAtIso = null;\n  if (date) {\n    const now = new Date();\n    const lower = date.toLowerCase();\n  \n    if (lower.includes('day')) {\n      const days = parseInt(lower);\n      if (!isNaN(days)) {\n        const date = new Date(now);\n        date.setDate(now.getDate() - days);\n        publishedAtIso = date.toISOString();\n      }\n    } else if (lower.includes('hour')) {\n      const hours = parseInt(lower);\n      if (!isNaN(hours)) {\n        const date = new Date(now.getTime() - hours * 3600000);\n        publishedAtIso = date.toISOString();\n      }\n    }\n  }\n  return publishedAtIso;\n}\n\nfunction getCompany(html) {\n  let company = null\n  if (html) {\n    const companyRegex = /<a[^>]*class=\"[^\"]*topcard__org-name-link[^\"]*\"[^>]*>(.*?)<\\/a>/is;\n    const companyMatch = html.match(companyRegex);\n    if (companyMatch && companyMatch[1]) {\n      company = companyMatch[1].trim();\n    }\n  }\n  return company;\n}\n\nfunction getLocation(html) {\n  let location = null;\n  if (html) {\n    const locationRegex = /<span[^>]*class=\"[^\"]*topcard__flavor[^\"]*topcard__flavor--bullet[^\"]*\"[^>]*>([^<]*)<\\/span>/gis;\n    const locationMatch = html.match(locationRegex);\n    if (locationMatch && locationMatch[0]) location = locationMatch[0].replace(/<[^>]*>/g, '').trim();\n    }\n  return location;\n}\n\nfunction getDescription(html) {\n  let description = null;\n  if (html) {\n    const regex = /<div[^>]*class=\"[^\"]*show-more-less-html__markup[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div>/i;\n    const match = html.match(regex);\n    if (match && match[1]) description = match[1].replace(/<[^>]+>/g, '').trim();\n  }\n  return description;\n}\n\nfunction getJobId(html) {\n  let jobId = null;\n  if (html) {\n    const regex = /<link[^>]*rel=\"canonical\"[^>]*href=\"[^\"]*\\/jobs\\/view\\/[^\\/]+-(\\d+)\"[^>]*>/i;\n    const match = html.match(regex);\n    if (match && match[1]) jobId = match[1];\n  }\n  return jobId\n}\n\nconst html = $json.data;\nconst title = getTitle(html)\nconst date = toIsoDate(getDate(html));\nconst company = getCompany(html);\nconst location = getLocation(html);\nconst description = getDescription(html);\nconst jobId = getJobId(html);\nlet source = null\nif (jobId) source = `https://www.linkedin.com/jobs/view/${jobId}`;\nconst data = { json: { title, date, company, location, description, source } };\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        480
+      ],
+      "id": "4e5844a7-4b95-4524-b9aa-17e1151a2470",
+      "name": "Job Data Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = []\n\nfor (const item of $input.all()) {\n  if (item.json.source) response.push(item)\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        580,
+        480
+      ],
+      "id": "751b59b6-76fc-4023-8e48-43a34aa477d5",
+      "name": "Job Checking"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let data = null\n\nconst rawOutput = $json.output;\n\n// Étape 1 : Extraire le bloc JSON (entre ```json ... ``` ou juste {...})\nconst match = rawOutput.match(/```json\\s*({[\\s\\S]+?})\\s*```/) || rawOutput.match(/{[\\s\\S]+}/);\nif (!match) {\n  console.log(Error(\"Aucun JSON détecté dans le champ 'output'\"));\n}\n\nlet jsonString = match ? match[1] || match[0] : \"\";\n\n// Étape 2 : Nettoyer les caractères échappés\n// Important : JSON.parse nécessite des doubles quotes correctes\ntry {\n  const clean = jsonString.replace(/\\\\\"/g, '\"'); // déséchapper les guillemets\n  data = JSON.parse(clean);\n} catch (e) {\n  console.log(e);\n}\n\nreturn { json: data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        480
+      ],
+      "id": "15fc4f53-c9f7-4597-868a-4b8e5d187ad9",
+      "name": "JSON Parser",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "76c538e4-3b29-4b6c-b7a4-068e557b39a0",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1220,
+        480
+      ],
+      "id": "529401c6-b8c8-44c9-bb7b-d99d3faa9f69",
+      "name": "If source not empty"
     }
   ],
   "pinData": {},
@@ -659,18 +708,7 @@
       "main": [
         [
           {
-            "node": "if not labeled",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn Job Splitter": {
-      "main": [
-        [
-          {
-            "node": "LinkedIn Job Preprocessing",
+            "node": "Switch from Sender",
             "type": "main",
             "index": 0
           }
@@ -681,7 +719,7 @@
       "main": [
         [
           {
-            "node": "LinkedIn Job Splitter",
+            "node": "Job Splitter",
             "type": "main",
             "index": 0
           },
@@ -706,66 +744,11 @@
         ]
       ]
     },
-    "LinkedIn Job Preprocessing": {
-      "main": [
-        [
-          {
-            "node": "LinkedIn HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn Job Data Extractor": {
-      "main": [
-        [
-          {
-            "node": "LinkedIn Job Checking",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "AI Agent for LinkedIn": {
       "main": [
         [
           {
-            "node": "LinkedIn JSON Parser",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "LinkedIn Job Data Extractor",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn JSON Parser": {
-      "main": [
-        [
-          {
-            "node": "MongoDB",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "LinkedIn Job Checking": {
-      "main": [
-        [
-          {
-            "node": "AI Agent for LinkedIn",
+            "node": "JSON Parser",
             "type": "main",
             "index": 0
           }
@@ -793,13 +776,101 @@
           }
         ]
       ]
+    },
+    "Job Splitter": {
+      "main": [
+        [
+          {
+            "node": "Job Url Preprocessing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Url Preprocessing": {
+      "main": [
+        [
+          {
+            "node": "Job Url Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Url Processing": {
+      "main": [
+        [
+          {
+            "node": "Job Page Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Page Request": {
+      "main": [
+        [
+          {
+            "node": "Job Data Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Data Extractor": {
+      "main": [
+        [
+          {
+            "node": "Job Checking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Checking": {
+      "main": [
+        [
+          {
+            "node": "AI Agent for LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Parser": {
+      "main": [
+        [
+          {
+            "node": "If source not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If source not empty": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "46f35dbb-1215-4c9b-8f05-5ffa53746528",
+  "versionId": "0f0f8cf3-0508-4fd6-ba18-cab86d79409e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
