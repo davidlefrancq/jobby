@@ -20,7 +20,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        620,
+        400,
         680
       ],
       "id": "7a755cad-11a4-498a-8976-89eaf2587847",
@@ -189,7 +189,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        0,
+        -220,
         640
       ],
       "id": "994bbeb1-1a82-4506-a70d-10a0bf67fc33",
@@ -235,14 +235,14 @@
     {
       "parameters": {
         "content": "## Switch",
-        "height": 580,
-        "width": 520
+        "height": 400,
+        "width": 300
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         -640,
-        300
+        380
       ],
       "id": "5ea8983b-20ce-4516-a5fd-ad838aed7bfa",
       "name": "Sticky Note4"
@@ -349,39 +349,6 @@
           },
           "conditions": [
             {
-              "id": "f54662fc-a378-4b56-9e3c-be341ef17b5a",
-              "leftValue": "={{ $json.subject.toLowerCase() }}",
-              "rightValue": "emploi",
-              "operator": {
-                "type": "string",
-                "operation": "contains"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        -360,
-        740
-      ],
-      "id": "fa05f810-c39d-406b-9c13-9dc4c27ff1c0",
-      "name": "If Goocle Alerts for Job"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
               "id": "cc04684b-256c-49da-a5fd-97f4ced2a422",
               "leftValue": "={{ $json.labelIds.includes(\"Label_107\") }}",
               "rightValue": "no-reply@twitch.tv",
@@ -433,8 +400,7 @@
         600
       ],
       "id": "1af832d7-c9bb-49e4-ad82-6b877e77b005",
-      "name": "if not labeled",
-      "disabled": true
+      "name": "if not labeled"
     },
     {
       "parameters": {
@@ -454,13 +420,13 @@
     {
       "parameters": {
         "content": "## Pole Emploi Email Processing",
-        "height": 440,
+        "height": 460,
         "width": 1420
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -80,
+        -300,
         380
       ],
       "id": "850ccd7e-64ca-4d6c-87e9-dd5bf326ca1e",
@@ -476,7 +442,7 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1140,
+        920,
         480
       ],
       "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
@@ -495,7 +461,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
+        100,
         480
       ],
       "id": "b653cd0c-2cec-4007-94fe-efa98331bbf3",
@@ -508,7 +474,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
+        260,
         480
       ],
       "id": "8d9cf289-3947-48e2-bbe6-73053a346077",
@@ -522,7 +488,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        960,
+        740,
         480
       ],
       "id": "2d7e531a-258c-4560-a2d3-e491d4a858ed",
@@ -532,13 +498,13 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description, mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology, tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level, il faut détecter si c'est un profil sénior, confirmé ou junior\n- pour source, c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator, tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title, si {{ $json.title }} est null, essaie de trouver un titre adéquat.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"string\",\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking est un boolean à mettre à true si le télétravail est mentionné\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées avec les valeurs trouvées\n- pour description, mets-y un résumé concis de ce que propose l'offre d'emploi (contexte, environnement de travail, mission)\n- pour methodology, tu dois y mettre toutes les valeurs en lien avec les méthodes de gestion et de conception comme Agile, Waterfall, POO, Développement en couche, Design Pattern, etc.\n- pour level, il faut détecter si c'est un profil sénior, confirmé ou junior\n- pour source, c'est strictement la valeur {{ $json.source }}. Assure-toi de copier cette valeur exactement comme elle apparaît dans l'entrée.\n- pour interest_indicator, tu conserves uniquement l'émoji ✅ | 🟡 | ❌ qui correspond à l'offre\n- pour title, si {{ $json.title }} est null, essaie de trouver un titre adéquat.\n- pour language, tu dois identifier la langue utiliser dans la description de l'annonce et l'inscrire de manière concise dans \"language\"\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": false,\n  \"contract_type\": \"string\",\n  \"language\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"technologies\": [\"string\"],\n  \"description\": \"string\",\n  \"methodology\": [\"string\"],\n  \"level\": \"string\",\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": \"✅ A creuser\" | \"🟡 A vérifier\" | \"❌ A ignorer\"\n}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.9,
       "position": [
-        640,
+        420,
         480
       ],
       "id": "e3854a63-e5a8-429c-afe7-4a55614332df",
@@ -552,7 +518,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        160,
+        -60,
         480
       ],
       "id": "c6a8e096-6bd6-4bad-8d4d-5973329affec",
@@ -567,7 +533,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        0,
+        -220,
         480
       ],
       "id": "9b369882-4e47-4130-ac7a-2473c4dcc26f",
@@ -576,6 +542,8 @@
     {
       "parameters": {
         "path": "9da789a5-4890-461c-b6a1-19286c0b2102",
+        "responseMode": "lastNode",
+        "responseData": "noData",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
@@ -691,11 +659,6 @@
             "node": "if not labeled",
             "type": "main",
             "index": 0
-          },
-          {
-            "node": "Switch from Sender",
-            "type": "main",
-            "index": 0
           }
         ]
       ]
@@ -715,17 +678,6 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "If Goocle Alerts for Job",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If Goocle Alerts for Job": {
-      "main": [
         []
       ]
     },
@@ -818,11 +770,16 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 900,
+    "errorWorkflow": "4oyLsKPXUj8PChjg",
+    "timeSavedPerExecution": 15
   },
-  "versionId": "f0b842b7-fff2-4973-9824-63fce5e9bace",
+  "versionId": "672a3602-5171-4849-ba49-7f48b577f740",
   "meta": {
     "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
   },
