@@ -13,6 +13,7 @@ export interface IJobEntity {
   location: string | null;
   methodology: string[] | null;
   preference: JobPreference;
+  language: string | null;
   salary: {
     currency: string;
     min?: number | null;
