@@ -6,21 +6,24 @@ services:
       - N8N_HOST=localhost
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_RUNNERS_ENABLED=true
       - VUE_APP_URL_BASE_API=http://localhost:5678
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+      - NODE_FUNCTION_ALLOW_EXTERNAL=cheerio
     ports:
       - 5678:5678
     volumes:
-      # - n8n_data:/home/node/.n8n
-      - ./data/n8n:/home/node
+      - n8n_data:/home/node
+      - ./n8n/workflows:/workflows
     depends_on:
+      - mongodb
       - ollama
     networks:
       - ai_net
     restart: always
   ollama:
-    build:
-      context: ./ollama
-      dockerfile: Dockerfile
+    image: ollama/ollama:latest
     container_name: ollama
     runtime: nvidia
     environment:
@@ -31,11 +34,10 @@ services:
     volumes:
       - ollama_data:/root/.ollama
       - ollama_models:/models
-      # - E:/AI/ollama/models:/models
     networks:
       - ai_net
     restart: always
-    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral && wait"]
+    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral-nemo:latest && wait"]
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -49,6 +51,7 @@ services:
       - MONGO_NON_ROOT_USERNAME=${MONGO_DB_NAME}
       - MONGO_NON_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
     volumes:
+      - mongo_config:/data/configdb
       - mongo_data:/data/db
       - ./data/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
@@ -58,8 +61,6 @@ services:
       context: ./web-manager
       dockerfile: Dockerfile
     container_name: nextjs
-    volumes:
-      - nextjs_data:/usr/src/app
     ports:
       - "3000:3000"
     environment: 
@@ -73,7 +74,7 @@ volumes:
   ollama_data:
   ollama_models:
   mongo_data:
-  nextjs_data:
+  mongo_config:
 networks:
   ai_net:
     driver: bridge

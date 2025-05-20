@@ -7,7 +7,6 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Node.js](https://nodejs.org/) (pour exécuter les scripts `npm`)
-- [Ollama](https://ollama.com/)
 
 **Optionnel** (NVIDIA AI Tools) :
 - [CUDNN Library](https://developer.nvidia.com/cudnn)
@@ -23,6 +22,14 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 | `npm run n8n:logs`    | Affiche les logs en temps réel       |
 | `npm run n8n:restart` | Redémarre les conteneurs n8n         |
 
+## Initialisation
+
+1) lancer la commande `npm run n8n`
+2) ouvrir http://localhost:5678/ et suivre les instructions jusuqu'au tableau de bord
+3) ouvrir un terminal `docker exec -it n8n /bin/sh`
+4) lancer la commande `sh /workflows/init-workflows.sh`
+5) ouvrir les différent workflow http://localhost:5678/ et mettre à jours les credentials
+
 ## Agent IA local avec Ollama
 
 ### N8N AI Agent
@@ -30,6 +37,8 @@ Dans le fichier docker-compose, une instance de l'image docker ollama/ollama est
 
 Depuis l'interface N8N, utilisez:
 - http://ollama:11434
+
+Attention le téléchargement du modèle `mistral-nemo` (~7Go) peut prendre un certain temp avant d'être disponible.
 
 ### Stockage des models
 Attention `E:/AI/ollama/models:/models` permet de persisté les modèles dans un dossier pour éviter de les télécharger à nouveau en cas de reset de du container. A modifier si nécéssaire.
