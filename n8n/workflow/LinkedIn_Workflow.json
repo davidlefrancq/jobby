@@ -145,7 +145,7 @@
     {
       "parameters": {
         "operation": "getAll",
-        "limit": 14,
+        "limit": 15,
         "simple": false,
         "filters": {
           "sender": "jobalerts-noreply@linkedin.com"
@@ -708,7 +708,7 @@
       "main": [
         [
           {
-            "node": "Switch from Sender",
+            "node": "if not labeled",
             "type": "main",
             "index": 0
           }
@@ -870,7 +870,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "0f0f8cf3-0508-4fd6-ba18-cab86d79409e",
+  "versionId": "26145658-872e-44f9-a095-cd51d719ba13",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"

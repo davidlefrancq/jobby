@@ -156,6 +156,7 @@
     {
       "parameters": {
         "operation": "getAll",
+        "limit": 15,
         "simple": false,
         "filters": {
           "sender": "googlealerts-noreply@google.com"
@@ -889,7 +890,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "a34c48f8-3735-44d2-90ad-97443052a18c",
+  "versionId": "c88daa3a-a818-4e4a-85ca-674f66d39bca",
   "meta": {
     "instanceId": "4ff0e1b13775c202a64e9cd1e2ef440689196f29dcdd64df5ce3643c9e0f0bb8"
   },
