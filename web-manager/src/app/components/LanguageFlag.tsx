@@ -6,7 +6,7 @@ const frenchWords = [
   'française',
   'francaise',
   'france',
-  'frech',
+  'french',
 ]
 
 const englishWords = [
