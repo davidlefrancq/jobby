@@ -247,7 +247,7 @@ export default function JobBoard({}: JobBoardProps) {
         <div ref={loadMoreRef} className="h-10 flex justify-center items-center">
           {loading
             ? <span className="text-gray-600">Loading...</span>
-            : !hasMore
+            : !hasMore && jobsUnpreferenced.length == 0
             ? <span className="text-gray-500">No more offers.</span>
             : null}
         </div>
