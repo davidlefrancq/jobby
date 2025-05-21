@@ -55,10 +55,10 @@ describe('JobRepository CRUD operations', () => {
     interest_indicator: 'High',
     level: 'Senior',
     location: 'Paris',
-    methodology: ['Agile'],
+    methodologies: ['Agile'],
     salary: { currency: 'EUR', min: 3000, max: 5000 },
     source: 'LinkedIn',
-    technologues: null,
+    technologies: null,
     teleworking: true,
     title: 'DevOps Engineer',
   };

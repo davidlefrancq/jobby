@@ -40,10 +40,10 @@ describe('JobService Integration Tests', () => {
     interest_indicator: 'Medium',
     level: 'Junior',
     location: 'Remote',
-    methodology: ['Kanban'],
+    methodologies: ['Kanban'],
     salary: { currency: 'USD', min: 2000, max: 3000 },
     source: 'TestSource',
-    technologues: null,
+    technologies: null,
     teleworking: false,
     title: 'Test Engineer',
   };

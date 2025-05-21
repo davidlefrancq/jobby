@@ -25,7 +25,7 @@ const JobSchema = new Schema<IJob>(
     interest_indicator: { type: String, required: true },
     level: { type: String, default: null },
     location: { type: String, required: true },
-    methodology: { type: [String], required: true },
+    methodologies: { type: [String], required: true },
     preference: { type: String, default: null },
     salary: { type: SalarySchema, required: true },
     source: { type: String, required: true },

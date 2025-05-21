@@ -27,7 +27,7 @@ export class JobRepository {
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJobEntity[]> {
+  public async getAll({ limit, skip }: JobsSelectRequestProps): Promise<IJobEntity[]> {
     let data: IJobEntity[] = [];
     try {
       const headers = this.getHeaders();

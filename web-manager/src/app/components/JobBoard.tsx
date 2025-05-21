@@ -65,7 +65,7 @@ export default function JobBoard({}: JobBoardProps) {
     }
   };
 
-  const sendUpdatedJobs = async ({ job }: { job: IJobEntity }) => {
+  const sendUpdatedJobs = async ({ job }: { job: Partial<IJobEntity> }) => {
     let response: IJobEntity | null = null
     if (!updating) {
       updating = true;
@@ -92,24 +92,19 @@ export default function JobBoard({}: JobBoardProps) {
   // Handle like/dislike actions
   const handleLike = async (job: IJobEntity) => {
     try {
-      // Handle like action (e.g., update job status, send to server, etc.)
-      const updatedJob: IJobEntity = { ...job, preference: 'like' };
-      await sendUpdatedJobs({ job: updatedJob });
+      await sendUpdatedJobs({ job: { _id: job._id, preference: 'like' } });
       const newJobs = jobs.filter(j => j._id !== job._id);
       dispatch(setJobs(newJobs));
     } catch (error) {
-      console.error('Error liking job:', error);
-      setError('Failed to like job');
+      console.error(error);
+      setError('Failed to like job.');
     }
   };
 
   const handleDislike = async (job: IJobEntity) => {
-    // Handle dislike action (e.g., update job status, send to server, etc.)
-    const updatedJob: IJobEntity = { ...job, preference: 'dislike' };
-    console.log('Disliked job:', updatedJob);
-      await sendUpdatedJobs({ job: updatedJob });
-      const newJobs = jobs.filter(j => j._id !== job._id);
-      dispatch(setJobs(newJobs));
+    await sendUpdatedJobs({ job: { _id: job._id, preference: 'dislike' } });
+    const newJobs = jobs.filter(j => j._id !== job._id);
+    dispatch(setJobs(newJobs));
   };
 
   const handleAddNotification = (message: string) => {
@@ -169,8 +164,8 @@ export default function JobBoard({}: JobBoardProps) {
     if (!startedFtWorkflow && !startedGoogleAlertsWorkflow && !startedLinkedInWorkflow) {
       setWorkflowProgressPercent(0);
       await workflowHandler(N8N_WORKFLOW_NAMES.FranceTravail);
-      setWorkflowProgressPercent(33);
-      await workflowHandler(N8N_WORKFLOW_NAMES.GoogleAlerts);
+      // setWorkflowProgressPercent(33);
+      // await workflowHandler(N8N_WORKFLOW_NAMES.GoogleAlerts);
       setWorkflowProgressPercent(66);
       await workflowHandler(N8N_WORKFLOW_NAMES.LinkedIn);
       setWorkflowProgressPercent(99.99);

@@ -38,39 +38,10 @@ export class JobRepository {
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
+  public async getAll({ limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
     if (!this.connection) this.connection = await dbConnect();
     
-    let findFilter = {};
-    if (filter) {
-      if (filter.title) {
-        const titleRegex = this.stringToRegex(filter.title);
-        findFilter = {...findFilter, title: { $regex: titleRegex } };
-      }
-      if (filter.company) {
-        const companyRegex = this.stringToRegex(filter.company);
-        findFilter = {...findFilter, company: { $regex: companyRegex } };
-      }
-      if (filter.location) {
-        const locationRegex = this.stringToRegex(filter.location);
-        findFilter = {...findFilter, location: { $regex: locationRegex } };
-      }
-      if (filter.type) {
-        const typeRegex = this.stringToRegex(filter.type);
-        findFilter = {...findFilter, type: { $regex: typeRegex } };
-      }
-      if (filter.contract_type) {
-        const contractTypeRegex = this.stringToRegex(filter.contract_type);
-        findFilter = {...findFilter, contract_type: { $regex: contractTypeRegex } };
-      }
-      if (filter.interest_indicator) {
-        const interestIndicatorRegex = this.stringToRegex(filter.interest_indicator);
-        findFilter = {...findFilter, interest_indicator: { $regex: interestIndicatorRegex } };
-      }
-      if (filter.salary) throw new Error('Salary filter is not implemented yet.');
-      if (filter.date) throw new Error('Date filter is not implemented yet.');
-      if (filter.description) throw new Error('Description filter is not implemented yet.');
-    }
+    const findFilter = {};
     const query = Job.find(findFilter);
     if (limit) query.limit(limit);
     if (skip) query.skip(skip);

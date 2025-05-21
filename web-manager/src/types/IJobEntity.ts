@@ -11,7 +11,7 @@ export interface IJobEntity {
   interest_indicator: string;
   level?: string | null;
   location: string | null;
-  methodology: string[] | null;
+  methodologies: string[] | null;
   preference: JobPreference;
   language: string | null;
   salary: {

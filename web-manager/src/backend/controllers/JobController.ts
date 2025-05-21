@@ -25,17 +25,6 @@ export default class JobController {
       const query = req.query || {};
       if (query.limit) jobsRequest.limit = parseInt(query.limit as string, 10);
       if (query.skip) jobsRequest.skip = parseInt(query.skip as string, 10);
-
-      // Extract filter parameters from body
-      const filters = req.body || {};
-      if (filters) {
-        jobsRequest.filter = {};
-        console.log({ filters });
-        if (filters.title) {
-          const titleRegex = new RegExp(`\\b${filters.title}\\b`, 'i');
-          jobsRequest.filter.title = { $regex: titleRegex };
-        }
-      }
       
       // Execute the service method to list jobs
       const jobs = await jobService.listJobs(jobsRequest);
