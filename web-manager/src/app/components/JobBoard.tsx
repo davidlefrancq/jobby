@@ -227,7 +227,7 @@ export default function JobBoard({}: JobBoardProps) {
   }, [jobsUnpreferenced]);
 
   return (
-    <div className="relative min-h-screen pb-12">
+    <div className="relative pb-12">
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold text-gray-800">Job Board</h1>
@@ -254,8 +254,8 @@ export default function JobBoard({}: JobBoardProps) {
       </div>
 
       {/* Barre info fixe */}
-      <div className="fixed bottom-0 left-0 w-full bg-gray-50 border-t py-2 shadow-inner text-center text-sm text-gray-700">
-        { workflowProgressPercent === 100 ? (<div>Jobs queue : {unpreferencedCounter ? unpreferencedCounter : 'NA'}</div>) : null }
+      <div className="fixed bottom-0 left-0 w-full py-2 text-center text-sm text-gray-700">
+        { workflowProgressPercent === 100 && unpreferencedCounter > 0 ? (<div>Jobs queue : {unpreferencedCounter}</div>) : null }
         { workflowProgressPercent !== 100 ? <ProgressBar text={`${Math.round(workflowProgressPercent).toLocaleString()}%`} width={`${Math.round(workflowProgressPercent)}%`} /> : null }
       </div>
     </div>
