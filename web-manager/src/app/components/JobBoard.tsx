@@ -13,6 +13,7 @@ import { N8N_WORKFLOW_NAMES } from '@/constants/n8n-webhooks';
 import ProgressBar from './ProgressBar';
 import NotificationsPanel from './NotificationsPanel';
 import { RepositoryFactory } from '../dal/RepositoryFactory';
+import Link from 'next/link';
 
 
 interface JobBoardProps {
@@ -221,6 +222,13 @@ export default function JobBoard({}: JobBoardProps) {
           {/* Actions bar */}
           <div className="flex items-center gap-2">
             <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflow || startedGoogleAlertsWorkflow || startedLinkedInWorkflow} onClick={() => workflowsBtnHandler()} />
+            <Link
+              href={"http://localhost:5678"}
+              target="_blank"
+              className="bg-red-400 text-white p-0 rounded-full opacity-75 hover:opacity-100"
+            >
+              <img src="n8n.png" alt="Rocket" className="w-10 h-10 rounded-full" />
+            </Link>
             <NotificationsPanel notifications={notifications} removeNotification={(id: number) => handleRemoveNotification(id)} />
           </div>
         </div>
