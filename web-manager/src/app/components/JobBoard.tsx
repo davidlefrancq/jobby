@@ -4,14 +4,15 @@ import { useState, useEffect, useRef } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import JobCard from '@/app/components/JobCard';
 import { useAppDispatch, useAppSelector } from '@/app/store';
-import { setJobs, setLimit, setSkip } from '@/app/store/jobsReducer'
+import { setJobs, setLimit, setSkip, setUnpreferencedCounter } from '@/app/store/jobsReducer'
+import { addNotification, removeNotification } from '@/app/store/notificationsReducer';
 import { IJobEntity } from '@/types/IJobEntity';
 import { N8NWorkflow } from '../lib/N8NWorkflow';
 import BtnLoading from './BtnLoading';
 import { N8N_WORKFLOW_NAMES } from '@/constants/n8n-webhooks';
 import ProgressBar from './ProgressBar';
 import NotificationsPanel from './NotificationsPanel';
-import { addNotification, removeNotification } from '../store/notificationsReducer';
+
 
 interface JobBoardProps {
   onView: (job: IJobEntity) => void;
@@ -20,10 +21,11 @@ interface JobBoardProps {
 const n8nWorkflow = new N8NWorkflow(); // N8N Workflow manager
 let loading = false;
 let updating = false;
+let firstLoad = true;
 
 export default function JobBoard({}: JobBoardProps) {
   const dispatch = useAppDispatch()
-  const { jobs, limit, skip } = useAppSelector(state => state.jobsReducer)
+  const { jobs, limit, skip, unpreferencedCounter } = useAppSelector(state => state.jobsReducer)
   const { notifications } = useAppSelector(state => state.notificationsReducer)
 
   const [jobsUnpreferenced, setJobsUnpreferenced] = useState<IJobEntity[]>([]);
@@ -42,6 +44,10 @@ export default function JobBoard({}: JobBoardProps) {
     if (!hasMore) return;
     if (loading) return;
     loading = true;
+    if (firstLoad) {
+      firstLoad = false;
+      loadUnpreferencedJobsConter();
+    }
     try {
       // Fetch jobs from the API
       const res = await fetch(`/api/jobs?limit=${limit}&skip=${skip}`);
@@ -64,6 +70,22 @@ export default function JobBoard({}: JobBoardProps) {
       loading = false;
     }
   };
+
+  const loadUnpreferencedJobsConter = () => {
+    fetch(`/api/count/jobs/unpreferenced`).then(res => {
+      if (res.ok) {
+        res.json().then(data => {
+          if (data && data.count) {
+            dispatch(setUnpreferencedCounter(data.count));
+          }
+        }).catch(err => {
+          console.error(err);
+        });
+      }
+    }).catch(err => {
+      console.error(err);
+    })
+  }
 
   const sendUpdatedJobs = async ({ job }: { job: Partial<IJobEntity> }) => {
     let response: IJobEntity | null = null
@@ -95,6 +117,7 @@ export default function JobBoard({}: JobBoardProps) {
       await sendUpdatedJobs({ job: { _id: job._id, preference: 'like' } });
       const newJobs = jobs.filter(j => j._id !== job._id);
       dispatch(setJobs(newJobs));
+      dispatch(setUnpreferencedCounter(unpreferencedCounter - 1));
     } catch (error) {
       console.error(error);
       setError('Failed to like job.');
@@ -102,9 +125,15 @@ export default function JobBoard({}: JobBoardProps) {
   };
 
   const handleDislike = async (job: IJobEntity) => {
-    await sendUpdatedJobs({ job: { _id: job._id, preference: 'dislike' } });
-    const newJobs = jobs.filter(j => j._id !== job._id);
-    dispatch(setJobs(newJobs));
+    try { 
+      await sendUpdatedJobs({ job: { _id: job._id, preference: 'dislike' } });
+      const newJobs = jobs.filter(j => j._id !== job._id);
+      dispatch(setJobs(newJobs));
+      dispatch(setUnpreferencedCounter(unpreferencedCounter - 1));
+    } catch (error) {
+      console.error(error);
+      setError('Failed to dislike job.');
+    }
   };
 
   const handleAddNotification = (message: string) => {
@@ -226,7 +255,7 @@ export default function JobBoard({}: JobBoardProps) {
 
       {/* Barre info fixe */}
       <div className="fixed bottom-0 left-0 w-full bg-gray-50 border-t py-2 shadow-inner text-center text-sm text-gray-700">
-        { workflowProgressPercent === 100 ? (<div>Job number : {jobsUnpreferenced.length}</div>) : null }        
+        { workflowProgressPercent === 100 ? (<div>Jobs queue : {unpreferencedCounter ? unpreferencedCounter : 'NA'}</div>) : null }
         { workflowProgressPercent !== 100 ? <ProgressBar text={`${Math.round(workflowProgressPercent).toLocaleString()}%`} width={`${Math.round(workflowProgressPercent)}%`} /> : null }
       </div>
     </div>

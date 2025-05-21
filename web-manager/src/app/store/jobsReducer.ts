@@ -3,12 +3,14 @@ import type { IJobEntity } from '@/types/IJobEntity'
 
 interface JobsState {
   jobs: IJobEntity[]
+  unpreferencedCounter: number
   limit: number
   skip: number
 }
 
 const initialState: JobsState = {
   jobs: [],
+  unpreferencedCounter: 0,
   limit: 9,
   skip: 0,
 }
@@ -17,6 +19,9 @@ const jobsSlice = createSlice({
   name: 'jobs',
   initialState,
   reducers: {
+    setUnpreferencedCounter(state, action: PayloadAction<number>) {
+      state.unpreferencedCounter = Math.round(action.payload)
+    },
     setLimit(state, action: PayloadAction<number>) {
       state.limit = Math.round(action.payload)
     },
@@ -40,6 +45,7 @@ const jobsSlice = createSlice({
 })
 
 export const {
+  setUnpreferencedCounter,
   setLimit,
   setSkip,
   setJobs,

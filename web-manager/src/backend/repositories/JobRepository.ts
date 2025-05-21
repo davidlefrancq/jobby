@@ -35,6 +35,14 @@ export class JobRepository {
   }
 
   /**
+   * Count jobs without like and dislike.
+   */
+  public async countUnpreferencedJobs(): Promise<number> {
+    if (!this.connection) this.connection = await dbConnect();
+    return Job.countDocuments({ preference: null });
+  }
+
+  /**
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */

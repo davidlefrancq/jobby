@@ -26,6 +26,13 @@ export class JobService {
   }
 
   /**
+   * Counts the number of unpreferenced jobs.
+   */
+  public async countUnpreferencedJobs(): Promise<number> {
+    return this.repo.countUnpreferencedJobs();
+  }
+
+  /**
    * Retrieves all jobs matching an optional filter.
    * @param filter - Mongoose filter query
    */

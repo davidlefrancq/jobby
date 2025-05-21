@@ -8,6 +8,26 @@ import { IJobEntity } from '@/types/IJobEntity';
  * Delegates business logic to the JobService.
  */
 export default class JobController {
+
+  /**
+   * Handles GET /api/jobs/countUnpreferenced
+   * Returns the count of unpreferenced jobs.
+   */
+  public static async countUnpreferenced(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a GET request
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+
+    try {
+      const count = await jobService.countUnpreferencedJobs();
+      return res.status(200).json({ count });
+    } catch (error) {
+      return res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
   /**
    * Handles GET /api/jobs
    * Lists all jobs, optionally filtered via query parameters.

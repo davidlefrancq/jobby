@@ -51,7 +51,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           {/* Details */}
           <p className="flex text-gray-500 text-sm">
             {job.language ? <LanguageFlag language={job.language} padding={"pr-2"} />: null}
-            {job.location}
+            <span title='Location'>{job.location}</span>
             {job.contract_type ? <DotSplitter /> : null}
             {job.contract_type ? <TruncatedText text={job.contract_type} /> : null}
             {date ? <DotSplitter /> : null}
@@ -63,7 +63,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             </span>
           </p>
           {/* Descripttion */}
-          <p className="mt-4 text-gray-700">
+          <p className="mt-4 text-gray-700 text-justify">
             {job.description}
           </p>
           <div className="pt-4 pb-2">
