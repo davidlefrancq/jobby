@@ -12,6 +12,7 @@ import BtnLoading from './BtnLoading';
 import { N8N_WORKFLOW_NAMES } from '@/constants/n8n-webhooks';
 import ProgressBar from './ProgressBar';
 import NotificationsPanel from './NotificationsPanel';
+import { RepositoryFactory } from '../dal/RepositoryFactory';
 
 
 interface JobBoardProps {
@@ -19,6 +20,8 @@ interface JobBoardProps {
 }
 
 const n8nWorkflow = new N8NWorkflow(); // N8N Workflow manager
+const repositoryFactory = RepositoryFactory.getInstance(); // Repository factory
+const jobRepository = repositoryFactory.getJobRepository(); // Job repository
 let loading = false;
 let updating = false;
 let firstLoad = true;
@@ -50,9 +53,7 @@ export default function JobBoard({}: JobBoardProps) {
     }
     try {
       // Fetch jobs from the API
-      const res = await fetch(`/api/jobs?limit=${limit}&skip=${skip}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data: IJobEntity[] = await res.json();
+      const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit, skip });
 
       // Persist the jobs in the Redux store
       const newJobs = data.filter(job => !jobs.some(j => j._id === job._id && (j.preference === null || j.preference === undefined)));
@@ -72,15 +73,9 @@ export default function JobBoard({}: JobBoardProps) {
   };
 
   const loadUnpreferencedJobsConter = () => {
-    fetch(`/api/count/jobs/unpreferenced`).then(res => {
-      if (res.ok) {
-        res.json().then(data => {
-          if (data && data.count) {
-            dispatch(setUnpreferencedCounter(data.count));
-          }
-        }).catch(err => {
-          console.error(err);
-        });
+    jobRepository.getJobsUnpreferencedCounter().then(count => {
+      if (count >= 0) {
+        dispatch(setUnpreferencedCounter(count));
       }
     }).catch(err => {
       console.error(err);
@@ -89,19 +84,11 @@ export default function JobBoard({}: JobBoardProps) {
 
   const sendUpdatedJobs = async ({ job }: { job: Partial<IJobEntity> }) => {
     let response: IJobEntity | null = null
-    if (!updating) {
+    const { _id, ...jobRest } = job;
+    if (!updating && _id) {
       updating = true;
       try {
-        const headers = new Headers();
-        headers.append('Content-Type', 'application/json');
-        headers.append('Accept', 'application/json');
-        const url = `/api/jobs/${job._id}`;
-        const res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(job) });
-        if (!res.ok) {
-          console.error(`Error ${res.status}: ${res.statusText}`);
-          setError(`Update has failed for job: ${job.title}`);
-        }
-        else response = (await res.json()) as IJobEntity;
+        response = await jobRepository.update(_id.toString(), jobRest);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {

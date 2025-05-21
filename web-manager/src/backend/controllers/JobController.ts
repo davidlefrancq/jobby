@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import jobService from '@/backend/services/JobService';
 import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
 import { IJobEntity } from '@/types/IJobEntity';
+import { JobRequestFilter } from '../lib/JobRequestFilter';
 
 /**
  * Controller for handling HTTP requests related to Jobs.
@@ -46,6 +47,9 @@ export default class JobController {
       if (query.limit) jobsRequest.limit = parseInt(query.limit as string, 10);
       if (query.skip) jobsRequest.skip = parseInt(query.skip as string, 10);
       
+      // Extract filter parameters from request
+      jobsRequest.filter = JobRequestFilter.getFilterFromNextRequest(req);
+
       // Execute the service method to list jobs
       const jobs = await jobService.listJobs(jobsRequest);
       return res.status(200).json(jobs);

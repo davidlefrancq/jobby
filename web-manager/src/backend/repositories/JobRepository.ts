@@ -46,10 +46,10 @@ export class JobRepository {
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll({ limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
+  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
     if (!this.connection) this.connection = await dbConnect();
     
-    const findFilter = {};
+    const findFilter = filter ? filter : {};
     const query = Job.find(findFilter);
     if (limit) query.limit(limit);
     if (skip) query.skip(skip);

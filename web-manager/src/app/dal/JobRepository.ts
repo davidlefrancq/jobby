@@ -23,15 +23,40 @@ export class JobRepository {
     return headers;
   }
 
+  public async getJobsUnpreferencedCounter(): Promise<number> {
+    let count: number = 0;
+    try {
+      const headers = this.getHeaders();
+      const url = `/api/count/jobs/unpreferenced`;
+      const res = await fetch(url, { method: 'GET', headers });
+      if (res.ok) {
+        const jsonData = (await res.json()) as { count: number };
+        if (jsonData && jsonData.count) {
+          count = jsonData.count;
+        }
+      }
+      else console.error(`Error ${res.status}: ${res.statusText}`)
+    } catch (err) {
+      console.error(err);
+      throw new Error("Failed getting jobs.");
+    }
+    return count;
+  }
+
   /**
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll({ limit, skip }: JobsSelectRequestProps): Promise<IJobEntity[]> {
+  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJobEntity[]> {
     let data: IJobEntity[] = [];
     try {
       const headers = this.getHeaders();
-      const url = `/api/jobs?limit=${limit}&skip=${skip}`;
+      let url = `/api/jobs?limit=${limit}&skip=${skip}`;
+
+      if (filter) {
+        if (filter.preference) url += `&preference=${filter.preference}`;
+      }
+
       const res = await fetch(url, { method: 'GET', headers });
       if (res.ok) data = (await res.json()) as IJobEntity[];
       else console.error(`Error ${res.status}: ${res.statusText}`)
