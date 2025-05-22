@@ -8,6 +8,7 @@ import { setJobs, setSkip, setUnpreferencedCounter } from "../store/jobsReducer"
 import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
+import { JobQueueEnum } from "@/constants/JobQueueEnum";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -15,7 +16,7 @@ let firstLoad = true;
 
 export default function JobQueueUnrated() {
   const dispatch = useAppDispatch()
-  const { jobs, limit, skip, unpreferencedCounter } = useAppSelector(state => state.jobsReducer)
+  const { jobs, jobQueueSelected, limit, skip, unpreferencedCounter } = useAppSelector(state => state.jobsReducer)
 
   const [jobsUnrated, setJobsUnrated] = useState<IJobEntity[]>([]);
   const [jobTargeted, setJobTargeted] = useState<IJobEntity | null>(null);
@@ -121,22 +122,11 @@ export default function JobQueueUnrated() {
   }, [jobsUnrated]);
 
   return (      
-    <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1">
-
-      <div className="flex flex-col items-center justify-center w-full h-full">
-        <h1 className="text-2xl font-bold">Job Queue</h1>
-        <h2 className="text-xl font-semibold text-gray-700">Unrated</h2>
-      </div>
-
+    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
       { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null }
-      
-      {/* {unpreferencedCounter ?  `(${unpreferencedCounter})` : null} */}
       <div className="flex flex-col items-center justify-center w-full h-full">
         <span className="text-lg font-semibold text-gray-500">{unpreferencedCounter ? unpreferencedCounter : 'No more offers.'}</span>
       </div>
-
-
-    </div>
-      
+    </div>      
   );
 }

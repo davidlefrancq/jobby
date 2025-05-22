@@ -9,8 +9,8 @@ import BtnLoading from './BtnLoading';
 import NotificationsPanel from './NotificationsPanel';
 import Link from 'next/link';
 import ErrorsPanel from './ErrorsPanel';
-import JobQueueUnrated from './JobQueuUnrated';
 import N8NWorkflowPanel from './N8NWorkflow';
+import JobQueuePanel from './JobQueuePanel';
 
 
 interface JobBoardProps {
@@ -56,7 +56,7 @@ export default function JobBoard({}: JobBoardProps) {
 
         <N8NWorkflowPanel startedFtWorkflow={startedFtWorkflow} resetStartedFtWorkflow={() => setStartedFtWorkflow(false)} />
         <ErrorsPanel />
-        <JobQueueUnrated />
+        <JobQueuePanel />
 
       </div>
     </div>
