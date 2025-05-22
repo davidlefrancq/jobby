@@ -218,7 +218,7 @@ export default function JobBoard({}: JobBoardProps) {
     <div className="relative pb-12">
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-bold text-gray-800">Job Board</h1>
+          <h1 className="text-4xl font-bold text-gray-800">Jobby</h1>
           {/* Actions bar */}
           <div className="flex items-center gap-2">
             <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflow || startedGoogleAlertsWorkflow || startedLinkedInWorkflow} onClick={() => workflowsBtnHandler()} />
