@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { IJobEntity } from '@/types/IJobEntity';
-import AlertMessage from './AlertMessage';
 import LanguageFlag from './LanguageFlag';
 import TruncatedText from './TruncatedText';
 
@@ -29,7 +28,7 @@ function Salary({ job }: {job: IJobEntity}) {
 export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
   const date = job.date ? new Date(job.date) : null;
   return (
-    <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center min-h-[40vh] px-4">
+    <div className="relative w-full mx-auto flex items-center justify-center min-h-[40vh] px-4">
       {/* Bouton NOPE gauche */}
       <button
         onClick={() => onDislike(job)}
@@ -43,7 +42,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       </button>
 
       {/* Job Card */}
-      <div className="bg-white rounded-xl p-8 shadow-lg w-full max-w-xl text-center">
+      <div className="bg-white rounded-xl p-8 shadow-lg w-full max-w-7/10 text-center">
         <div className="text-left">
           {/* Job title and company */}
           <h2 className="text-xl font-bold">{job.title}</h2>

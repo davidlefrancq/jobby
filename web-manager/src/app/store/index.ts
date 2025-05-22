@@ -1,14 +1,16 @@
 // store/store.ts
 import { configureStore } from '@reduxjs/toolkit'
-import { jobsReducer } from './jobsReducer'
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux'
 import { notificationsReducer } from './notificationsReducer'
 import { alertsReducer } from './alertsReducer'
+import { jobsReducer } from './jobsReducer'
+import { n8nReducer } from './n8nReducer'
 
 export const store = configureStore({
   reducer: {
     alertsReducer,
     jobsReducer,
+    n8nReducer,
     notificationsReducer,
   },
 })
