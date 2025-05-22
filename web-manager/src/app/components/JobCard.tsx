@@ -95,7 +95,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
                 Source
               </Link>
             </div>
-          ) : <AlertMessage type='warning' message='Unknown source link.' /> }
+          ) : <span className="text-gray-400">No source.</span>}
           {/* Mongo job id */}
           <div className="grid grid-flow-col justify-items-end">
             <span className="text-gray-400">{job._id.toString()}</span>

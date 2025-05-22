@@ -1,31 +1,40 @@
 'use client';
 
-interface AlertMessageProps {
+import { AlertCircle } from "lucide-react";
+import { CloseButton } from "./CloseButton";
+import { MessageType } from "@/types/MessageType";
+import { StyleMapping } from "../lib/StyleMapping";
+
+export interface IAlert {
+  date: string
   message: string;
-  type: 'success' | 'warning' | 'error';
+  type: MessageType;
 }
 
-export default function AlertMessage({ message, type }: AlertMessageProps) {
-{/* <div class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4" role="alert">
-  <p class="font-bold">Be Warned</p>
-  <p>Something not ideal might be happening.</p>
-</div> */}
-  let alertClass = '';
-  switch (type) {
-    case 'success':
-      alertClass = 'bg-green-100 border-l-4 border-green-500 text-green-700';
-      break;
-    case 'warning':
-      alertClass = 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700';
-      break;
-    case 'error':
-      alertClass = 'bg-red-100 border-l-4 border-red-500 text-red-700';
-      break;
-  }
+interface IAlertItemProps {
+  alert: IAlert;
+  onRemove: (error: IAlert) => void;  
+}
+
+export default function AlertMessage({ alert, onRemove }: IAlertItemProps) {
+  const { date, message, type } = alert;
+
+  // Get styles based on the alert type
+  const styles = StyleMapping.getStyles(type);
+  if (!styles) return null;
 
   return (
-    <div className={`p-4 ${alertClass}`} role="alert">
-      <p>{message}</p>
+    <div className={`w-full max-w-2xl mx-auto ${styles.bg} ${styles.text} px-4 py-3 rounded-lg flex items-start justify-between gap-3 shadow-md relative`}>
+      <div className="flex flex-1 items-start gap-3">
+        <AlertCircle className={`w-5 h-5 mt-0.5 ${styles.iconColor}`} />
+        <p className="text-sm font-medium">{message}</p>
+      </div>
+      <div className="flex mt-0.5 mr-6">
+        <span className="text-xs text-gray-500 whitespace-nowrap">
+          {new Date(date).toLocaleString()}
+        </span>
+      </div>
+      <CloseButton className={`border ${styles.border} ${styles.text} ${styles.hoverBg}`} onClick={() => onRemove(alert)} />
     </div>
   );
 }

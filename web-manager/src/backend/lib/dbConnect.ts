@@ -1,4 +1,5 @@
 import mongoose, { ConnectOptions } from "mongoose";
+import { DatabaseBadUriError, DatabaseCollectionError, DatabaseConnectionError, DatabaseDisconnectError, DatabaseEmptyUriError, DatabaseNoConnectionError } from "./errors/DatabaseError";
 
 const MONGODB_URI = process.env.MONGODB_URI || "";
 
@@ -18,14 +19,11 @@ export class MongoConnection {
 
   public async connect(uri: string, options: ConnectOptions = {}): Promise<typeof mongoose> {
     if (this.connection) return this.connection;
-
-    if (!uri) {
-      throw new Error("🔴 MONGODB_URI must be defined.");
-    }
+    if (!uri) throw new DatabaseEmptyUriError();
 
     if (this.connection) {
       if (this.uri !== uri) {
-        throw new Error("🔴 Can't connect: different URI used on existing Mongoose connection.");
+        throw new DatabaseBadUriError("Can't connect: different URI used on existing Mongoose connection.");
       }
       return this.connection;
     }
@@ -37,9 +35,8 @@ export class MongoConnection {
         ...options,
         bufferCommands: false,
       });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      throw new Error(`🔴 Mongoose connection failed: ${message}`);
+    } catch (err) {
+      throw new DatabaseConnectionError(`Mongoose: ${String(err)}`);
     }
 
     return this.connection;
@@ -50,17 +47,20 @@ export class MongoConnection {
   }
 
   public getCollections(): mongoose.Collection<mongoose.mongo.BSON.Document>[] {
-    if (!this.connection) {
-      throw new Error("🔴 No connection to MongoDB.");
-    }
+    if (!this.connection) throw new DatabaseNoConnectionError();
     return Object.values(this.connection.connection.collections);
   }
 
   public async disconnect(): Promise<void> {
     if (this.connection) {
-      await this.connection.disconnect();
-      this.connection = null;
-      this.uri = null;
+      try {
+        await this.connection.disconnect();
+      } catch (err) {
+        throw new DatabaseDisconnectError(String(err));
+      } finally {
+        this.connection = null;
+        this.uri = null;
+      }
     }
   }
 }
@@ -70,10 +70,14 @@ export async function dbConnect(uri: string = MONGODB_URI) {
 }
 
 export function getCollections() {
-  let collections = null
-  const connection = MongoConnection.getInstance().getConnection();
-  if (connection) collections = MongoConnection.getInstance().getCollections();
-  return collections;
+  try {
+    let collections = null
+    const connection = MongoConnection.getInstance().getConnection();
+    if (connection) collections = MongoConnection.getInstance().getCollections();
+    return collections;
+  } catch (error) {
+    throw new DatabaseCollectionError(String(error));
+  }
 }
 
 export async function dbDisconnect() {

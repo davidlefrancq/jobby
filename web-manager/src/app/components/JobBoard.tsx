@@ -7,13 +7,16 @@ import { useAppDispatch, useAppSelector } from '@/app/store';
 import { setJobs, setLimit, setSkip, setUnpreferencedCounter } from '@/app/store/jobsReducer'
 import { addNotification, removeNotification } from '@/app/store/notificationsReducer';
 import { IJobEntity } from '@/types/IJobEntity';
-import { N8NWorkflow } from '../lib/N8NWorkflow';
+import { N8NWorkflow, StartWorkflowProps } from '../lib/N8NWorkflow';
 import BtnLoading from './BtnLoading';
 import { N8N_WORKFLOW_NAMES } from '@/constants/n8n-webhooks';
 import ProgressBar from './ProgressBar';
 import NotificationsPanel from './NotificationsPanel';
 import { RepositoryFactory } from '../dal/RepositoryFactory';
 import Link from 'next/link';
+import ErrorsPanel from './ErrorsPanel';
+import { addAlert } from '../store/alertsReducer';
+import { MessageType } from '@/types/MessageType';
 
 
 interface JobBoardProps {
@@ -34,12 +37,12 @@ export default function JobBoard({}: JobBoardProps) {
 
   const [jobsUnpreferenced, setJobsUnpreferenced] = useState<IJobEntity[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [jobTargeted, setJobTargeted] = useState<IJobEntity | null>(null);
   const [startedFtWorkflow, setStartedFtWorkflow] = useState(false);
   const [startedGoogleAlertsWorkflow, setStartedGoogleAlertsWorkflow] = useState(false);
   const [startedLinkedInWorkflow, setStartedLinkedInWorkflow] = useState(false);
   const [workflowProgressPercent, setWorkflowProgressPercent] = useState(100);
+  const [refresh, setRefresh] = useState(false);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -48,10 +51,13 @@ export default function JobBoard({}: JobBoardProps) {
     if (!hasMore) return;
     if (loading) return;
     loading = true;
+    
+    // Load initial unpreferenced jobs counter
     if (firstLoad) {
       firstLoad = false;
       loadUnpreferencedJobsConter();
     }
+
     try {
       // Fetch jobs from the API
       const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit, skip });
@@ -65,11 +71,13 @@ export default function JobBoard({}: JobBoardProps) {
       if (data.length < limit) {
         setHasMore(false);
       }
-    } catch (err: unknown) {
-      loading = false;
-      setError(err instanceof Error ? err.message : String(err));
+    } catch (err) {
+      let msg = 'Failed to load jobs.';
+      if (err instanceof Error) msg = err.message;
+      handleAddError(msg, 'error');
     } finally {
       loading = false;
+      setRefresh(!refresh);
     }
   };
 
@@ -77,9 +85,11 @@ export default function JobBoard({}: JobBoardProps) {
     jobRepository.getJobsUnpreferencedCounter().then(count => {
       if (count >= 0) {
         dispatch(setUnpreferencedCounter(count));
+      } else {
+        handleAddError('Failed to load unpreferenced jobs counter.', 'error');
       }
     }).catch(err => {
-      console.error(err);
+      handleAddError(err.message, 'error');
     })
   }
 
@@ -90,13 +100,28 @@ export default function JobBoard({}: JobBoardProps) {
       updating = true;
       try {
         response = await jobRepository.update(_id.toString(), jobRest);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : String(err));
+      } catch (err) {
+        let msg = 'Failed to update job.';
+        if (err instanceof Error) msg = err.message;
+        handleAddError(msg, 'error');
       } finally {
         updating = false;
       }
     }
     return response;
+  }
+
+  const workflowSetError = (error: string) => {
+    handleAddError(error, 'error');
+  }
+
+  const handleAddError = (message: string, type: MessageType) => {
+    const errorMessage = {
+      date: new Date().toISOString(),
+      message,
+      type,
+    };
+    dispatch(addAlert(errorMessage));
   }
 
   // Handle like/dislike actions
@@ -108,7 +133,7 @@ export default function JobBoard({}: JobBoardProps) {
       dispatch(setUnpreferencedCounter(unpreferencedCounter - 1));
     } catch (error) {
       console.error(error);
-      setError('Failed to like job.');
+      handleAddError('Failed to like job.', 'error');
     }
   };
 
@@ -120,7 +145,7 @@ export default function JobBoard({}: JobBoardProps) {
       dispatch(setUnpreferencedCounter(unpreferencedCounter - 1));
     } catch (error) {
       console.error(error);
-      setError('Failed to dislike job.');
+      handleAddError('Failed to dislike job.', 'error');
     }
   };
 
@@ -145,34 +170,76 @@ export default function JobBoard({}: JobBoardProps) {
     setJobsUnpreferenced([]);
   }
 
+  const workflowFranceTravailHandler = async () => {
+    if (!startedFtWorkflow) {
+      setStartedFtWorkflow(true);
+      try {
+        const workflow: StartWorkflowProps = {
+          workflow: N8N_WORKFLOW_NAMES.FranceTravail,
+          setError: workflowSetError
+        };
+        await n8nWorkflow.startWorkflow(workflow);
+      } catch (error) {
+        console.error(error);
+        handleAddError('Failed to start FranceTravail workflow.', 'error');
+      } finally{
+        setStartedFtWorkflow(false);
+        handleAddNotification('Workflow FranceTravail finished.');
+      }
+    }
+  }
+
+  const workflowGoogleAlertsHandler = async () => {
+    if (!startedGoogleAlertsWorkflow) {
+      setStartedGoogleAlertsWorkflow(true);
+      try {
+        const workflow: StartWorkflowProps = {
+          workflow: N8N_WORKFLOW_NAMES.GoogleAlerts,
+          setError: workflowSetError
+        };
+        await n8nWorkflow.startWorkflow(workflow);
+      } catch (error) {
+        console.error(error);
+        handleAddError('Failed to start GoogleAlerts workflow.', 'error');
+      } finally {
+        setStartedGoogleAlertsWorkflow(false);
+        handleAddNotification('Workflow GoogleAlerts finished.');
+      }
+    }
+  }
+  
+  const workflowLinkedInHandler = async () => {
+    if (!startedLinkedInWorkflow) {
+      setStartedLinkedInWorkflow(true);
+      try {
+        const workflow: StartWorkflowProps = {
+          workflow: N8N_WORKFLOW_NAMES.LinkedIn,
+          setError: workflowSetError
+        };
+        await n8nWorkflow.startWorkflow(workflow);
+      } catch (error) {
+        console.error(error);
+        handleAddError('Failed to start LinkedIn workflow.', 'error');
+      } finally {
+        setStartedLinkedInWorkflow(false);
+        handleAddNotification('Workflow LinkedIn finished.');
+      }
+    }
+  }
+
   const workflowHandler = async (workflow: N8N_WORKFLOW_NAMES) => {
     switch (workflow) {
       case N8N_WORKFLOW_NAMES.FranceTravail:
-        if (!startedFtWorkflow) {
-          setStartedFtWorkflow(true);
-          await n8nWorkflow.startWorkflow({ workflow: N8N_WORKFLOW_NAMES.FranceTravail, setError });
-          setStartedFtWorkflow(false);
-          handleAddNotification('Workflow FranceTravail finished');
-        }
+        workflowFranceTravailHandler();
         break;
       case N8N_WORKFLOW_NAMES.GoogleAlerts:
-        if (!startedGoogleAlertsWorkflow) {
-          setStartedGoogleAlertsWorkflow(true);
-          await n8nWorkflow.startWorkflow({ workflow: N8N_WORKFLOW_NAMES.GoogleAlerts, setError });
-          setStartedGoogleAlertsWorkflow(false);
-          handleAddNotification('Workflow GoogleAlerts finished');
-        }
+        workflowGoogleAlertsHandler();
         break;
       case N8N_WORKFLOW_NAMES.LinkedIn:
-        if (!startedLinkedInWorkflow) {
-          setStartedLinkedInWorkflow(true);
-          await n8nWorkflow.startWorkflow({ workflow: N8N_WORKFLOW_NAMES.LinkedIn, setError });
-          setStartedLinkedInWorkflow(false);
-          handleAddNotification('Workflow LinkedIn finished');
-        }
+        workflowLinkedInHandler();
         break;
       default:
-        setError('Unknown workflow');
+        handleAddError('Unknown workflow.', 'error');
         break;
     }
   }
@@ -233,7 +300,8 @@ export default function JobBoard({}: JobBoardProps) {
           </div>
         </div>
 
-        {error && <div className="text-red-600 mb-4">Erreur : {error}</div>}
+        {/* Errors Panel */}
+        <ErrorsPanel />
 
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6">
           { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null }

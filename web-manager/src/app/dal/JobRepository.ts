@@ -1,5 +1,6 @@
 import { JobsSelectRequestProps } from "../interfaces/JobsSelectRequestProps";
 import { IJobEntity } from "@/types/IJobEntity";
+import { CountUnpreferencedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from "./errors/JobRepositoryError";
 
 export class JobRepository {
   // Holds the singleton instance
@@ -34,11 +35,11 @@ export class JobRepository {
         if (jsonData && jsonData.count) {
           count = jsonData.count;
         }
+      } else {
+        throw new CountUnpreferencedJobsError(`${res.status}: ${res.statusText}`);
       }
-      else console.error(`Error ${res.status}: ${res.statusText}`)
     } catch (err) {
-      console.error(err);
-      throw new Error("Failed getting jobs.");
+      throw new CountUnpreferencedJobsError(String(err));
     }
     return count;
   }
@@ -59,10 +60,11 @@ export class JobRepository {
 
       const res = await fetch(url, { method: 'GET', headers });
       if (res.ok) data = (await res.json()) as IJobEntity[];
-      else console.error(`Error ${res.status}: ${res.statusText}`)
+      else {
+        throw new GetAllJobsError(`${res.status}: ${res.statusText}`);
+      }
     } catch (err) {
-      console.error(err);
-      throw new Error("Failed getting jobs.");
+      throw new GetAllJobsError(String(err));
     }
     return data;
   }
@@ -78,10 +80,11 @@ export class JobRepository {
       const url = `/api/jobs/${id}`;
       const res = await fetch(url, { method: 'GET', headers });
       if (res.ok) data = (await res.json()) as IJobEntity;
-      else console.error(`Error ${res.status}: ${res.statusText}`)
+      else {
+        throw new GetJobByIdError(`${res.status}: ${res.statusText}`);
+      }
     } catch (err) {
-      console.error(err);
-      throw new Error("Failed getting job.");
+      throw new GetJobByIdError(String(err));
     }
     return data;
   }
@@ -97,10 +100,11 @@ export class JobRepository {
       const url = `/api/jobs`;
       const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(data) });
       if (res.ok) created = (await res.json()) as IJobEntity;
-      else console.error(`Error ${res.status}: ${res.statusText}`)
+      else {
+        throw new CreateJobError(`${res.status}: ${res.statusText}`);
+      }
     } catch (err) {
-      console.error(err);
-      throw new Error("Failed creating job.");
+      throw new CreateJobError(String(err));
     }
     return created;
   }
@@ -117,10 +121,11 @@ export class JobRepository {
       const url = `/api/jobs/${id}`;
       const res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(data) });
       if (res.ok) updated = (await res.json()) as IJobEntity;
-      else console.error(`Error ${res.status}: ${res.statusText}`)
+      else {
+        throw new UpdateJobError(`${res.status}: ${res.statusText}`);
+      }
     } catch (err) {
-      console.error(err);
-      throw new Error("Failed updating job.");
+      throw new UpdateJobError(String(err));
     }
     return updated;
   }
@@ -134,10 +139,11 @@ export class JobRepository {
       const headers = this.getHeaders();
       const url = `/api/jobs/${id}`;
       const res = await fetch(url, { method: 'DELETE', headers });
-      if (!res.ok) console.error(`Error ${res.status}: ${res.statusText}`)
+      if (!res.ok) {
+        throw new DeleteJobError(`${res.status}: ${res.statusText}`);
+      }
     } catch (err) {
-      console.error(err);
-      throw new Error("Failed deleting job.");
+      throw new DeleteJobError(String(err));
     }
   }
   

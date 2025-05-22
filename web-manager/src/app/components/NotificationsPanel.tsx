@@ -65,7 +65,7 @@ export default function NotificationsPanel({ notifications, removeNotification }
     btnClassName += " bg-gray-300 hover:bg-gray-400 focus:ring-gray-200 dark:bg-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-700";
   }
   if (notifications.length > 0) {
-    btnClassName += " bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 relative";
+    btnClassName += " cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 relative";
   }
 
   // Button style

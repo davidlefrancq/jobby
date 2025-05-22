@@ -9,7 +9,7 @@ type WorkflowResponse = {
   error: string | null;
 }
 
-interface StartWorkflowProps {
+export interface StartWorkflowProps {
   workflow: N8N_WORKFLOW_NAMES;
   setError: (error: string) => void;
 }

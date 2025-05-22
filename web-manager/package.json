@@ -13,6 +13,7 @@
     "@headlessui/react": "^2.2.3",
     "@reduxjs/toolkit": "^2.8.1",
     "dotenv": "^16.5.0",
+    "framer-motion": "^12.12.1",
     "lucide-react": "^0.511.0",
     "mongoose": "^8.14.1",
     "next": "15.3.2",

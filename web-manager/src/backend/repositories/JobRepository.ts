@@ -3,6 +3,8 @@ import { dbConnect } from '@/backend/lib/dbConnect';
 import { IJob } from '@/backend/models/IJob';
 import { Job } from '@/backend/models/Job';
 import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
+import { DatabaseConnectionError } from '@/backend/lib/errors/DatabaseError';
+import { CountUnpreferencedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from './errors/JobRepositoryError';
 
 /**
  * Repository for Job model CRUD operations.
@@ -29,17 +31,30 @@ export class JobRepository {
     return JobRepository.instance;
   }
 
-  private stringToRegex(str: string): RegExp {
-    const keywords = str.trim().split(/\s+/);
-    return new RegExp(keywords.map((keyword) => `\\b${keyword}\\b`).join('|'), 'i');
+  private async connect(): Promise<void> {
+    if (!this.connection) {
+      try {
+        this.connection = await dbConnect();
+      } catch (error) {
+        throw new DatabaseConnectionError(String(error));
+      }
+    }
   }
 
   /**
    * Count jobs without like and dislike.
    */
   public async countUnpreferencedJobs(): Promise<number> {
-    if (!this.connection) this.connection = await dbConnect();
-    return Job.countDocuments({ preference: null });
+    if (!this.connection) await this.connect();
+    let data = null;
+    try {
+      data = Job.countDocuments({ preference: null })
+    } catch (error) {
+      throw new CountUnpreferencedJobsError(String(error));
+    }
+    if (!data) throw new CountUnpreferencedJobsError('No data found.');
+    if (typeof data !== 'number') throw new CountUnpreferencedJobsError('Bad response.');
+    return data;
   }
 
   /**
@@ -47,13 +62,17 @@ export class JobRepository {
    * @param filter - Mongoose filter query
    */
   public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
-    if (!this.connection) this.connection = await dbConnect();
+    if (!this.connection) await this.connect();
     
-    const findFilter = filter ? filter : {};
-    const query = Job.find(findFilter);
-    if (limit) query.limit(limit);
-    if (skip) query.skip(skip);
-    return query.exec();
+    try {
+      const findFilter = filter ? filter : {};
+      const query = Job.find(findFilter);
+      if (limit) query.limit(limit);
+      if (skip) query.skip(skip);
+      return query.exec();
+    } catch (error) {
+      throw new GetAllJobsError(String(error));
+    }
   }
 
   /**
@@ -61,8 +80,12 @@ export class JobRepository {
    * @param id - Job document ID
    */
   public async getById(id: string): Promise<IJob | null> {
-    if (!this.connection) this.connection = await dbConnect();
-    return Job.findById(id).exec();
+    if (!this.connection) await this.connect();
+    try {
+      return Job.findById(id).exec();
+    } catch (error) {
+      throw new GetJobByIdError(String(error));
+    }
   }
 
   /**
@@ -70,9 +93,13 @@ export class JobRepository {
    * @param data - Partial job data
    */
   public async create(data: Partial<IJob>): Promise<IJob> {
-    if (!this.connection) this.connection = await dbConnect();
-    const job = new Job(data);
-    return job.save();
+    if (!this.connection) await this.connect();
+    try {
+      const job = new Job(data);
+      return job.save();
+    } catch (error) {
+      throw new CreateJobError(String(error));
+    }
   }
 
   /**
@@ -81,15 +108,14 @@ export class JobRepository {
    * @param data - Fields to update
    */
   public async update(id: string, data: UpdateQuery<IJob>): Promise<IJob | null> {
+    if (!this.connection) await this.connect();
     try {
-    if (!this.connection) this.connection = await dbConnect();
-    const objectId = new mongoose.Types.ObjectId(id);
-    const filter = { _id: objectId };
-    const option: QueryOptions<IJob> = { new: true };
-    return Job.findByIdAndUpdate(filter, data, option).exec();
+      const objectId = new mongoose.Types.ObjectId(id);
+      const filter = { _id: objectId };
+      const option: QueryOptions<IJob> = { new: true };
+      return Job.findByIdAndUpdate(filter, data, option).exec();
     } catch (error) {
-      console.error('Error updating job:', error);
-      throw new Error(`Failed to update job with ID ${id}`);
+      throw new UpdateJobError(String(error));
     }
   }
 
@@ -98,8 +124,12 @@ export class JobRepository {
    * @param id - Job document ID
    */
   public async delete(id: string): Promise<IJob | null> {
-    if (!this.connection) this.connection = await dbConnect();
-    return Job.findByIdAndDelete(id).exec();
+    if (!this.connection) await this.connect();
+    try {
+      return Job.findByIdAndDelete(id).exec();
+    } catch (error) {
+      throw new DeleteJobError(`Delete has failed: ${String(error)}`);
+    }
   }
 }
 
