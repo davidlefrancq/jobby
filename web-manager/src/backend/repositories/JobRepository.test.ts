@@ -83,6 +83,12 @@ describe('JobRepository CRUD operations', () => {
     expect(found!.source).toBe(sample.source);
   });
 
+  it('should count unpreferenced jobs', async () => {
+    await jobRepoDefault.create(sample);
+    const count = await jobRepoDefault.countUnpreferencedJobs();
+    expect(count).toBe(1);
+  });
+
   it('should update an existing job document', async () => {
     const created = await jobRepoDefault.create(sample);
     const updated = await jobRepoDefault.update(created._id.toString(), { level: 'Lead' });

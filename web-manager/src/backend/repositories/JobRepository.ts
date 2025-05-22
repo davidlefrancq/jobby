@@ -53,7 +53,6 @@ export class JobRepository {
       throw new CountUnpreferencedJobsError(String(error));
     }
     if (!data) throw new CountUnpreferencedJobsError('No data found.');
-    if (typeof data !== 'number') throw new CountUnpreferencedJobsError('Bad response.');
     return data;
   }
 
