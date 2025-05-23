@@ -11,10 +11,10 @@ import { JobRequestFilter } from '../lib/JobRequestFilter';
 export default class JobController {
 
   /**
-   * Handles GET /api/jobs/countUnpreferenced
-   * Returns the count of unpreferenced jobs.
+   * Handles GET /api/jobs/count/unrated
+   * Returns the count of unrated jobs.
    */
-  public static async countUnpreferenced(req: NextApiRequest, res: NextApiResponse) {
+  public static async countUnrated(req: NextApiRequest, res: NextApiResponse) {
     // Check if the request is a GET request
     if (req.method !== 'GET') {
       res.setHeader('Allow', ['GET']);
@@ -22,12 +22,51 @@ export default class JobController {
     }
 
     try {
-      const count = await jobService.countUnpreferencedJobs();
+      const count = await jobService.countUnratedJobs();
       return res.status(200).json({ count });
     } catch (error) {
       return res.status(500).json({ error: (error as Error).message });
     }
   }
+  
+  /**
+   * Handles GET /api/jobs/count/liked
+   * Returns the count of liked jobs.
+   */
+  public static async countLiked(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a GET request
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+    try {
+      const count = await jobService.countLikedJobs();
+      return res.status(200).json({ count });
+    }
+    catch (error) {
+      return res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
+  /**
+   * Handles GET /api/jobs/count/disliked
+   * Returns the count of disliked jobs.
+   */
+  public static async countDisliked(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a GET request
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+    try {
+      const count = await jobService.countDislikedJobs();
+      return res.status(200).json({ count });
+    }
+    catch (error) {
+      return res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
 
   /**
    * Handles GET /api/jobs

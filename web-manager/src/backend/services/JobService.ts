@@ -26,10 +26,24 @@ export class JobService {
   }
 
   /**
-   * Counts the number of unpreferenced jobs.
+   * Counts the number of unrated jobs.
    */
-  public async countUnpreferencedJobs(): Promise<number> {
-    return this.repo.countUnpreferencedJobs();
+  public async countUnratedJobs(): Promise<number> {
+    return this.repo.countUnratedJobs();
+  }
+
+  /**
+   * Counts the number of liked jobs.
+   */
+  public async countLikedJobs(): Promise<number> {
+    return this.repo.countLikedJobs();
+  }
+
+  /**
+   * Counts the number of disliked jobs.
+   */
+  public async countDislikedJobs(): Promise<number> {
+    return this.repo.countDislikedJobs();
   }
 
   /**

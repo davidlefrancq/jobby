@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { IJobEntity } from "@/types/IJobEntity";
-import { setJobs, setSkip, setUnpreferencedCounter } from "../store/jobsReducer";
+import { setUnratedJobs, setUnratedSkip, setUnratedCounter } from "../store/jobsReducer";
 import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
@@ -16,7 +16,7 @@ let firstLoad = true;
 
 export default function JobQueueUnrated() {
   const dispatch = useAppDispatch()
-  const { jobs, jobQueueSelected, limit, skip, unpreferencedCounter } = useAppSelector(state => state.jobsReducer)
+  const { unratedJobs: jobs, jobQueueSelected, uratedLimit: limit, unratedSkip: skip, unratedCounter } = useAppSelector(state => state.jobsReducer)
 
   const [jobsUnrated, setJobsUnrated] = useState<IJobEntity[]>([]);
   const [jobTargeted, setJobTargeted] = useState<IJobEntity | null>(null);
@@ -25,8 +25,8 @@ export default function JobQueueUnrated() {
     // jobs filtered without newJobs
     const filteredJobs = jobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
     // persist in the store
-    dispatch(setJobs([...filteredJobs, ...newJobs]));
-    dispatch(setSkip(skip + newJobs.length));
+    dispatch(setUnratedJobs([...filteredJobs, ...newJobs]));
+    dispatch(setUnratedSkip(skip + newJobs.length));
   }
 
   const loadUnratedJobs = async () => {
@@ -36,12 +36,12 @@ export default function JobQueueUnrated() {
     }
   }
 
-  const loadUnpreferencedJobsConter = () => {
-    jobRepository.getJobsUnpreferencedCounter().then(count => {
+  const loadUnratedJobsCounter = () => {
+    jobRepository.getJobsUnratedCounter().then(count => {
       if (count >= 0) {
-        dispatch(setUnpreferencedCounter(count));
+        dispatch(setUnratedCounter(count));
       } else {
-        handleAddError('Failed to load unpreferenced jobs counter.', 'error');
+        handleAddError('Failed to load unrated jobs counter.', 'error');
       }
     }).catch(err => {
       handleAddError(err.message, 'error');
@@ -61,8 +61,8 @@ export default function JobQueueUnrated() {
     try {
       await saveUpdatedJobs({ job: { _id: job._id, preference: 'like' } });
       const newJobs = jobs.filter(j => j._id !== job._id);
-      dispatch(setJobs(newJobs));
-      dispatch(setUnpreferencedCounter(unpreferencedCounter - 1));
+      dispatch(setUnratedJobs(newJobs));
+      dispatch(setUnratedCounter(unratedCounter - 1));
     } catch (error) {
       console.error(error);
       handleAddError('Failed to like job.', 'error');
@@ -73,8 +73,8 @@ export default function JobQueueUnrated() {
     try { 
       await saveUpdatedJobs({ job: { _id: job._id, preference: 'dislike' } });
       const newJobs = jobs.filter(j => j._id !== job._id);
-      dispatch(setJobs(newJobs));
-      dispatch(setUnpreferencedCounter(unpreferencedCounter - 1));
+      dispatch(setUnratedJobs(newJobs));
+      dispatch(setUnratedCounter(unratedCounter - 1));
     } catch (error) {
       console.error(error);
       handleAddError('Failed to dislike job.', 'error');
@@ -100,7 +100,7 @@ export default function JobQueueUnrated() {
   useEffect(() => {
     if (firstLoad) {
       firstLoad = false;
-      loadUnpreferencedJobsConter()
+      loadUnratedJobsCounter()
       loadUnratedJobs().then(() => {}).catch(err => {
         handleAddError(err.message, 'error');
       });
@@ -125,7 +125,7 @@ export default function JobQueueUnrated() {
     <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
       { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null }
       <div className="flex flex-col items-center justify-center w-full h-full">
-        <span className="text-lg font-semibold text-gray-500">{unpreferencedCounter ? unpreferencedCounter : 'No more offers.'}</span>
+        <span className="text-lg font-semibold text-gray-500">{unratedCounter ? unratedCounter : 'No more offers.'}</span>
       </div>
     </div>      
   );

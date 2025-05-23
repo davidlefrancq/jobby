@@ -2,7 +2,9 @@
 
 import JobQueueLiked from "./JobQueueLiked";
 import JobQueueMenu from "./JobQueueMenu";
-import JobQueueUnrated from "./JobQueuUnrated";
+import JobQueueUnrated from "./JobQueueUnrated";
+
+
 
 export default function JobQueuePanel() {
   return (

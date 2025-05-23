@@ -7,7 +7,7 @@ class JobRepositoryError extends AppError {
   }
 }
 
-export class CountUnpreferencedJobsError extends JobRepositoryError {
+export class CountUnratedJobsError extends JobRepositoryError {
   constructor(msg?: string) {    
     const message = `Fail while counting jobs in queue.`;
     super(message);

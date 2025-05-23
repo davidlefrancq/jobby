@@ -9,7 +9,7 @@ import BtnLoading from './BtnLoading';
 import NotificationsPanel from './NotificationsPanel';
 import Link from 'next/link';
 import ErrorsPanel from './ErrorsPanel';
-import N8NWorkflowPanel from './N8NWorkflow';
+import N8NWorkflowPanel from './N8NWorkflowPanel';
 import JobQueuePanel from './JobQueuePanel';
 
 

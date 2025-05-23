@@ -83,9 +83,9 @@ describe('JobRepository CRUD operations', () => {
     expect(found!.source).toBe(sample.source);
   });
 
-  it('should count unpreferenced jobs', async () => {
+  it('should count unrated jobs', async () => {
     await jobRepoDefault.create(sample);
-    const count = await jobRepoDefault.countUnpreferencedJobs();
+    const count = await jobRepoDefault.countUnratedJobs();
     expect(count).toBe(1);
   });
 

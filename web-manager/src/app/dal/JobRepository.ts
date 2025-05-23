@@ -1,6 +1,6 @@
 import { JobsSelectRequestProps } from "../interfaces/JobsSelectRequestProps";
 import { IJobEntity } from "@/types/IJobEntity";
-import { CountUnpreferencedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from "./errors/JobRepositoryError";
+import { CountUnratedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from "./errors/JobRepositoryError";
 
 export class JobRepository {
   // Holds the singleton instance
@@ -24,11 +24,11 @@ export class JobRepository {
     return headers;
   }
 
-  public async getJobsUnpreferencedCounter(): Promise<number> {
+  public async getJobsUnratedCounter(): Promise<number> {
     let count: number = 0;
     try {
       const headers = this.getHeaders();
-      const url = `/api/count/jobs/unpreferenced`;
+      const url = `/api/count/jobs/unrated`;
       const res = await fetch(url, { method: 'GET', headers });
       if (res.ok) {
         const jsonData = (await res.json()) as { count: number };
@@ -36,10 +36,30 @@ export class JobRepository {
           count = jsonData.count;
         }
       } else {
-        throw new CountUnpreferencedJobsError(`${res.status}: ${res.statusText}`);
+        throw new CountUnratedJobsError(`${res.status}: ${res.statusText}`);
       }
     } catch (err) {
-      throw new CountUnpreferencedJobsError(String(err));
+      throw new CountUnratedJobsError(String(err));
+    }
+    return count;
+  }
+
+  public async getJobsLikedCounter(): Promise<number> {
+    let count: number = 0;
+    try {
+      const headers = this.getHeaders();
+      const url = `/api/count/jobs/liked`;
+      const res = await fetch(url, { method: 'GET', headers });
+      if (res.ok) {
+        const jsonData = (await res.json()) as { count: number };
+        if (jsonData && jsonData.count) {
+          count = jsonData.count;
+        }
+      } else {
+        throw new CountUnratedJobsError(`${res.status}: ${res.statusText}`);
+      }
+    } catch (err) {
+      throw new CountUnratedJobsError(String(err));
     }
     return count;
   }

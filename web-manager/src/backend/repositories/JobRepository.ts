@@ -4,7 +4,7 @@ import { IJob } from '@/backend/models/IJob';
 import { Job } from '@/backend/models/Job';
 import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
 import { DatabaseConnectionError } from '@/backend/lib/errors/DatabaseError';
-import { CountUnpreferencedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from './errors/JobRepositoryError';
+import { CountDislikedJobsError, CountLikedJobsError, CountUnratedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from './errors/JobRepositoryError';
 
 /**
  * Repository for Job model CRUD operations.
@@ -44,15 +44,45 @@ export class JobRepository {
   /**
    * Count jobs without like and dislike.
    */
-  public async countUnpreferencedJobs(): Promise<number> {
+  public async countUnratedJobs(): Promise<number> {
     if (!this.connection) await this.connect();
     let data = null;
     try {
       data = Job.countDocuments({ preference: null })
     } catch (error) {
-      throw new CountUnpreferencedJobsError(String(error));
+      throw new CountUnratedJobsError(String(error));
     }
-    if (!data) throw new CountUnpreferencedJobsError('No data found.');
+    if (!data) throw new CountUnratedJobsError('No data found.');
+    return data;
+  }
+
+  /**
+   * Count jobs with like.
+   */
+  public async countLikedJobs(): Promise<number> {
+    if (!this.connection) await this.connect();
+    let data = null;
+    try {
+      data = Job.countDocuments({ preference: 'like' })
+    } catch (error) {
+      throw new CountLikedJobsError(String(error));
+    }
+    if (!data) throw new CountLikedJobsError('No data found.');
+    return data;
+  }
+
+  /**
+   * Count jobs with dislike.
+   */
+  public async countDislikedJobs(): Promise<number> {
+    if (!this.connection) await this.connect();
+    let data = null;
+    try {
+      data = Job.countDocuments({ preference: 'dislike' })
+    } catch (error) {
+      throw new CountDislikedJobsError(String(error));
+    }
+    if (!data) throw new CountDislikedJobsError('No data found.');
     return data;
   }
 

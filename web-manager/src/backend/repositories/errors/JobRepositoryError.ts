@@ -7,9 +7,25 @@ class JobRepositoryError extends ApiError {
   }
 }
 
-export class CountUnpreferencedJobsError extends JobRepositoryError {
+export class CountUnratedJobsError extends JobRepositoryError {
   constructor(msg?: string) {    
-    const message = `Fail while counting unpreferenced jobs.`;
+    const message = `Fail while counting unrated jobs.`;
+    super(message);
+    if (msg) this.log(msg);
+  }
+}
+
+export class CountLikedJobsError extends JobRepositoryError {
+  constructor(msg?: string) {
+    const message = `Fail while counting liked jobs.`;
+    super(message);
+    if (msg) this.log(msg);
+  }
+}
+
+export class CountDislikedJobsError extends JobRepositoryError {
+  constructor(msg?: string) {
+    const message = `Fail while counting disliked jobs.`;
     super(message);
     if (msg) this.log(msg);
   }

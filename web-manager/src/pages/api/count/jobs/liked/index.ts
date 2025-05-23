@@ -4,7 +4,7 @@ import JobController from '@/backend/controllers/JobController';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case 'GET':
-      return JobController.countUnpreferenced(req, res);
+      return JobController.countLiked(req, res);
     default:
       res.setHeader('Allow', ['GET']);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
