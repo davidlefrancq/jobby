@@ -1,5 +1,6 @@
 'use client';
 
+import JobQueueDisliked from "./JobQueueDisliked";
 import JobQueueLiked from "./JobQueueLiked";
 import JobQueueMenu from "./JobQueueMenu";
 import JobQueueUnrated from "./JobQueueUnrated";
@@ -15,6 +16,7 @@ export default function JobQueuePanel() {
 
       <JobQueueUnrated />
       <JobQueueLiked />
+      <JobQueueDisliked />
     </div>
   );
 }

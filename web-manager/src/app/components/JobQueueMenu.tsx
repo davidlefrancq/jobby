@@ -16,6 +16,10 @@ export default function JobQueueMenu() {
     dispatch(setJobQueueSelected(JobQueueEnum.Liked))
   }
 
+  const handleBtnDisliked = () => {
+    dispatch(setJobQueueSelected(JobQueueEnum.Disliked))
+  }
+
   return (
     <div className="flex flex-row items-center justify-center w-full h-full space-x-4">
       <button
@@ -31,6 +35,13 @@ export default function JobQueueMenu() {
         disabled={jobQueueSelected === JobQueueEnum.Liked}
       >
         Liked
+      </button>
+      <button
+        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 ${jobQueueSelected === JobQueueEnum.Disliked ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
+        onClick={handleBtnDisliked}
+        disabled={jobQueueSelected === JobQueueEnum.Disliked}
+      >
+        Disliked
       </button>
     </div>
   );

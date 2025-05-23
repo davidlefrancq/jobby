@@ -64,6 +64,26 @@ export class JobRepository {
     return count;
   }
 
+  public async getJobsDislikedCounter(): Promise<number> {
+    let count: number = 0;
+    try {
+      const headers = this.getHeaders();
+      const url = `/api/count/jobs/disliked`;
+      const res = await fetch(url, { method: 'GET', headers });
+      if (res.ok) {
+        const jsonData = (await res.json()) as { count: number };
+        if (jsonData && jsonData.count) {
+          count = jsonData.count;
+        }
+      } else {
+        throw new CountUnratedJobsError(`${res.status}: ${res.statusText}`);
+      }
+    } catch (err) {
+      throw new CountUnratedJobsError(String(err));
+    }
+    return count;
+  }
+
   /**
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query

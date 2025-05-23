@@ -6,7 +6,7 @@ import JobTable from "./JobTable";
 import { JobQueueEnum } from "@/constants/JobQueueEnum";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useEffect, useRef, useState } from "react";
-import { setLikedJobs, setLikedSkip, setLikedCounter } from "../store/jobsReducer";
+import { setDislikedJobs, setDislikedSkip, setDislikedCounter } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 
@@ -14,9 +14,9 @@ const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
 let firstLoad = true;
 
-export default function JobQueueLiked() {
+export default function JobQueueDisliked() {
   const dispatch = useAppDispatch()
-  const { likedJobs, jobQueueSelected, likedCounter, likedLimit: limit, likedSkip: skip } = useAppSelector(state => state.jobsReducer)
+  const { dislikedJobs, jobQueueSelected, dislikedCounter, dislikedLimit: limit, dislikedSkip: skip } = useAppSelector(state => state.jobsReducer)
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -24,29 +24,29 @@ export default function JobQueueLiked() {
 
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
-    const filteredJobs = likedJobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
+    const filteredJobs = dislikedJobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
     // Persist in the store
-    dispatch(setLikedJobs([...filteredJobs, ...newJobs]));
-    dispatch(setLikedSkip(skip + newJobs.length));
+    dispatch(setDislikedJobs([...filteredJobs, ...newJobs]));
+    dispatch(setDislikedSkip(skip + newJobs.length));
     // Disable the loader if there are no more jobs from load
     if (newJobs.length < limit) {
       setHasMore(false);
     }
   }
 
-  const loadLikedJobs = async () => {
-    const data = await jobRepository.getAll({ filter: { preference: 'like' }, limit, skip });
+  const loadDislikedJobs = async () => {
+    const data = await jobRepository.getAll({ filter: { preference: 'dislike' }, limit, skip });
     if (data) {
       addJobs(data);
     }
   }
 
-  const loadLikedJobsCounter = () => {
-    jobRepository.getJobsLikedCounter().then(count => {
+  const loadDislikedJobsCounter = () => {
+    jobRepository.getJobsDislikedCounter().then(count => {
       if (count >= 0) {
-        dispatch(setLikedCounter(count));
+        dispatch(setDislikedCounter(count));
       } else {
-        handleAddError('Failed to load liked jobs counter.', 'error');
+        handleAddError('Failed to load disliked jobs counter.', 'error');
       }
     }).catch(err => {
       handleAddError(err.message, 'error');
@@ -64,23 +64,23 @@ export default function JobQueueLiked() {
 
   // Load the first batch of jobs
   useEffect(() => {
-    if (firstLoad && jobQueueSelected === JobQueueEnum.Liked) {
+    if (firstLoad && jobQueueSelected === JobQueueEnum.Disliked) {
       firstLoad = false;
-      loadLikedJobsCounter()
-      loadLikedJobs().then(() => {}).catch(err => {
+      loadDislikedJobsCounter()
+      loadDislikedJobs().then(() => {}).catch(err => {
         handleAddError(err.message, 'error');
       });
     }
   }, [jobQueueSelected]);
 
   useEffect(() => {
-    if (jobQueueSelected !== JobQueueEnum.Liked || !loaderRef.current || !hasMore || isFetching) return;
+    if (jobQueueSelected !== JobQueueEnum.Disliked || !loaderRef.current || !hasMore || isFetching) return;
 
     const observer = new IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting) {
           setIsFetching(true);
-          loadLikedJobs()
+          loadDislikedJobs()
             .catch(err => handleAddError(err.message, 'error'))
             .finally(() => setIsFetching(false));
         }
@@ -93,17 +93,17 @@ export default function JobQueueLiked() {
   }, [loaderRef, hasMore, isFetching, skip]);
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Liked ? '' : 'hidden'}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Disliked ? '' : 'hidden'}`}>
       
       <div className="items-right text-right mt-4 mb-0 text-sm text-gray-500">
-        {likedJobs.length}/{likedCounter} jobs
+        {dislikedJobs.length}/{dislikedCounter} jobs
       </div>
 
-      <JobTable jobs={likedJobs} onEdit={(job: IJobEntity) => console.log({ job })} onView={(job: IJobEntity) => console.log({ job })} />
+      <JobTable jobs={dislikedJobs} onEdit={(job: IJobEntity) => console.log({ job })} onView={(job: IJobEntity) => console.log({ job })} />
       
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
-        {!hasMore && "No more liked job"}
+        {!hasMore && "No more disliked job"}
         {isFetching && hasMore && "Loading..."}
       </div>
     </div>
