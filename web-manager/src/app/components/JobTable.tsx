@@ -8,10 +8,9 @@ import SalaryItem from './SalaryItem';
 interface JobTableProps {
   jobs: IJobEntity[];
   onView: (job: IJobEntity) => void;
-  onEdit: (job: IJobEntity) => void;
 }
 
-export default function JobTable({ jobs }: JobTableProps) {
+export default function JobTable({ jobs, onView }: JobTableProps) {
   return (
     <div className="overflow-x-auto mt-4">
       <table className="w-full bg-white shadow-lg rounded-lg overflow-hidden">
@@ -27,7 +26,7 @@ export default function JobTable({ jobs }: JobTableProps) {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {jobs.map((job) => (
-            <tr key={job._id.toString()} className="hover:bg-gray-50">
+            <tr key={job._id.toString()} className="hover:bg-gray-50" onClick={() => onView(job)}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.location}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.title}</td>

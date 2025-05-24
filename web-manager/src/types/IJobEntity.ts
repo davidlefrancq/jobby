@@ -10,7 +10,7 @@ export interface ISalary {
 
 export interface IJobEntity {
   _id: Types.ObjectId;
-  company: string;
+  company: string | null;
   contract_type?: string | null;
   date: string | null;
   description: string | null;

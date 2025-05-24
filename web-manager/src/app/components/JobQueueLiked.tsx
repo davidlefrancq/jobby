@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { setLikedJobs, setLikedSkip, setLikedCounter } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
+import JobModal from "./JobModal";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -21,6 +22,7 @@ export default function JobQueueLiked() {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [jobSelected, setJobSelected] = useState<IJobEntity | null>(null);
 
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
@@ -73,6 +75,7 @@ export default function JobQueueLiked() {
     }
   }, [jobQueueSelected]);
 
+  // Load more jobs
   useEffect(() => {
     if (jobQueueSelected !== JobQueueEnum.Liked || !loaderRef.current || !hasMore || isFetching) return;
 
@@ -99,13 +102,15 @@ export default function JobQueueLiked() {
         {likedJobs.length}/{likedCounter} jobs
       </div>
 
-      <JobTable jobs={likedJobs} onEdit={(job: IJobEntity) => console.log({ job })} onView={(job: IJobEntity) => console.log({ job })} />
+      <JobTable jobs={likedJobs} onView={(job: IJobEntity) => setJobSelected(job)} />
       
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
         {!hasMore && "No more liked job"}
         {isFetching && hasMore && "Loading..."}
       </div>
+
+      { jobSelected ? <JobModal job={jobSelected} onClose={() => setJobSelected(null)} /> : null }
     </div>
   );
 }
