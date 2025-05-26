@@ -13,7 +13,9 @@ interface FieldEditorCompanyProps {
 export default function FieldEditorCompany({ company, isEditMode, saveFunction }: FieldEditorCompanyProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [inputValue, setInputValue] = useState<string | null | undefined>(company);
+  const [inputCompany, setInputCompany] = useState<string | null | undefined>(company);
+  const [siren, setSiren] = useState<string | null>(null);
+  const [siret, setSiret] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(isEditMode);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,23 +24,26 @@ export default function FieldEditorCompany({ company, isEditMode, saveFunction }
   };
 
   const save = async () => {
-    if (saveFunction) {
-      try {
-        await saveFunction(inputValue || null);
-        setIsEditing(false);
-      } catch (error) {
-        let errorMessage = "An error occurred while saving the value.";
-        if (error instanceof Error) errorMessage = error.message;
-        else if (typeof error === "string") errorMessage = error;
-        setError(errorMessage);
-      }
-    } else {
-      setIsEditing(false);
-    }
+    // TODO: Rework save logic
+    console.log("Saving company:", inputCompany, "SIREN:", siren, "SIRET:", siret);
+
+    // if (saveFunction) {
+    //   try {
+    //     await saveFunction(inputCompany || null);
+    //     setIsEditing(false);
+    //   } catch (error) {
+    //     let errorMessage = "An error occurred while saving the value.";
+    //     if (error instanceof Error) errorMessage = error.message;
+    //     else if (typeof error === "string") errorMessage = error;
+    //     setError(errorMessage);
+    //   }
+    // } else {
+    //   setIsEditing(false);
+    // }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+    setInputCompany(e.target.value);
   };
 
   useEffect(() => {
@@ -64,13 +69,27 @@ export default function FieldEditorCompany({ company, isEditMode, saveFunction }
 
   if (isEditMode && isEditing) {
     return (
-      <div ref={ref} className="flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
+      <div ref={ref} className="absolute flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
         <input
           type="text"
-          value={inputValue || ''}
+          value={inputCompany || ''}
           onChange={handleChange}
           className="border rounded px-2 py-1 w-full mr-1"
-          placeholder="Enterprise name"
+          placeholder="Company name"
+        />
+        <input
+          type="text"
+          value={siren || ''}
+          onChange={(e) => setSiren(e.target.value)}
+          className="border rounded px-2 py-1 w-full mr-1"
+          placeholder="SIREN (optional)"
+        />
+        <input
+          type="text"
+          value={siret || ''}
+          onChange={(e) => setSiret(e.target.value)}
+          className="border rounded px-2 py-1 w-full mr-1"
+          placeholder="SIRET (optional)"
         />
         <BtnSave onClick={save} />
         <FieldEditorErrorPanel message={error} close={handleremoveError} />
@@ -85,7 +104,7 @@ export default function FieldEditorCompany({ company, isEditMode, saveFunction }
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {inputValue || '[N/A]'}
+      {inputCompany || '[N/A]'}
     </span>
   )
 }
