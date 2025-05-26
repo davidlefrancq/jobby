@@ -9,6 +9,7 @@ import FieldEditorSalary from "./FieldEditorSalary";
 import FieldEditorDescription from "./FieldEditorDescription";
 import FieldEditorTeleworking from "./FieldEditorTeleworking";
 import FieldEditorString from "./FieldEditorString";
+import FieldEditorTechnologies from "./FieldEditorTechnologies";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -87,7 +88,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
               {/* Technologies */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Technologies :</strong></span>
-                {/* TODO: FieldEditorTechnologies */}
+                <FieldEditorTechnologies job={job} isEditMode={isEditMode} />
               </p>
               
               {/* Methodologies */}
