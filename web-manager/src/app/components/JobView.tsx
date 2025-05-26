@@ -30,11 +30,11 @@ export default function JobView({ job, onCancel, onDeleted, onEdit }: JobViewPro
   return (
     <>
       <h1 className="text-4xl font-bold text-gray-800 mb-6">{job.title}</h1>
-      <p className="text-gray-600 mb-2"><span className="font-semibold">Entreprise :</span> {job.company}</p>
-      <p className="text-gray-600 mb-4"><span className="font-semibold">Localisation :</span> {job.location}</p>
+      <div className="text-gray-600 mb-2"><span className="font-semibold">Entreprise :</span> {job.company}</div>
+      <div className="text-gray-600 mb-4"><span className="font-semibold">Localisation :</span> {job.location}</div>
       <div className="mt-4">
         <h3 className="text-xl font-semibold text-gray-700 mb-2">Description</h3>
-        <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">{job.description || 'Aucune description fournie.'}</p>
+        <div className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">{job.description || 'Aucune description fournie.'}</div>
       </div>
       <div className="mt-6 flex flex-wrap gap-2">
         <button

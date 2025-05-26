@@ -42,7 +42,7 @@ export default function FieldEditorErrorPanel({ message, close }: FieldEditorErr
             className="border bg-red-100 text-red-700 border-red-300"
             onClick={handleClose}
           />
-          <h3 className="font-bold text-lg">Error</h3>
+          <div className="font-bold text-lg">Error</div>
           <div className="text-base">{message}</div>
         </motion.div>
       )}

@@ -46,9 +46,9 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
         <div className="text-left">
           {/* Job title and company */}
           <h2 className="text-xl font-bold">{job.title}</h2>
-          <p className="text-gray-700 font-medium">{job.company}</p>
+          <div className="text-gray-700 font-medium">{job.company}</div>
           {/* Details */}
-          <p className="flex text-gray-500 text-sm">
+          <div className="flex text-gray-500 text-sm">
             {job.language ? <LanguageFlag language={job.language} padding={"pr-2"} />: null}
             <span title='Location'>{job.location}</span>
             {job.contract_type ? <DotSplitter /> : null}
@@ -60,11 +60,11 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             <span className="ml-auto mr-0">
               {job.interest_indicator}
             </span>
-          </p>
+          </div>
           {/* Descripttion */}
-          <p className="mt-4 text-gray-700 text-justify">
+          <div className="mt-4 text-gray-700 text-justify">
             {job.description}
-          </p>
+          </div>
           <div className="pt-4 pb-2">
             {/* Technologies */}
             {job.technologies && job.technologies.length > 0 ? (
