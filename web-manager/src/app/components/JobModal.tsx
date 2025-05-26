@@ -22,23 +22,25 @@ export default function JobModal({ job, onClose }: JobModalProps) {
     setIsEditMode(prev => !prev);
   };
 
+  const borderStyle = isEditMode ? " border border-red-500" : " border border-white";
+
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        className={"fixed inset-0 z-50 flex items-center justify-center bg-black/50"}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]"
+          className={"relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]" + borderStyle}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {/* Button Bar */}
-          <div className="absolute top-4 right-4 flex items-center gap-3">
+          <div className={"absolute top-4 right-4 flex items-center gap-3"}>
             {/* Edit Mode Button */}
             <button onClick={handleToggleEdit} className="text-gray-500 hover:text-black">
               {isEditMode ? <Pencil className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-blue-500" />}
