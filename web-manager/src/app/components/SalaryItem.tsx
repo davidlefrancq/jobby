@@ -4,7 +4,7 @@ import { ISalary } from "@/types/IJobEntity";
 
 interface SalaryItemProps {
   title?: string;
-  salary: ISalary;
+  salary: ISalary | null | undefined;
 }
 
 export default function SalaryItem({ salary, title }: SalaryItemProps) {

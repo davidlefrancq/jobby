@@ -1,16 +1,16 @@
 'use client';
 
 import { IJobEntity } from "@/types/IJobEntity";
-import { useEffect, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import BtnSave from "./BtnSave";
+import StatusDot from "./StatusDot";
+import { INTEREST_OPTIONS, INTEREST_OPTIONS_LEGEND } from "@/constants/job-interest-status";
 
-// job.interest_indicator is a string wihth value 🟢 | 🟡 | 🔴 or null. 
-const INTEREST_OPTIONS = ['[N/A]', '🟢', '🟡', '🔴'];
-const INTEREST_OPTIONS_LEGEND: Record<string, string> = {
-  '[N/A]': '[N/A]',
-  '🟢': 'Pertinant',
-  '🟡': 'A vérifier',
-  '🔴': 'Faible intérêt'
+const INTEREST_STATUS: Record<string, ReactElement> = {
+  '✅': <StatusDot status="success" />,
+  '🟢': <StatusDot status="success" />,
+  '🟡': <StatusDot status="warning" />,
+  '🔴': <StatusDot status="error" />,
 }
 
 interface FieldEditorInterestIndicatorProps {
@@ -27,12 +27,19 @@ export default function FieldEditorInterestIndicator({ job, isEditMode }: FieldE
 
   // Mapping legend with option
   const getLegend = (value: string) => {
-    let legend = INTEREST_OPTIONS_LEGEND['[N/A]']
+    let legend: ReactElement = <>{INTEREST_OPTIONS_LEGEND['[N/A]']}</>
 
     for (const [key, legendValue] of Object.entries(INTEREST_OPTIONS_LEGEND)) {
       if (value === key) {
-        legend = legendValue;
-        if (legendValue !== '[N/A]') legend = `${key} ${legend}`;
+        legend = <>{legendValue}</>
+        if (legendValue !== '[N/A]') {
+          legend = (
+            <span className="flex items-center gap-1">
+              {INTEREST_STATUS[key]}
+              {legend}
+            </span>
+          );
+        }
         break;
       }
     }

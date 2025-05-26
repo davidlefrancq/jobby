@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { RefreshCcw } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/app/store';
 import { removeNotification } from '@/app/store/notificationsReducer';
-import { IJobEntity } from '@/types/IJobEntity';
 import BtnLoading from './BtnLoading';
 import NotificationsPanel from './NotificationsPanel';
 import Link from 'next/link';
@@ -13,11 +12,7 @@ import N8NWorkflowPanel from './N8NWorkflowPanel';
 import JobQueuePanel from './JobQueuePanel';
 
 
-interface JobBoardProps {
-  onView: (job: IJobEntity) => void;
-}
-
-export default function JobBoard({}: JobBoardProps) {
+export default function JobBoard() {
   const dispatch = useAppDispatch()
   const { notifications } = useAppSelector(state => state.notificationsReducer)
 

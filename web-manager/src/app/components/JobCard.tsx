@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { IJobEntity } from '@/types/IJobEntity';
 import LanguageFlag from './LanguageFlag';
 import TruncatedText from './TruncatedText';
+import JobStatus from './JobStatus';
 
 interface JobCardProps {
   job: IJobEntity;
@@ -49,16 +50,22 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           <div className="text-gray-700 font-medium">{job.company}</div>
           {/* Details */}
           <div className="flex text-gray-500 text-sm">
+            {/* Language */}
             {job.language ? <LanguageFlag language={job.language} padding={"pr-2"} />: null}
+            {/* Location */}
             <span title='Location'>{job.location}</span>
+            {/* Contract Type */}
             {job.contract_type ? <DotSplitter /> : null}
             {job.contract_type ? <TruncatedText text={job.contract_type} /> : null}
+            {/* Date */}
             {date ? <DotSplitter /> : null}
             {date ? date.toLocaleDateString() : null}
+            {/* Salary */}
             {job.salary && (job.salary.min || job.salary.max) ? <DotSplitter /> : null}
             {job.salary ? <Salary job={job} /> : null}
+            {/* Interest Indicator */}
             <span className="ml-auto mr-0">
-              {job.interest_indicator}
+              <JobStatus job={job} />
             </span>
           </div>
           {/* Descripttion */}

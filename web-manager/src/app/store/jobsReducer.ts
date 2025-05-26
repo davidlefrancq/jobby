@@ -57,6 +57,7 @@ const jobsSlice = createSlice({
     },
     removeUnratedJob(state, action: PayloadAction<string>) {
       state.unratedJobs = state.unratedJobs.filter(j => j._id.toString() !== action.payload)
+      state.unratedCounter = Math.max(0, state.unratedCounter - 1) // Ensure counter does not go negative
     },
 
     // Liked Jobs Methods

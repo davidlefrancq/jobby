@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { IJobEntity } from '@/types/IJobEntity';
 import TruncatedText from './TruncatedText';
 import SalaryItem from './SalaryItem';
+import JobStatus from './JobStatus';
 
 interface JobTableProps {
   jobs: IJobEntity[];
@@ -68,20 +69,32 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
               Type {renderSortIcon('contract_type')}
             </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide">Salary</th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide">Indicator</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {sortedJobs.map((job) => (
             <tr key={job._id.toString()} className="hover:bg-gray-50" onClick={() => onView(job)}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.location}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.title}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{job.company}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <TruncatedText text={job.location || ''} length={20} />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <TruncatedText text={job.title || ''} length={40} />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <TruncatedText text={job.company || ''} length={20} />
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <TruncatedText text={job.contract_type || ''} length={10} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <SalaryItem salary={job.salary} />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <JobStatus job={job} showLegend={true} />
               </td>
             </tr>
           ))}

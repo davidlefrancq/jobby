@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { IJobEntity } from "@/types/IJobEntity";
-import { setUnratedJobs, setUnratedSkip, setUnratedCounter } from "../store/jobsReducer";
+import { setUnratedJobs, setUnratedSkip, removeUnratedJob, setUnratedCounter, addLikedJob, addDislikedJob } from "../store/jobsReducer";
+import {  } from "../store/n8nReducer";
 import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
@@ -16,10 +18,13 @@ let firstLoad = true;
 
 export default function JobQueueUnrated() {
   const dispatch = useAppDispatch()
-  const { unratedJobs: jobs, jobQueueSelected, uratedLimit: limit, unratedSkip: skip, unratedCounter } = useAppSelector(state => state.jobsReducer)
+  const { unratedJobs: jobs, jobQueueSelected, uratedLimit: limit, unratedSkip: skip, unratedCounter} = useAppSelector(state => state.jobsReducer)
+  const { franceTravailStarted, googleAlertsStarted, linkedInStarted } = useAppSelector(state => state.n8nReducer)
 
   const [jobsUnrated, setJobsUnrated] = useState<IJobEntity[]>([]);
   const [jobTargeted, setJobTargeted] = useState<IJobEntity | null>(null);
+  const [inLoading, setInLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const addJobs = (newJobs: IJobEntity[]) => {
     // jobs filtered without newJobs
@@ -30,9 +35,26 @@ export default function JobQueueUnrated() {
   }
 
   const loadUnratedJobs = async () => {
-    const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit, skip });
-    if (data) {
-      addJobs(data);
+    if (!inLoading && hasMore) {
+      setInLoading(true);
+      try {
+        const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit, skip });
+        if (data && data.length > 0) {
+          addJobs(data);
+          setInLoading(false);
+        } else if (data && data.length === 0) {
+          setInLoading(false);
+          setHasMore(false);
+        } else {
+          console.log({ data })
+          setInLoading(false);
+          handleAddError('Failed to load unrated jobs.', 'error');
+        }
+      } catch (error) {
+        console.error(error);
+        setInLoading(false);
+        handleAddError('Failed to load unrated jobs.', 'error');
+      }
     }
   }
 
@@ -60,9 +82,8 @@ export default function JobQueueUnrated() {
   const handleLike = async (job: IJobEntity) => {
     try {
       await saveUpdatedJobs({ job: { _id: job._id, preference: 'like' } });
-      const newJobs = jobs.filter(j => j._id !== job._id);
-      dispatch(setUnratedJobs(newJobs));
-      dispatch(setUnratedCounter(unratedCounter - 1));
+      dispatch(removeUnratedJob(job._id.toString()));
+      dispatch(addLikedJob(job));
     } catch (error) {
       console.error(error);
       handleAddError('Failed to like job.', 'error');
@@ -71,10 +92,9 @@ export default function JobQueueUnrated() {
 
   const handleDislike = async (job: IJobEntity) => {
     try { 
-      await saveUpdatedJobs({ job: { _id: job._id, preference: 'dislike' } });
-      const newJobs = jobs.filter(j => j._id !== job._id);
-      dispatch(setUnratedJobs(newJobs));
-      dispatch(setUnratedCounter(unratedCounter - 1));
+      await saveUpdatedJobs({ job: { _id: job._id, preference: 'dislike', interest_indicator: '🔴' } });
+      dispatch(removeUnratedJob(job._id.toString()));
+      dispatch(addDislikedJob(job));
     } catch (error) {
       console.error(error);
       handleAddError('Failed to dislike job.', 'error');
@@ -107,6 +127,17 @@ export default function JobQueueUnrated() {
     }
   }, []);
 
+  // Load more when n8n workflows are finished
+  useEffect(() => {
+    if (!firstLoad) {
+      if (!franceTravailStarted && !googleAlertsStarted && !linkedInStarted) {
+        loadUnratedJobs().then(() => {}).catch(err => {
+          handleAddError(err.message, 'error');
+        });
+      }
+    }
+  }, [franceTravailStarted, googleAlertsStarted, linkedInStarted]);
+
   // Update jobsUnrated list from jobs
   useEffect(() => {
     setJobsUnrated(jobs.filter(job => job.preference === undefined || job.preference === null));
@@ -118,12 +149,38 @@ export default function JobQueueUnrated() {
       setJobTargeted(jobsUnrated[0]);
     } else {
       setJobTargeted(null);
+      loadUnratedJobs().then(() => {}).catch(err => {
+        handleAddError(err.message, 'error');
+      });
     }
   }, [jobsUnrated]);
 
+  useEffect(() => {
+
+  }, [unratedCounter]);
+
   return (      
-    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
-      { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null }
+    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 overflow-x-hidden ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
+      {/* { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null } */}
+
+      <AnimatePresence mode="wait">
+        {jobTargeted && (
+          <motion.div
+            key={jobTargeted._id.toString()}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            <JobCard
+              job={jobTargeted}
+              onLike={handleLike}
+              onDislike={handleDislike}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col items-center justify-center w-full h-full">
         <span className="text-lg font-semibold text-gray-500">{unratedCounter ? unratedCounter : 'No more offers.'}</span>
       </div>
