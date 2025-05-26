@@ -5,6 +5,7 @@ import { Job } from '@/backend/models/Job';
 import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
 import { DatabaseConnectionError } from '@/backend/lib/errors/DatabaseError';
 import { CountDislikedJobsError, CountLikedJobsError, CountUnratedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from './errors/JobRepositoryError';
+import { IJobEntity } from '@/types/IJobEntity';
 
 /**
  * Repository for Job model CRUD operations.
@@ -94,8 +95,8 @@ export class JobRepository {
     if (!this.connection) await this.connect();
     
     try {
-      const findFilter = filter ? filter : {};
-      const query = Job.find(findFilter);
+      const findFilter: mongoose.FilterQuery<IJobEntity> = filter ? filter : {};
+      const query = Job.find(findFilter).sort({ date: -1 });
       if (limit) query.limit(limit);
       if (skip) query.skip(skip);
       return query.exec();
