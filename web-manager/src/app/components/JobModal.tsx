@@ -58,10 +58,15 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           <h2 className="text-xl font-semibold mb-2 text-gray-800">
             <FieldEditorString initialValue={job.title} isEditMode={isEditMode} legendValue={"Title"} />
           </h2>
-          <p className="flex text-sm text-gray-500 mb-4">
+          <div className="flex text-sm text-gray-500 mb-4">
             {/* Company */}
             <span className="py-2.5 mr-1">
-              <FieldEditorCompany company={job.company} isEditMode={isEditMode} />
+              <FieldEditorCompany job={job} isEditMode={isEditMode} saveFunction={(values: Partial<IJobEntity>) => {
+                return new Promise((resolve) => {
+                  console.log({ values })
+                  resolve();
+                });
+              }} />
             </span>
             
             <span className="py-2.5 mr-1"> • </span>
@@ -77,7 +82,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             <span className="py-2.5 mr-1">
               <FieldEditorString initialValue={job.location} isEditMode={isEditMode} legendValue={"Location"} />
             </span>
-          </p>
+          </div>
 
           {/* Description */}
           <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
@@ -87,69 +92,69 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           <div className="grid grid-cols-2 text-sm text-gray-600">
             <div className="pr-2">
               {/* Technologies */}
-              <p className="">
+              <div className="">
                 <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
                   Technologies :
                 </span>
                 <FieldEditorStringArray items={job.technologies} isEditMode={isEditMode} />
-              </p>
+              </div>
               
               {/* Methodologies */}
-              <p className="">
+              <div className="">
                 <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
                   Méthodologies :
                 </span>
                 <FieldEditorStringArray items={job.methodologies} isEditMode={isEditMode} />
-              </p>
+              </div>
               
               {/* Teleworking */}
-              <p className="flex items-center">
+              <div className="flex items-center">
                 <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
                   Télétravail :
                 </span>
                 <FieldEditorTeleworking job={job} isEditMode={isEditMode} />
-              </p>
+              </div>
 
               {/* Language */}
-              <p className="flex items-center">
+              <div className="flex items-center">
                 <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
                   Langue :
                 </span>
                 <FieldEditorString initialValue={job.language} isEditMode={isEditMode} />
-              </p>
+              </div>
             </div>
             <div>
               {/* Level */}
-              <p className="flex items-center">
+              <div className="flex items-center">
                 <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
                   Niveau :
                 </span>
                 <FieldEditorLevel job={job} isEditMode={isEditMode} />
-              </p>
+              </div>
 
               {/* Salary */}
-              <p className="py-2.5">
+              <div className="py-2.5">
                 <span className="min-w-15 mt-0 mb-auto mr-1 font-bold">
                   Salaire :
                 </span>
                 <FieldEditorSalary job={job} isEditMode={isEditMode} />
-              </p>
+              </div>
 
               {/* Interest Indicator */}
-              <p className="flex items-center">
+              <div className="flex items-center">
                 <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
                   Intérêt :
                 </span>
                 <FieldEditorInterestIndicator job={job} isEditMode={isEditMode} />
-              </p>
+              </div>
 
               {/* Source */}
-              <p className="flex items-center">
+              <div className="flex items-center">
                 <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Source :</strong></span>
                 <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
                   {job.source ? new URL(job.source).hostname : "Lien non disponible"}
                 </Link>
-              </p>
+              </div>
             </div>
           </div>
         </motion.div>

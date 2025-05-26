@@ -13,7 +13,7 @@ export default function FieldEditorErrorPanel({ message, close }: FieldEditorErr
   const [isVisible, setIsVisible] = useState(false);
 
   const handleClose = () => {
-    setIsVisible(false);
+    close();
   };
 
   useEffect(() => {
@@ -34,16 +34,20 @@ export default function FieldEditorErrorPanel({ message, close }: FieldEditorErr
           transition={{ duration: 0.3 }}
           onAnimationComplete={(def) => {
             // Execute `close()` after exit
-            if (def === "exit") close();
+            if (def === "exit") handleClose();
           }}
           className="absolute top-1/3 left-1/8 w-3/4 min-h-1/3 bg-red-100 text-red-800 p-2 rounded shadow-md"
         >
           <CloseButton
             className="border bg-red-100 text-red-700 border-red-300"
-            onClick={handleClose}
+            onClick={() => setIsVisible(false)}
           />
-          <div className="font-bold text-lg">Error</div>
-          <div className="text-base">{message}</div>
+          <div className="text-base">
+            <span className="font-bold pr-1">
+              Error:
+            </span>
+            {message}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

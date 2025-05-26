@@ -8,18 +8,75 @@ export interface ISalary {
   max?: number | null;
 }
 
+export interface ICompanyLocation {
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  postal_code?: string | null;
+  siret?: string | null;
+  workforce?: number | null;
+}
+
+export interface ICompanyShareCapital {
+  amount: number;
+  currency: string;
+}
+
+export interface ICompanyCA {
+  amount: number;
+  currency: string;
+  siret: string;
+  year: number;
+}
+
+export interface ICompanyLeadership {
+  email?: string | null;
+  github?: string | null;
+  linkedin?: string | null;
+  name: string;
+  phone?: string | null;
+  position?: string;
+  twitter?: string | null;
+  website?: string | null;
+}
+
+export interface ICompanyMarketPositioning {
+  competitors: string[] | null;
+  differentiators: string[] | null;
+}
+
+export interface ICompanyDetails {
+  clients?: string[] | null;
+  creation_date?: Date | null;sector?: string | null;
+  description?: string | null;
+  global_workforce?: number | null;
+  leadership?: ICompanyLeadership[] | null;
+  legal_form?: string | null;
+  locations?: ICompanyLocation[] | null;
+  logo?: string | null;
+  market_positioning?: ICompanyMarketPositioning | null;  
+  products?: string[] | null;
+  revenue?: ICompanyCA[] | null;
+  share_capital: ICompanyShareCapital | null;
+  siren?: string | null;
+  website?: string | null;
+}
+
 export interface IJobEntity {
   _id: Types.ObjectId;
   company: string | null;
+  company_details?: ICompanyDetails | null;
   contract_type?: string | null;
   date: string | null;
   description: string | null;
   interest_indicator: string;
+  language: string | null;
   level?: string | null;
   location: string | null;
   methodologies: string[] | null;
   preference: JobPreference;
-  language: string | null;
   salary: ISalary;
   source: string;
   technologies: string[] | null;
