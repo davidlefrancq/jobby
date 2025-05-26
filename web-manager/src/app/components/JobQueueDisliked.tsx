@@ -2,13 +2,14 @@
 
 import { IJobEntity } from "@/types/IJobEntity";
 import { useAppDispatch, useAppSelector } from "../store";
-import JobTable from "./JobTable";
 import { JobQueueEnum } from "@/constants/JobQueueEnum";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useEffect, useRef, useState } from "react";
 import { setDislikedJobs, setDislikedSkip, setDislikedCounter } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
+import JobModal from "./JobModal";
+import JobTable from "./JobTable";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -21,6 +22,7 @@ export default function JobQueueDisliked() {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [jobSelected, setJobSelected] = useState<IJobEntity | null>(null);
 
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
@@ -99,13 +101,15 @@ export default function JobQueueDisliked() {
         {dislikedJobs.length}/{dislikedCounter} jobs
       </div>
 
-      <JobTable jobs={dislikedJobs} onEdit={(job: IJobEntity) => console.log({ job })} onView={(job: IJobEntity) => console.log({ job })} />
+      <JobTable jobs={dislikedJobs} onView={(job: IJobEntity) => setJobSelected(job)} />
       
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
         {!hasMore && "No more disliked job"}
         {isFetching && hasMore && "Loading..."}
       </div>
+
+      { jobSelected ? <JobModal job={jobSelected} onClose={() => setJobSelected(null)} /> : null }
     </div>
   );
 }

@@ -75,7 +75,10 @@ const jobsSlice = createSlice({
     addLikedJob(state, action: PayloadAction<IJobEntity>) {
       const existingJob = state.likedJobs.find(j => j._id === action.payload._id)
       if (!existingJob) {
-        state.likedJobs.push(action.payload)
+        let newLikedJobs = state.likedJobs.filter(j => j._id !== action.payload._id)
+        newLikedJobs = [...newLikedJobs, action.payload]
+        state.likedJobs = newLikedJobs
+        state.likedCounter = Math.max(0, state.likedCounter + 1) // Ensure counter does not go negative
       }
     },
     updateLikedJob(state, action: PayloadAction<IJobEntity>) {
@@ -84,6 +87,7 @@ const jobsSlice = createSlice({
     },
     removeLikedJob(state, action: PayloadAction<string>) {
       state.likedJobs = state.likedJobs.filter(j => j._id.toString() !== action.payload)
+      state.likedCounter = Math.max(0, state.likedCounter - 1) // Ensure counter does not go negative
     },
 
     // Disliked Jobs Methods
@@ -102,7 +106,10 @@ const jobsSlice = createSlice({
     addDislikedJob(state, action: PayloadAction<IJobEntity>) {
       const existingJob = state.dislikedJobs.find(j => j._id === action.payload._id)
       if (!existingJob) {
-        state.dislikedJobs.push(action.payload)
+        let newDislikedJobs = state.dislikedJobs.filter(j => j._id !== action.payload._id)
+        newDislikedJobs = [...newDislikedJobs, action.payload]
+        state.dislikedJobs = newDislikedJobs
+        state.dislikedCounter = Math.max(0, state.dislikedCounter + 1) // Ensure counter does not go negative
       }
     },
     updateDislikedJob(state, action: PayloadAction<IJobEntity>) {
@@ -111,6 +118,7 @@ const jobsSlice = createSlice({
     },
     removeDislikedJob(state, action: PayloadAction<string>) {
       state.dislikedJobs = state.dislikedJobs.filter(j => j._id.toString() !== action.payload)
+      state.dislikedCounter = Math.max(0, state.dislikedCounter - 1) // Ensure counter does not go negative
     },
 
     // Job Queue Selector Method

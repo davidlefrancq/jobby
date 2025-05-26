@@ -12,6 +12,7 @@ import FieldEditorString from "./FieldEditorString";
 import FieldEditorStringArray from "./FieldEditorStringArray";
 import FieldEditorCompany from "./FieldEditorCompany";
 import BtnDislike from "./BtnDislike";
+import BtnLike from "./BtnLike";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -160,7 +161,8 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           </div>
 
           <div className="absolute bottom-4 right-4 flex items-center gap-3">
-            <BtnDislike job={job} />
+            {job.preference === 'dislike' && <BtnLike job={job} onClose={() => onClose()} />}
+            {job.preference === 'like' && <BtnDislike job={job} onClose={() => onClose()} />}
           </div>
         </motion.div>
       </motion.div>
