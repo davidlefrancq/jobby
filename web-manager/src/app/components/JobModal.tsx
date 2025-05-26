@@ -8,6 +8,7 @@ import FieldEditorInterestIndicator from "./FieldEditorInterestIndicator";
 import FieldEditorSalary from "./FieldEditorSalary";
 import FieldEditorDescription from "./FieldEditorDescription";
 import FieldEditorTeleworking from "./FieldEditorTeleworking";
+import FieldEditorString from "./FieldEditorString";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -36,63 +37,95 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
+          {/* Button Bar */}
           <div className="absolute top-4 right-4 flex items-center gap-3">
+            {/* Edit Mode Button */}
             <button onClick={handleToggleEdit} className="text-gray-500 hover:text-black">
-              {isEditMode ? <Eye className="w-5 h-5" /> : <Pencil className="w-5 h-5" />}
+              {isEditMode ? <Pencil className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-blue-500" />}
             </button>
+            
+            {/* Close Button */}
             <button onClick={onClose} className="text-gray-500 hover:text-black">
               <X className="w-5 h-5" />
             </button>
           </div>
 
+          {/* Title */}
           <h2 className="text-xl font-semibold mb-2 text-gray-800">
-            {/* TODO: FieldEditorTitle */}
+            <FieldEditorString initialValue={job.title} isEditMode={isEditMode} legendValue={"Title"} />
           </h2>
-          <p className="text-sm text-gray-500 mb-4">
-            {/* TODO: FieldEditorCompany */}
-             • 
-            {/* TODO: FieldEditorContractType */}
-             • 
-            {/* TODO: FieldEditorLocation */}
+          <p className="flex text-sm text-gray-500 mb-4">
+            {/* Company */}
+            <span className="py-2.5 mr-1">
+              <FieldEditorString initialValue={job.company} isEditMode={isEditMode} legendValue={"Company name"} />
+            </span>
+            
+            <span className="py-2.5 mr-1"> • </span>
+            
+            {/* Contract Type */}
+            <span className="py-2.5 mr-1">
+              <FieldEditorString initialValue={job.contract_type} isEditMode={isEditMode} legendValue={"Contract type"} />
+            </span>
+            
+            <span className="py-2.5 mr-1"> • </span>
+            
+            {/* Location */}
+            <span className="py-2.5 mr-1">
+              <FieldEditorString initialValue={job.location} isEditMode={isEditMode} legendValue={"Location"} />
+            </span>
           </p>
 
+          {/* Description */}
           <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
             <FieldEditorDescription job={job} isEditMode={isEditMode} />
           </div>
 
           <div className="grid grid-cols-2 text-sm text-gray-600">
             <div>
+              {/* Technologies */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Technologies :</strong></span>
                 {/* TODO: FieldEditorTechnologies */}
               </p>
+              
+              {/* Methodologies */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Méthodologies :</strong></span>
                 {/* TODO: FieldEditorMethodologies */}
               </p>
+              
+              {/* Teleworking */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Télétravail :</strong></span>
                 <FieldEditorTeleworking job={job} isEditMode={isEditMode} />
               </p>
+
+              {/* Language */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Langue :</strong></span>
-                {/* TODO: FieldEditorLanguage */}
+                <FieldEditorString initialValue={job.language} isEditMode={isEditMode} />
               </p>
             </div>
             <div>
+              {/* Level */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Niveau :</strong></span>
                 <FieldEditorLevel job={job} isEditMode={isEditMode} />
               </p>
-              {/* <p><strong>Salaire :</strong> {renderEditableText("salary", formatSalary(job.salary))}</p> */}
+
+              {/* Salary */}
               <p className="py-2.5">
                 <span className="mr-1"><strong>Salaire :</strong></span>
                 <FieldEditorSalary job={job} isEditMode={isEditMode} />
               </p>
+
+              {/* Interest Indicator */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Intérêt :</strong></span>
                 <FieldEditorInterestIndicator job={job} isEditMode={isEditMode} />
               </p>
+
+              {/* Source */}
               <p className="flex items-center">
                 <span className="py-2.5 mr-1"><strong>Source :</strong></span>
                 <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">

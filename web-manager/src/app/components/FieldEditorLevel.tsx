@@ -58,6 +58,7 @@ export default function FieldEditorLevel({ job, isEditMode }: FieldEditorLevelPr
           onChange={(e) => handleChange(e)}
           className="border rounded px-2 py-1 mr-1"
           list="levels"
+          placeholder="Job level (junior, senior, etc.)"
         />
         <datalist id="levels">
           {levels.map((level) => (
