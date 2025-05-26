@@ -10,6 +10,7 @@ import FieldEditorDescription from "./FieldEditorDescription";
 import FieldEditorTeleworking from "./FieldEditorTeleworking";
 import FieldEditorString from "./FieldEditorString";
 import FieldEditorStringArray from "./FieldEditorStringArray";
+import FieldEditorCompany from "./FieldEditorCompany";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -60,7 +61,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           <p className="flex text-sm text-gray-500 mb-4">
             {/* Company */}
             <span className="py-2.5 mr-1">
-              <FieldEditorString initialValue={job.company} isEditMode={isEditMode} legendValue={"Company name"} />
+              <FieldEditorCompany company={job.company} isEditMode={isEditMode} />
             </span>
             
             <span className="py-2.5 mr-1"> • </span>
@@ -87,44 +88,58 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             <div className="pr-2">
               {/* Technologies */}
               <p className="">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Technologies :</strong></span>
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                  Technologies :
+                </span>
                 <FieldEditorStringArray items={job.technologies} isEditMode={isEditMode} />
               </p>
               
               {/* Methodologies */}
-              <p className="flex items-center">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Méthodologies :</strong></span>
-                {/* TODO: FieldEditorMethodologies */}
+              <p className="">
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                  Méthodologies :
+                </span>
+                <FieldEditorStringArray items={job.methodologies} isEditMode={isEditMode} />
               </p>
               
               {/* Teleworking */}
               <p className="flex items-center">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Télétravail :</strong></span>
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                  Télétravail :
+                </span>
                 <FieldEditorTeleworking job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Language */}
               <p className="flex items-center">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Langue :</strong></span>
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                  Langue :
+                </span>
                 <FieldEditorString initialValue={job.language} isEditMode={isEditMode} />
               </p>
             </div>
             <div>
               {/* Level */}
               <p className="flex items-center">
-                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Niveau :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                  Niveau :
+                </span>
                 <FieldEditorLevel job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Salary */}
               <p className="py-2.5">
-                <span className="min-w-15 mt-0 mb-auto mr-1"><strong>Salaire :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto mr-1 font-bold">
+                  Salaire :
+                </span>
                 <FieldEditorSalary job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Interest Indicator */}
               <p className="flex items-center">
-                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Intérêt :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                  Intérêt :
+                </span>
                 <FieldEditorInterestIndicator job={job} isEditMode={isEditMode} />
               </p>
 

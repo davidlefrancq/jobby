@@ -1,30 +1,33 @@
-'user client';
+'use client';
 
-import { IJobEntity } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
-import BtnSave from "./BtnSave";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
+import BtnSave from "./BtnSave";
 
-interface FieldEditorDescriptionProps {
-  job: IJobEntity;
+interface FieldEditorCompanyProps {
+  company: string | null | undefined;
   isEditMode: boolean;
-  saveAction?: (value: string | null) => Promise<void>;
+  saveFunction?: (value: string | null) => Promise<void>;
 }
 
-export default function FieldEditorDescription({ job, isEditMode, saveAction }: FieldEditorDescriptionProps) {
+export default function FieldEditorCompany({ company, isEditMode, saveFunction }: FieldEditorCompanyProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [description, setDescription] = useState<string | null>(job.description || null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState<string | null | undefined>(company);
+  const [isEditing, setIsEditing] = useState(isEditMode);
   const [error, setError] = useState<string | null>(null);
 
+  const handleremoveError = () => {
+    setError(null);
+  };
+
   const save = async () => {
-    if (saveAction) {
+    if (saveFunction) {
       try {
-        await saveAction(description || null);
+        await saveFunction(inputValue || null);
         setIsEditing(false);
       } catch (error) {
-        let errorMessage = "An error occurred while saving the description.";
+        let errorMessage = "An error occurred while saving the value.";
         if (error instanceof Error) errorMessage = error.message;
         else if (typeof error === "string") errorMessage = error;
         setError(errorMessage);
@@ -32,15 +35,11 @@ export default function FieldEditorDescription({ job, isEditMode, saveAction }: 
     } else {
       setIsEditing(false);
     }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDescription(e.target.value);
   };
 
-  const handleremoveError = () => {
-    setError(null);
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -66,11 +65,12 @@ export default function FieldEditorDescription({ job, isEditMode, saveAction }: 
   if (isEditMode && isEditing) {
     return (
       <div ref={ref} className="flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
-        <textarea
-          value={description || ''}
+        <input
+          type="text"
+          value={inputValue || ''}
           onChange={handleChange}
-          className="border rounded px-2 py-1 w-full resize-y min-h-[100px] mr-1"
-          placeholder="Description of the job"
+          className="border rounded px-2 py-1 w-full mr-1"
+          placeholder="Enterprise name"
         />
         <BtnSave onClick={save} />
         <FieldEditorErrorPanel message={error} close={handleremoveError} />
@@ -85,7 +85,7 @@ export default function FieldEditorDescription({ job, isEditMode, saveAction }: 
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {description || '[N/A]'}
+      {inputValue || '[N/A]'}
     </span>
-  );
+  )
 }
