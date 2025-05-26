@@ -11,6 +11,7 @@ import FieldEditorTeleworking from "./FieldEditorTeleworking";
 import FieldEditorString from "./FieldEditorString";
 import FieldEditorStringArray from "./FieldEditorStringArray";
 import FieldEditorCompany from "./FieldEditorCompany";
+import BtnDislike from "./BtnDislike";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -156,6 +157,10 @@ export default function JobModal({ job, onClose }: JobModalProps) {
                 </Link>
               </div>
             </div>
+          </div>
+
+          <div className="absolute bottom-4 right-4 flex items-center gap-3">
+            <BtnDislike job={job} />
           </div>
         </motion.div>
       </motion.div>

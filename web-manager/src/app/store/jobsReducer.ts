@@ -72,6 +72,12 @@ const jobsSlice = createSlice({
     setLikedJobs(state, action: PayloadAction<IJobEntity[]>) {
       state.likedJobs = action.payload
     },
+    addLikedJob(state, action: PayloadAction<IJobEntity>) {
+      const existingJob = state.likedJobs.find(j => j._id === action.payload._id)
+      if (!existingJob) {
+        state.likedJobs.push(action.payload)
+      }
+    },
     updateLikedJob(state, action: PayloadAction<IJobEntity>) {
       const idx = state.likedJobs.findIndex(j => j._id === action.payload._id)
       if (idx !== -1) state.likedJobs[idx] = action.payload
@@ -93,6 +99,12 @@ const jobsSlice = createSlice({
     setDislikedJobs(state, action: PayloadAction<IJobEntity[]>) {
       state.dislikedJobs = action.payload
     },
+    addDislikedJob(state, action: PayloadAction<IJobEntity>) {
+      const existingJob = state.dislikedJobs.find(j => j._id === action.payload._id)
+      if (!existingJob) {
+        state.dislikedJobs.push(action.payload)
+      }
+    },
     updateDislikedJob(state, action: PayloadAction<IJobEntity>) {
       const idx = state.dislikedJobs.findIndex(j => j._id === action.payload._id)
       if (idx !== -1) state.dislikedJobs[idx] = action.payload
@@ -109,24 +121,33 @@ const jobsSlice = createSlice({
 })
 
 export const {
+  // Urated Jobs Actions
   setUnratedCounter,
   setUnratedLimit,
   setUnratedSkip,
   setUnratedJobs,
   updateUnratedJob,
   removeUnratedJob,
+
+  // Liked Jobs Actions
   setLikedCounter,
   setLikedLimit,
   setLikedSkip,
   setLikedJobs,
+  addLikedJob,
   updateLikedJob,
   removeLikedJob,
+
+  // Disliked Jobs Actions
   setDislikedCounter,
   setDislikedLimit,
   setDislikedSkip,
   setDislikedJobs,
+  addDislikedJob,
   updateDislikedJob,
   removeDislikedJob,
+
+  // Job Queue Selector Action
   setJobQueueSelected,
 } = jobsSlice.actions
 
