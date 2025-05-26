@@ -77,7 +77,7 @@ export default function FieldEditorLevel({ job, isEditMode }: FieldEditorLevelPr
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {jobLevel || "[ NC ]"}
+      {jobLevel || '[N/A]'}
     </span>
   );
 }

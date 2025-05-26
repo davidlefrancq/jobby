@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import BtnSave from "./BtnSave";
 
 // job.interest_indicator is a string wihth value 🟢 | 🟡 | 🔴 or null. 
-const INTEREST_OPTIONS = ['[ NC ]', '🟢', '🟡', '🔴'];
+const INTEREST_OPTIONS = ['[N/A]', '🟢', '🟡', '🔴'];
 const INTEREST_OPTIONS_LEGEND: Record<string, string> = {
-  '[ NC ]': '[ NC ]',
+  '[N/A]': '[N/A]',
   '🟢': 'Pertinant',
   '🟡': 'A vérifier',
   '🔴': 'Faible intérêt'
@@ -21,18 +21,18 @@ interface FieldEditorInterestIndicatorProps {
 export default function FieldEditorInterestIndicator({ job, isEditMode }: FieldEditorInterestIndicatorProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const interestInitialValue = INTEREST_OPTIONS.includes(job.interest_indicator || '') ? job.interest_indicator : '[ NC ]';
+  const interestInitialValue = INTEREST_OPTIONS.includes(job.interest_indicator || '') ? job.interest_indicator : '[N/A]';
   const [interest, setInterest] = useState<string>(interestInitialValue);
   const [isEditing, setIsEditing] = useState(false);
 
   // Mapping legend with option
   const getLegend = (value: string) => {
-    let legend = INTEREST_OPTIONS_LEGEND['[ NC ]']
+    let legend = INTEREST_OPTIONS_LEGEND['[N/A]']
 
     for (const [key, legendValue] of Object.entries(INTEREST_OPTIONS_LEGEND)) {
       if (value === key) {
         legend = legendValue;
-        if (legendValue !== '[ NC ]') legend = `${key} ${legend}`;
+        if (legendValue !== '[N/A]') legend = `${key} ${legend}`;
         break;
       }
     }
@@ -104,7 +104,7 @@ export default function FieldEditorInterestIndicator({ job, isEditMode }: FieldE
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {interest && getLegend(interest) ? getLegend(interest) : '[ NC ]'}
+      {interest && getLegend(interest) ? getLegend(interest) : '[N/A]'}
     </span>
   );
 }

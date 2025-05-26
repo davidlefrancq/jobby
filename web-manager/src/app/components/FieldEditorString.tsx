@@ -7,10 +7,10 @@ interface FieldEditorStringProps {
   initialValue: string | null | undefined;
   legendValue?: string;
   isEditMode: boolean;
-  saveAction?: (value: string | null) => Promise<void>;
+  saveFunction?: (value: string | null) => Promise<void>;
 }
 
-export default function FieldEditorString({ initialValue, legendValue, isEditMode, saveAction }: FieldEditorStringProps) {
+export default function FieldEditorString({ initialValue, legendValue, isEditMode, saveFunction }: FieldEditorStringProps) {
   const ref = useRef<HTMLDivElement>(null);
 
     const [inputValue, setInputValue] = useState<string | null | undefined>(initialValue);
@@ -22,11 +22,9 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
     }
 
     const save = async () => {
-      // Implement save logic here
-      console.log("Saved value:", inputValue);
-      if (saveAction) {
+      if (saveFunction) {
         try {
-          await saveAction(inputValue || null);
+          await saveFunction(inputValue || null);
           setIsEditing(false);
         } catch (error) {
           let errorMessage = "An error occurred while saving the value.";
@@ -88,7 +86,7 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
         className={className}
         onClick={() => { if (isEditMode) setIsEditing(true); }}
       >
-        {inputValue || "[ NC ]"}
+        {inputValue || '[N/A]'}
       </div>
     );
 }

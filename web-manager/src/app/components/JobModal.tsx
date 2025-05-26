@@ -9,7 +9,7 @@ import FieldEditorSalary from "./FieldEditorSalary";
 import FieldEditorDescription from "./FieldEditorDescription";
 import FieldEditorTeleworking from "./FieldEditorTeleworking";
 import FieldEditorString from "./FieldEditorString";
-import FieldEditorTechnologies from "./FieldEditorTechnologies";
+import FieldEditorStringArray from "./FieldEditorStringArray";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -84,53 +84,53 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           </div>
 
           <div className="grid grid-cols-2 text-sm text-gray-600">
-            <div>
+            <div className="pr-2">
               {/* Technologies */}
-              <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Technologies :</strong></span>
-                <FieldEditorTechnologies job={job} isEditMode={isEditMode} />
+              <p className="">
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Technologies :</strong></span>
+                <FieldEditorStringArray items={job.technologies} isEditMode={isEditMode} />
               </p>
               
               {/* Methodologies */}
               <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Méthodologies :</strong></span>
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Méthodologies :</strong></span>
                 {/* TODO: FieldEditorMethodologies */}
               </p>
               
               {/* Teleworking */}
               <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Télétravail :</strong></span>
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Télétravail :</strong></span>
                 <FieldEditorTeleworking job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Language */}
               <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Langue :</strong></span>
+                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1"><strong>Langue :</strong></span>
                 <FieldEditorString initialValue={job.language} isEditMode={isEditMode} />
               </p>
             </div>
             <div>
               {/* Level */}
               <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Niveau :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Niveau :</strong></span>
                 <FieldEditorLevel job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Salary */}
               <p className="py-2.5">
-                <span className="mr-1"><strong>Salaire :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto mr-1"><strong>Salaire :</strong></span>
                 <FieldEditorSalary job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Interest Indicator */}
               <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Intérêt :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Intérêt :</strong></span>
                 <FieldEditorInterestIndicator job={job} isEditMode={isEditMode} />
               </p>
 
               {/* Source */}
               <p className="flex items-center">
-                <span className="py-2.5 mr-1"><strong>Source :</strong></span>
+                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Source :</strong></span>
                 <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
                   {job.source ? new URL(job.source).hostname : "Lien non disponible"}
                 </Link>

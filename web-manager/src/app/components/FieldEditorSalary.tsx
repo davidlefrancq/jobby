@@ -83,7 +83,7 @@ export default function FieldEditorSalary({ job, isEditMode }: FieldEditorSalary
     >
       {minSalary !== null && maxSalary !== null
         ? `${minSalary} - ${maxSalary} ${currency || ''}`
-        : '[ NC ]'}
+        : '[N/A]'}
     </span>
   );
 }

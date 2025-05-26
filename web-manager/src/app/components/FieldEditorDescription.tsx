@@ -85,7 +85,7 @@ export default function FieldEditorDescription({ job, isEditMode, saveAction }: 
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {description || "[ NC ]"}
+      {description || '[N/A]'}
     </span>
   );
 }
