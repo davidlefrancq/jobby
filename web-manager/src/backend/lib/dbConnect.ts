@@ -1,8 +1,17 @@
 import mongoose, { ConnectOptions } from "mongoose";
-import { DatabaseBadUriError, DatabaseCollectionError, DatabaseConnectionError, DatabaseDisconnectError, DatabaseEmptyUriError, DatabaseNoConnectionError } from "./errors/DatabaseError";
+import {
+  DatabaseCollectionError,
+  DatabaseConnectionError,
+  DatabaseDisconnectError,
+  DatabaseEmptyUriError,
+  DatabaseNoConnectionError
+} from "./errors/DatabaseError";
 
 const MONGODB_URI = process.env.MONGODB_URI || "";
 
+/**
+ * Singleton class managing Mongoose connection.
+ */
 export class MongoConnection {
   private static instance: MongoConnection;
   private connection: typeof mongoose | null = null;
@@ -10,6 +19,9 @@ export class MongoConnection {
 
   private constructor() {}
 
+  /**
+   * Get the singleton instance of MongoConnection.
+   */
   public static getInstance(): MongoConnection {
     if (!MongoConnection.instance) {
       MongoConnection.instance = new MongoConnection();
@@ -17,24 +29,44 @@ export class MongoConnection {
     return MongoConnection.instance;
   }
 
+  /**
+   * Connect to MongoDB using the provided URI and options.
+   * Handles all mongoose connection states.
+   */
   public async connect(uri: string, options: ConnectOptions = {}): Promise<typeof mongoose> {
     if (this.connection) return this.connection;
     if (!uri) throw new DatabaseEmptyUriError();
-
-    if (this.connection) {
-      if (this.uri !== uri) {
-        throw new DatabaseBadUriError("Can't connect: different URI used on existing Mongoose connection.");
-      }
-      return this.connection;
-    }
-
-    this.uri = uri;
-
+    
     try {
-      this.connection = await mongoose.connect(uri, {
-        ...options,
-        bufferCommands: false,
-      });
+      let connection: typeof mongoose;
+      const readyState = mongoose.connection.readyState;
+
+      // Already connected
+      if (readyState === 1) {
+        connection = mongoose; 
+      }
+
+      // Connecting in progress: wait for completion
+      else if (readyState === 2) {
+        await new Promise((resolve) =>
+          mongoose.connection.once("open", resolve)
+        );
+        connection = mongoose;
+      }
+
+      // Not connected: initiate connection
+      else {
+        connection = await mongoose.connect(uri, {
+          ...options,
+          bufferCommands: false,
+        });
+        await new Promise((resolve) =>
+          mongoose.connection.once("open", resolve)
+        );
+        this.uri = uri;
+      }
+
+      this.connection = connection;
     } catch (err) {
       throw new DatabaseConnectionError(`Mongoose: ${String(err)}`);
     }
