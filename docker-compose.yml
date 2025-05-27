@@ -23,6 +23,11 @@ services:
     networks:
       - ai_net
     restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://n8n:5678/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Ollama service for running AI models
   ollama:
@@ -41,6 +46,11 @@ services:
       - ai_net
     restart: always
     entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral-nemo:latest && wait"]
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list | grep -q mistral || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   # MongoDB service for data storage
   mongodb:
@@ -61,6 +71,11 @@ services:
       - ./data/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - ai_net
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Next.js web job manager
   nextjs:
@@ -74,10 +89,31 @@ services:
       - MONGODB_URI=mongodb://${MONGO_DB_NAME}:${MONGO_DB_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}
     depends_on:
       - mongodb
+      - vector_proxy
     networks:
       - ai_net
 
-  # Loki for log aggregation
+  # Grafana for logs visualization
+  grafana:
+    image: grafana/grafana:12.0.1
+    container_name: grafana
+    ports:
+      - "5601:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - loki
+    networks:
+      - ai_net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://grafana:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Loki for logs aggregation
   loki:
     image: grafana/loki:3.5.1
     container_name: loki
@@ -86,32 +122,15 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - ai_net
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Grafana for visualization
-  grafana:
-    image: grafana/grafana:12.0.1
-    container_name: grafana
-    ports:
-      - "5601:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
-      loki:
-        condition: service_healthy
-    networks:
-      - ai_net
+      - vector
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--spider", "-q", "http://loki:3100/ready"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Vector for log processing
+  # Vector for logs processing
   vector:
     image: timberio/vector:0.38.0-alpine
     container_name: vector
@@ -122,14 +141,24 @@ services:
       - ./config/vector.yaml:/etc/vector/vector.yaml:ro
     networks:
       - ai_net
-    depends_on:
-      loki:
-        condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8686/health"]
+      test: ["CMD-SHELL", "pidof vector || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+  
+  # Vector Reverse Proxy
+  vector_proxy:
+    image: nginx:latest
+    container_name: vector_proxy
+    ports:
+      - "8687:8687"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - vector
+    networks:
+      - ai_net
 
 volumes:
   n8n_data:
@@ -137,6 +166,7 @@ volumes:
   ollama_models:
   mongo_data:
   mongo_config:
+  grafana_data:
 
 networks:
   ai_net:

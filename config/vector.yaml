@@ -3,6 +3,9 @@ sources:
     type: http_server
     address: 0.0.0.0:8686
     encoding: json
+    cors:
+      allow_origin:
+        - http://localhost:3000
 
 sinks:
   loki:
