@@ -1,4 +1,5 @@
 services:
+  # n8n service for workflow automation
   n8n:
     image: n8nio/n8n
     container_name: n8n
@@ -22,6 +23,8 @@ services:
     networks:
       - ai_net
     restart: always
+
+  # Ollama service for running AI models
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -38,6 +41,8 @@ services:
       - ai_net
     restart: always
     entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral-nemo:latest && wait"]
+  
+  # MongoDB service for data storage
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -56,6 +61,8 @@ services:
       - ./data/db/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
       - ai_net
+
+  # Next.js web job manager
   nextjs:
     build:
       context: ./web-manager
@@ -69,12 +76,68 @@ services:
       - mongodb
     networks:
       - ai_net
+
+  # Loki for log aggregation
+  loki:
+    image: grafana/loki:3.5.1
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - ai_net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:12.0.1
+    container_name: grafana
+    ports:
+      - "5601:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      loki:
+        condition: service_healthy
+    networks:
+      - ai_net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Vector for log processing
+  vector:
+    image: timberio/vector:0.38.0-alpine
+    container_name: vector
+    ports:
+      - "8686:8686"
+    volumes:
+      - ./logs:/var/log/myapp:ro
+      - ./config/vector.yaml:/etc/vector/vector.yaml:ro
+    networks:
+      - ai_net
+    depends_on:
+      loki:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8686/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   n8n_data:
   ollama_data:
   ollama_models:
   mongo_data:
   mongo_config:
+
 networks:
   ai_net:
     driver: bridge

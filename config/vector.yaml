@@ -1,0 +1,16 @@
+sources:
+  http_json:
+    type: http_server
+    address: 0.0.0.0:8686
+    encoding: json
+
+sinks:
+  loki:
+    type: loki
+    inputs: [http_json]
+    endpoint: http://loki:3100
+    labels:
+      service: "{{ service }}"
+      level: "{{ level }}"
+    encoding:
+      codec: json
