@@ -6,13 +6,14 @@ import { IJobEntity } from '@/types/IJobEntity';
 import TruncatedText from './TruncatedText';
 import SalaryItem from './SalaryItem';
 import JobStatus from './JobStatus';
+import Link from 'next/link';
 
 interface JobTableProps {
   jobs: IJobEntity[];
   onView: (job: IJobEntity) => void;
 }
 
-type SortKey = keyof Pick<IJobEntity, 'date' | 'location' | 'title' | 'company' | 'contract_type'>;
+type SortKey = keyof Pick<IJobEntity, 'original_job_id' | 'date' | 'location' | 'title' | 'company' | 'contract_type'>;
 type SortConfig = {
   key: SortKey;
   direction: 'asc' | 'desc';
@@ -56,6 +57,9 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('date')}>
               Date {renderSortIcon('date')}
             </th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('original_job_id')}>
+              Source {renderSortIcon('original_job_id')}
+            </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('location')}>
               Localisation {renderSortIcon('location')}
             </th>
@@ -77,6 +81,14 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
             <tr key={job._id.toString()} className="hover:bg-gray-50" onClick={() => onView(job)}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={(e) => e.stopPropagation()}>
+                {job.original_job_id
+                  ? <Link href={job.source} target={'_blank'} className="text-blue-500 hover:underline">
+                      {job.original_job_id }
+                    </Link>
+                  : 'N/A'
+                }
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <TruncatedText text={job.location || ''} length={20} />
