@@ -97,8 +97,8 @@ export class MongoConnection {
   }
 }
 
-export async function dbConnect(uri: string = MONGODB_URI) {
-  return await MongoConnection.getInstance().connect(uri);
+export function dbConnect(uri: string = MONGODB_URI): Promise<typeof mongoose> {
+  return MongoConnection.getInstance().connect(uri);
 }
 
 export function getCollections() {
@@ -112,6 +112,6 @@ export function getCollections() {
   }
 }
 
-export async function dbDisconnect() {
-  return await MongoConnection.getInstance().disconnect();
+export function dbDisconnect(): Promise<void> {
+  return MongoConnection.getInstance().disconnect();
 }

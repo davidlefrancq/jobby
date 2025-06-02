@@ -47,6 +47,7 @@ export class JobRepository {
    */
   public async countUnratedJobs(): Promise<number> {
     if (!this.connection) await this.connect();
+    
     let data = null;
     try {
       data = Job.countDocuments({ preference: null })
@@ -62,6 +63,7 @@ export class JobRepository {
    */
   public async countLikedJobs(): Promise<number> {
     if (!this.connection) await this.connect();
+
     let data = null;
     try {
       data = Job.countDocuments({ preference: 'like' })
@@ -77,6 +79,7 @@ export class JobRepository {
    */
   public async countDislikedJobs(): Promise<number> {
     if (!this.connection) await this.connect();
+
     let data = null;
     try {
       data = Job.countDocuments({ preference: 'dislike' })
@@ -111,6 +114,7 @@ export class JobRepository {
    */
   public async getById(id: string): Promise<IJob | null> {
     if (!this.connection) await this.connect();
+
     try {
       return Job.findById(id).exec();
     } catch (error) {
@@ -124,6 +128,7 @@ export class JobRepository {
    */
   public async create(data: Partial<IJob>): Promise<IJob> {
     if (!this.connection) await this.connect();
+
     try {
       const job = new Job(data);
       return job.save();
@@ -139,6 +144,7 @@ export class JobRepository {
    */
   public async update(id: string, data: UpdateQuery<IJob>): Promise<IJob | null> {
     if (!this.connection) await this.connect();
+    
     try {
       const objectId = new mongoose.Types.ObjectId(id);
       const filter = { _id: objectId };
@@ -155,6 +161,7 @@ export class JobRepository {
    */
   public async delete(id: string): Promise<IJob | null> {
     if (!this.connection) await this.connect();
+
     try {
       return Job.findByIdAndDelete(id).exec();
     } catch (error) {
