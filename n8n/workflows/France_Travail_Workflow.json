@@ -423,7 +423,7 @@
       "parameters": {
         "content": "## Pole Emploi Email Processing",
         "height": 460,
-        "width": 1560
+        "width": 1800
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -438,13 +438,13 @@
       "parameters": {
         "operation": "insert",
         "collection": "jobs",
-        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,interest_indicator",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,original_job_id,interest_indicator",
         "options": {}
       },
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1120,
+        1300,
         480
       ],
       "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
@@ -591,6 +591,20 @@
       "id": "2d7e531a-258c-4560-a2d3-e491d4a858ed",
       "name": "JSON Parser",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function extractJobId(url) {\n  const match = url.match(/\\/detail\\/(\\d+)(?:\\/)?$/);\n  return match ? match[1] : null;\n}\n\n// Extract original jon id\n$input.item.json.original_job_id = extractJobId($json.source);\n\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        480
+      ],
+      "id": "95157ee5-69a7-4a2f-bda3-81349346adaf",
+      "name": "Job ID Extractor"
     }
   ],
   "pinData": {},
@@ -754,7 +768,7 @@
       "main": [
         [
           {
-            "node": "MongoDB",
+            "node": "Job ID Extractor",
             "type": "main",
             "index": 0
           }
@@ -815,6 +829,17 @@
           }
         ]
       ]
+    },
+    "Job ID Extractor": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -826,7 +851,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "885a9644-3da1-4289-85db-da506e114905",
+  "versionId": "6ad52a5d-95cb-4e90-8f45-43c6b9d273c8",
   "meta": {
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
   },

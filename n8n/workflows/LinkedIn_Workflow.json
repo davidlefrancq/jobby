@@ -227,7 +227,7 @@
       "parameters": {
         "content": "## LinkedIn Email Processing",
         "height": 460,
-        "width": 1940
+        "width": 2140
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -406,7 +406,8 @@
         600
       ],
       "id": "bef2b662-f5a3-4247-9731-d08a78062c93",
-      "name": "if not labeled"
+      "name": "if not labeled",
+      "disabled": true
     },
     {
       "parameters": {
@@ -448,7 +449,7 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1440,
+        1600,
         480
       ],
       "id": "edac099b-72ca-407c-92cc-fd2aabc26531",
@@ -619,6 +620,20 @@
       ],
       "id": "529401c6-b8c8-44c9-bb7b-d99d3faa9f69",
       "name": "If source not empty"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function extractJobId(url) {\n  const match = url.match(/\\/view\\/(\\d+)(?:\\/)?$/);\n  return match ? match[1] : null;\n}\n\n// Extract original jon id\n$input.item.json.original_job_id = extractJobId($json.source);\n\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        480
+      ],
+      "id": "89558b06-6b43-45ee-a30c-772844eeb19a",
+      "name": "Job ID Extractor"
     }
   ],
   "pinData": {},
@@ -859,6 +874,17 @@
       "main": [
         [
           {
+            "node": "Job ID Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job ID Extractor": {
+      "main": [
+        [
+          {
             "node": "MongoDB",
             "type": "main",
             "index": 0
@@ -871,7 +897,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "fdf8930c-43ad-4bda-936d-3caf5eef5258",
+  "versionId": "5d07791f-1e98-4f89-9829-b4af129cd813",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
