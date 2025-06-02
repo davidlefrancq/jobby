@@ -1,4 +1,7 @@
-db = db.getSiblingDB(process.env.MONGO_INITDB_DATABASE);
+const dbName = process.env.MONGO_INITDB_DATABASE;
+const collectionName = process.env.MONGO_INITDB_COLLECTION_NAME;
+
+db = db.getSiblingDB(dbName);
 db.createUser(
   {
     user: process.env.MONGO_NON_ROOT_USERNAME,
@@ -6,9 +9,18 @@ db.createUser(
     roles: [
       {
         role: "readWrite",
-        db: process.env.MONGO_INITDB_DATABASE
+        db: dbName
       }
     ]
   }
 );
-db.createCollection(process.env.MONGO_INITDB_COLLECTION_NAME);
+db.createCollection(collectionName);
+
+db[collectionName].createIndex(
+  { original_job_id: 1 },
+  { unique: true }
+);
+
+db[collectionName].createIndex(
+  { preference: 1 }
+);

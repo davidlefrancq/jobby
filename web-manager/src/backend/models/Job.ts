@@ -32,7 +32,7 @@ const JobSchema = new Schema<IJob>(
     technologies: { type: Schema.Types.Mixed, default: null },
     teleworking: { type: Boolean, required: true },
     title: { type: String, required: true },
-    original_job_id: { type: String, default: null },
+    original_job_id: { type: String, unique: true, default: null },
     created_at: { type: Date, default: new Date() },
     updated_at: { type: Date, default: new Date() },
   },
