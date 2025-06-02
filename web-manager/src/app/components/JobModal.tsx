@@ -13,6 +13,7 @@ import FieldEditorStringArray from "./FieldEditorStringArray";
 import FieldEditorCompany from "./FieldEditorCompany";
 import BtnDislike from "./BtnDislike";
 import BtnLike from "./BtnLike";
+import BtnRemove from "./BtnRemove";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -156,11 +157,19 @@ export default function JobModal({ job, onClose }: JobModalProps) {
                 <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
                   {job.source ? new URL(job.source).hostname : "Lien non disponible"}
                 </Link>
+                {job.original_job_id ? <span className="ms-1">{`- Ref: ${job.original_job_id}`}</span> : ''}
               </div>
             </div>
           </div>
 
+          <div className="flex">
+            <div className="w-full text-center text-gray-400">
+              <span className="text-gray-400">{job._id.toString()}</span>
+            </div>
+          </div>
+
           <div className="absolute bottom-4 right-4 flex items-center gap-3">
+            <BtnRemove job={job} onRemove={() => onClose()} />
             {job.preference === 'dislike' && <BtnLike job={job} onClose={() => onClose()} />}
             {job.preference === 'like' && <BtnDislike job={job} onClose={() => onClose()} />}
           </div>
