@@ -76,10 +76,13 @@ export interface IJobEntity {
   level?: string | null;
   location: string | null;
   methodologies: string[] | null;
+  original_job_id: string | null;
   preference: JobPreference;
   salary: ISalary;
   source: string;
   technologies: string[] | null;
   teleworking: boolean;
   title: string;
+  created_at: Date | null;
+  updated_at: Date | null;
 }
