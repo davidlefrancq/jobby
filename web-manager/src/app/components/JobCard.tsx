@@ -98,7 +98,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           {job.source ? (
             <div className="grid grid-flow-col justify-items-end">
               <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
-                Source
+                {job.source ? new URL(job.source).hostname : "Lien non disponible"}
               </Link>
             </div>
           ) : <span className="text-gray-400">No source.</span>}
