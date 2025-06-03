@@ -227,7 +227,7 @@
       "parameters": {
         "content": "## LinkedIn Email Processing",
         "height": 460,
-        "width": 2140
+        "width": 1880
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -406,8 +406,7 @@
         600
       ],
       "id": "bef2b662-f5a3-4247-9731-d08a78062c93",
-      "name": "if not labeled",
-      "disabled": true
+      "name": "if not labeled"
     },
     {
       "parameters": {
@@ -438,28 +437,6 @@
       ],
       "id": "139ba908-3875-4b24-ac29-087c6df5f93b",
       "name": "AI Agent for LinkedIn"
-    },
-    {
-      "parameters": {
-        "operation": "insert",
-        "collection": "jobs",
-        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,interest_indicator",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.1,
-      "position": [
-        1600,
-        480
-      ],
-      "id": "edac099b-72ca-407c-92cc-fd2aabc26531",
-      "name": "MongoDB",
-      "credentials": {
-        "mongoDb": {
-          "id": "EkVdtE5MEWwZdbTY",
-          "name": "MongoDB account"
-        }
-      }
     },
     {
       "parameters": {
@@ -634,6 +611,61 @@
       ],
       "id": "89558b06-6b43-45ee-a30c-772844eeb19a",
       "name": "Job ID Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1700,
+        480
+      ],
+      "id": "baf28144-d328-480c-b974-96691e6840df",
+      "name": "Loop Over Items",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,original_job_id,interest_indicator",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1940,
+        480
+      ],
+      "id": "2ffc22ea-ea89-4234-bcb2-dab28da640bc",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "notesInFlow": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Save in database",
+        "height": 460,
+        "width": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        380
+      ],
+      "id": "2a00df95-467c-4c06-b204-bbc40d655ed8",
+      "name": "Sticky Note6"
     }
   ],
   "pinData": {},
@@ -885,11 +917,35 @@
       "main": [
         [
           {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
             "node": "MongoDB",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     }
   },
@@ -897,7 +953,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "5d07791f-1e98-4f89-9829-b4af129cd813",
+  "versionId": "447e2fc8-2588-4d66-b05d-06e870f9c01f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"

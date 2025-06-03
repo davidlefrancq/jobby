@@ -423,7 +423,7 @@
       "parameters": {
         "content": "## Pole Emploi Email Processing",
         "height": 460,
-        "width": 1800
+        "width": 1560
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -444,17 +444,19 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1300,
+        1620,
         480
       ],
       "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
       "name": "MongoDB",
+      "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
           "id": "EkVdtE5MEWwZdbTY",
           "name": "MongoDB account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -605,6 +607,35 @@
       ],
       "id": "95157ee5-69a7-4a2f-bda3-81349346adaf",
       "name": "Job ID Extractor"
+    },
+    {
+      "parameters": {
+        "content": "## Save in database",
+        "height": 460,
+        "width": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        380
+      ],
+      "id": "0620735e-7bab-4308-9626-93aff92d782d",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1380,
+        480
+      ],
+      "id": "1576161b-8f5a-44e0-b4e6-71720bc44cd7",
+      "name": "Loop Over Items",
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -834,7 +865,30 @@
       "main": [
         [
           {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
             "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -851,9 +905,10 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "6ad52a5d-95cb-4e90-8f45-43c6b9d273c8",
+  "versionId": "1f1334f9-3908-4951-a01c-0cc9ccbb7355",
   "meta": {
-    "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
+    "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda",
+    "templateCredsSetupCompleted": true
   },
   "id": "4oyLsKPXUj8PChjg",
   "tags": []
