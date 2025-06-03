@@ -1,10 +1,11 @@
 import { Schema, model, models } from 'mongoose';
 import { IJob } from './IJob';
+import { ICompanyCA, ICompanyDetails, ICompanyLeadership, ICompanyLocation, ICompanyMarketPositioning, ICompanyShareCapital, ISalary } from '@/types/IJobEntity';
 
 /**
  * Salary subdocument schema.
  */
-const SalarySchema = new Schema<IJob['salary']>(
+const SalarySchema = new Schema<ISalary>(
   {
     currency: { type: String, required: true },
     min: { type: Number, default: null },
@@ -13,17 +14,102 @@ const SalarySchema = new Schema<IJob['salary']>(
   { _id: false }
 );
 
+/** Company location */
+const CompanyLocationSchema = new Schema<ICompanyLocation>(
+  {
+    address: { type: String, default: null },
+    city: { type: String, default: null },
+    country: { type: String, default: null },
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
+    postal_code: { type: String, default: null },
+    siret: { type: String, default: null },
+    workforce: { type: Number, default: null },
+  },
+  { _id : false }
+);
+
+/** Company leadership */
+const CompanyLeadershipSchema = new Schema<ICompanyLeadership>(
+  {
+    email: { type: String, default: null },
+    github: { type: String, default: null },
+    linkedin: { type: String, default: null },
+    name: { type: String, required: true },
+    phone: { type: String, default: null },
+    position: { type: String, default: null },
+    twitter: { type: String, default: null },
+    website: { type: String, default: null },
+  },
+  { _id : false }
+);
+
+/** Company market positioning */
+const CompanyMarketPositioningSchema = new Schema<ICompanyMarketPositioning>(
+  {
+    competitors: { type: [String], default: null },
+    differentiators: { type: [String], default: null },
+  },
+  { _id: false }
+);
+
+/** Company revenue */
+const CompanyRevenueSchema = new Schema<ICompanyCA>(
+  {
+    amount: { type: Number, required: true },
+    currency: { type: String, required: true },
+    siret: { type: String, required: true },
+    year: { type: Number, required: true },
+  },
+  { _id: false }
+);
+
+
+/** Company share capital */
+const CompanyShareCapitalSchema = new Schema<ICompanyShareCapital>(
+  {
+    amount: { type: Number, required: true },
+    currency: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+/**
+ * Company details subdocument schema.
+ */
+const CompanyDetailsSchema = new Schema<ICompanyDetails>(
+  {
+    clients: { type: [String], default: null },
+    creation_date: { type: Date, default: null },
+    description: { type: String, default: null },
+    global_workforce: { type: Number, default: null },
+    leadership: { type: [CompanyLeadershipSchema], default: null },
+    legal_form: { type: String, default: null },
+    locations: { type: [CompanyLocationSchema], default: null },
+    logo: { type: String, default: null },
+    market_positioning: { type: CompanyMarketPositioningSchema, default: null },
+    products: { type: [String], default: null },
+    revenue: { type: [CompanyRevenueSchema], default: null },
+    share_capital: { type: CompanyShareCapitalSchema, default: null },
+    siren: { type: String, default: null },
+    website: { type: String, default: null },
+  },
+  { _id : false }
+);
+
 /**
  * Main Job schema.
  */
 const JobSchema = new Schema<IJob>(
   {
     company: { type: String, required: true },
+    company_details: { type: CompanyDetailsSchema, default: null },
     contract_type: { type: String, default: null },
     date: { type: String, required: true },
     description: { type: String, required: true },
     interest_indicator: { type: String, required: true },
     level: { type: String, default: null },
+    language: { type: String, default: '' },
     location: { type: String, required: true },
     methodologies: { type: [String], required: true },
     preference: { type: String, default: null },
