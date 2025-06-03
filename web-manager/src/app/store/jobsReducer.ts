@@ -83,8 +83,8 @@ const jobsSlice = createSlice({
       }
     },
     updateLikedJob(state, action: PayloadAction<IJobEntity>) {
-      const idx = state.likedJobs.findIndex(j => j._id === action.payload._id)
-      if (idx !== -1) state.likedJobs[idx] = action.payload
+      const jobId = state.likedJobs.findIndex(j => j._id === action.payload._id)
+      if (jobId !== -1) state.likedJobs[jobId] = action.payload
     },
     removeLikedJob(state, action: PayloadAction<string>) {
       state.likedJobs = state.likedJobs.filter(j => j._id.toString() !== action.payload)
@@ -114,8 +114,8 @@ const jobsSlice = createSlice({
       }
     },
     updateDislikedJob(state, action: PayloadAction<IJobEntity>) {
-      const idx = state.dislikedJobs.findIndex(j => j._id === action.payload._id)
-      if (idx !== -1) state.dislikedJobs[idx] = action.payload
+      const jobId = state.dislikedJobs.findIndex(j => j._id === action.payload._id)
+      if (jobId !== -1) state.dislikedJobs[jobId] = action.payload
     },
     removeDislikedJob(state, action: PayloadAction<string>) {
       state.dislikedJobs = state.dislikedJobs.filter(j => j._id.toString() !== action.payload)
