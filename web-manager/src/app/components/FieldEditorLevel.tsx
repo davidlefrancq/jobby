@@ -3,17 +3,20 @@
 import { IJobEntity } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
 import BtnSave from "./BtnSave";
+import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 
 interface FieldEditorLevelProps {
   job: IJobEntity;
   isEditMode: boolean;
+  saveFunction?: (value: string | null) => Promise<void>;
 }
 
-export default function FieldEditorLevel({ job, isEditMode }: FieldEditorLevelProps) {
+export default function FieldEditorLevel({ job, isEditMode, saveFunction }: FieldEditorLevelProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const [jobLevel, setJobLevel] = useState<string | null>(job.level || null);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // job.level is a string or null. It's a level of the job. It can be 'junior', 'mid', 'senior' or null.
   const levels = ['junior', 'intermédiaire', 'senior']; // this is a proposition list but not exhaustive
@@ -23,9 +26,24 @@ export default function FieldEditorLevel({ job, isEditMode }: FieldEditorLevelPr
     setJobLevel(selectedLevel);
   }
 
-  const save = () => {
-    console.log('Save level:', jobLevel);
-    setIsEditing(false);
+  const handleremoveError = () => {
+    setError(null);
+  }
+
+  const save = async () => {
+    if (saveFunction && isEditMode) {
+      try {
+        await saveFunction(jobLevel || null);
+        setIsEditing(false);
+      } catch (error) {
+        let errorMessage = "An error occurred while saving the value.";
+        if (error instanceof Error) errorMessage = error.message;
+        else if (typeof error === "string") errorMessage = error;
+        setError(errorMessage);
+      }
+    } else {
+      setIsEditing(false);
+    }
   }
   
   useEffect(() => {
@@ -66,6 +84,7 @@ export default function FieldEditorLevel({ job, isEditMode }: FieldEditorLevelPr
           ))}
         </datalist>
         <BtnSave onClick={save} />
+        <FieldEditorErrorPanel message={error} close={handleremoveError} />
       </div>
     );
   }

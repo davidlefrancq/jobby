@@ -23,9 +23,9 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
   }
 
   const save = async () => {
-    if (saveFunction) {
+    if (saveFunction && isEditMode && inputValue !== undefined) {
       try {
-        await saveFunction(inputValue || null);
+        await saveFunction(inputValue);
         setIsEditing(false);
       } catch (error) {
         let errorMessage = "An error occurred while saving the value.";

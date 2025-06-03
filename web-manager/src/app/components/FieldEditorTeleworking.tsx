@@ -3,22 +3,40 @@
 import { useEffect, useRef, useState } from "react";
 import { IJobEntity } from "@/types/IJobEntity";
 import Toggle from "./Toggle";
+import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 
 interface FieldEditorTeleworkingProps {
   job: IJobEntity;
   isEditMode: boolean;
+  saveFunction?: (value: boolean) => Promise<void>;
 }
 
-export default function FieldEditorTeleworking ({ job, isEditMode }: FieldEditorTeleworkingProps) {
+export default function FieldEditorTeleworking ({ job, isEditMode, saveFunction }: FieldEditorTeleworkingProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const [teleworking, setTeleworking] = useState(job.teleworking || false);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const save = () => {
-    // TODO: call repository to save this field
-    console.log('Save salary:', { teleworking });
-  };
+  const handleremoveError = () => {
+    setError(null);
+  }
+
+  const save = async () => {
+    if (saveFunction) {
+      try {
+        await saveFunction(teleworking);
+        setIsEditing(false);
+      } catch (error) {
+        let errorMessage = "An error occurred while saving the value.";
+        if (error instanceof Error) errorMessage = error.message;
+        else if (typeof error === "string") errorMessage = error;
+        setError(errorMessage);
+      }
+    } else {
+      setIsEditing(false);
+    }
+  }
 
   // Handle keydown and click outside to close editor
   useEffect(() => {
@@ -44,16 +62,17 @@ export default function FieldEditorTeleworking ({ job, isEditMode }: FieldEditor
 
   // Save when toggle switch
   useEffect(() => {
-    if (job.teleworking !== teleworking) {
-      save();
-    }
+    save();
   }, [teleworking]);
 
   // Form editor for teleworking
-  if (isEditMode && isEditing) {
+  if (isEditMode) {
     return (
       <div ref={ref} className="flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
-        <Toggle checked={teleworking} onChange={setTeleworking} />
+        <Toggle checked={teleworking} onChange={(value: boolean) => {
+          if (isEditing) setTeleworking(value);
+        }} />
+        <FieldEditorErrorPanel message={error} close={handleremoveError} />
       </div>
     );
   }

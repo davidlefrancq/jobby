@@ -36,7 +36,8 @@ export default function FieldEditorStringArray({ items, legendValue, isEditMode,
 
     if (saveFunction && !inSavingProgress && isChanged()) {
       try {
-        await saveFunction(itemList.sort((a, b) => a.localeCompare(b)));
+        const value = itemList.sort((a, b) => a.localeCompare(b))
+        await saveFunction(value);
       } catch (error) {
         let errorMessage = "An error occurred while saving new values.";
         if (error instanceof Error) errorMessage = error.message;
@@ -100,14 +101,6 @@ export default function FieldEditorStringArray({ items, legendValue, isEditMode,
     };
   }, []);
 
-  // // Save the changes automatically
-  // useEffect(() => {
-  //   // Check if techList is different as job.technologies and save it
-  //   if (JSON.stringify(techList) !== JSON.stringify(job.technologies)) {
-  //     save();
-  //   }
-  // }, [techList]);
-
   if (isEditMode && isEditing) {
     return (
       <div ref={ref} className="flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 max-w-xl shadow-md">
@@ -149,14 +142,12 @@ export default function FieldEditorStringArray({ items, legendValue, isEditMode,
           </div>
         }
         
-        {(inSavingProgress ||  isChanged()) &&
-          <div className="text-xs text-gray-500 mb-2 w-full">
-            <div className="flex justify-end gap-2">
-              { !inSavingProgress && isChanged() && <BtnSave onClick={save} />}
-              { inSavingProgress && <GrowingSpinner /> }
-            </div>
+        <div className="text-xs text-gray-500 mb-2 w-full">
+          <div className="flex justify-end gap-2">
+            { !inSavingProgress && <BtnSave onClick={save} />}
+            { inSavingProgress && <GrowingSpinner /> }
           </div>
-        }
+        </div>
 
       </div>
     );

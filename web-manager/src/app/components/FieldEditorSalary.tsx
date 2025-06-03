@@ -1,27 +1,63 @@
 'use client';
 
-import { IJobEntity } from "@/types/IJobEntity";
+import { IJobEntity, ISalary } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
 import BtnSave from "./BtnSave";
+import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 
 interface FieldEditorSalaryProps {
   job: IJobEntity;
   isEditMode: boolean;
+  saveFunction?: (value: ISalary) => Promise<void>;
 }
 
-export default function FieldEditorSalary({ job, isEditMode }: FieldEditorSalaryProps) {
+export default function FieldEditorSalary({ job, isEditMode, saveFunction }: FieldEditorSalaryProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const [minSalary, setMinSalary] = useState<number>(job.salary.min || 0);
   const [maxSalary, setMaxSalary] = useState<number>(job.salary.max || 0);
   const [currency, setCurrency] = useState<string | null>(job.salary.currency || null);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const save = () => {
-    // TODO: call repository to save this field
-    console.log('Save salary:', { min: minSalary, max: maxSalary, currency });
-    setIsEditing(false);
+  const handleremoveError = () => {
+    setError(null);
+  }
+
+  const save = async () => {
+    const value: ISalary = {
+      min: minSalary,
+      max: maxSalary,
+      currency: currency || '',
+    }
+
+    if (saveFunction && isEditMode && isChanged()) {
+      try {
+        await saveFunction(value);
+        setIsEditing(false);
+      } catch (error) {
+        let errorMessage = "An error occurred while saving the value.";
+        if (error instanceof Error) errorMessage = error.message;
+        else if (typeof error === "string") errorMessage = error;
+        setError(errorMessage);
+      }
+    } else {
+      setIsEditing(false);
+    }
   };
+
+  const isChanged = (): boolean => {
+    let result = false;
+    const value: ISalary = {
+      min: minSalary,
+      max: maxSalary,
+      currency: currency || '',
+    }
+    const originalStingified = JSON.stringify(job.salary || []);
+    const newStringified = JSON.stringify(value);
+    if (originalStingified !== newStringified) result = true;
+    return result
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,6 +106,7 @@ export default function FieldEditorSalary({ job, isEditMode }: FieldEditorSalary
           placeholder="Devise"
         />
         <BtnSave onClick={save} />
+        <FieldEditorErrorPanel message={error} close={handleremoveError} />
       </div>
     );
   }

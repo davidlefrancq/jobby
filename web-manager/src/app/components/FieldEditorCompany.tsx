@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 import BtnSave from "./BtnSave";
-import { IJobEntity } from "@/types/IJobEntity";
+import { ICompanyDetails, IJobEntity } from "@/types/IJobEntity";
 
 interface FieldEditorCompanyProps {
   job: IJobEntity;
@@ -15,11 +15,11 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
   const ref = useRef<HTMLDivElement>(null);
 
   const [inputCompany, setInputCompany] = useState<string | null>(job.company || null);
-  const [inputSiren, setInputSiren] = useState<string | null>(null);
+  const [inputSiren, setInputSiren] = useState<string | null>(job.company_details?.siren || null);
   const [isEditing, setIsEditing] = useState(isEditMode);
   const [error, setError] = useState<string | null>(null);
 
-  const handleremoveError = () => {
+  const handleRemoveError = () => {
     setError(null);
   };
 
@@ -29,9 +29,13 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
       if (!e.target.value) {
         setInputSiren(null);
       } else {
+        let sirenValue = e.target.value.trim();
+        // Remove spaces and dashes
+        sirenValue = sirenValue.replace(/[\s-]/g, "");
+
         // Check integer value
-        if (/^\d+$/.test(e.target.value.trim())) {
-          const value = parseInt(e.target.value.trim());
+        if (/^\d+$/.test(sirenValue)) {
+          const value = parseInt(sirenValue);
           console.log("Parsed SIREN value:", value);
           if (isNaN(value)) {
             console.error("SIREN is not a number:", e.target.value);
@@ -66,21 +70,31 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
     console.log("Saving company:", inputCompany, "SIREN:", inputSiren);
 
     if (saveFunction && isChanged()) {
-      // TODO: Rework save logic
+      // Validate inputs
+      if (!isValidSiren(inputSiren)) setError("SIREN must be a 9-digit number.");
 
-      if (!isValidSiren(inputSiren)) {
-        setError("SIREN must be a 9-digit number.");
+      try {
+        const inputJob: Partial<IJobEntity> = {}
+
+        // If inputCompany has changed, prepare update it
+        if (inputCompany && inputCompany !== job.company) inputJob.company = inputCompany;
+        
+        // If inputSiren has changed, prepare to update it
+        if (inputSiren && inputSiren !== job.company_details?.siren) {
+          const companyDetails = job.company_details || {} as ICompanyDetails;
+          companyDetails.siren = inputSiren;
+          inputJob.company_details = companyDetails;
+        }
+
+        // Save job company data
+        await saveFunction(inputJob);
+        setIsEditing(false);
+      } catch (error) {
+        let errorMessage = "An error occurred while saving the value.";
+        if (error instanceof Error) errorMessage = error.message;
+        else if (typeof error === "string") errorMessage = error;
+        setError(errorMessage);
       }
-
-      //   try {
-      //     await saveFunction(inputCompany || null);
-      //     setIsEditing(false);
-      //   } catch (error) {
-      //     let errorMessage = "An error occurred while saving the value.";
-      //     if (error instanceof Error) errorMessage = error.message;
-      //     else if (typeof error === "string") errorMessage = error;
-      //     setError(errorMessage);
-      //   }
     } else {
       setIsEditing(false);
     }
@@ -95,7 +109,7 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
   }
 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputCompany(e.target.value);
   };
 
@@ -126,7 +140,7 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
         <input
           type="text"
           value={inputCompany || ''}
-          onChange={handleChange}
+          onChange={handleCompanyChange}
           className="border rounded px-2 py-1 w-full mr-1"
           placeholder="Company name"
         />
@@ -138,7 +152,7 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
           placeholder="SIREN (optional)"
         />
         <BtnSave onClick={save} />
-        <FieldEditorErrorPanel message={error} close={handleremoveError} />
+        <FieldEditorErrorPanel message={error} close={handleRemoveError} />
       </div>
     );
   }

@@ -1,44 +1,31 @@
 'use client';
 
 import { IJobEntity } from "@/types/IJobEntity";
-import { ReactElement, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BtnSave from "./BtnSave";
-import StatusDot from "./StatusDot";
 import { INTEREST_OPTIONS, INTEREST_OPTIONS_LEGEND } from "@/constants/job-interest-status";
-
-const INTEREST_STATUS: Record<string, ReactElement> = {
-  '✅': <StatusDot status="success" />,
-  '🟢': <StatusDot status="success" />,
-  '🟡': <StatusDot status="warning" />,
-  '🔴': <StatusDot status="error" />,
-}
 
 interface FieldEditorInterestIndicatorProps {
   job: IJobEntity;
   isEditMode: boolean;
+  saveFunction?: (value: string) => Promise<void>;
 }
 
-export default function FieldEditorInterestIndicator({ job, isEditMode }: FieldEditorInterestIndicatorProps) {
+export default function FieldEditorInterestIndicator({ job, isEditMode, saveFunction }: FieldEditorInterestIndicatorProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const interestInitialValue = INTEREST_OPTIONS.includes(job.interest_indicator || '') ? job.interest_indicator : '[N/A]';
-  const [interest, setInterest] = useState<string>(interestInitialValue);
+  const [interest, setInterest] = useState<string>(job.interest_indicator || '[N/A]');
   const [isEditing, setIsEditing] = useState(false);
 
   // Mapping legend with option
-  const getLegend = (value: string) => {
-    let legend: ReactElement = <>{INTEREST_OPTIONS_LEGEND['[N/A]']}</>
+  const getLegend = (value: string): string => {
+    let legend: string = INTEREST_OPTIONS_LEGEND['[N/A]']
 
     for (const [key, legendValue] of Object.entries(INTEREST_OPTIONS_LEGEND)) {
       if (value === key) {
-        legend = <>{legendValue}</>
+        legend = legendValue
         if (legendValue !== '[N/A]') {
-          legend = (
-            <span className="flex items-center gap-1">
-              {INTEREST_STATUS[key]}
-              {legend}
-            </span>
-          );
+          legend = `${key} ${legend}`
         }
         break;
       }
@@ -54,9 +41,20 @@ export default function FieldEditorInterestIndicator({ job, isEditMode }: FieldE
     }
   };
 
-  const save = () => {
-    console.log('Save interests:', interest);
-    setIsEditing(false);
+  const save = async () => {
+    if (saveFunction && isEditMode) {
+      try {
+        await saveFunction(interest);
+        setIsEditing(false);
+      } catch (error) {
+        let errorMessage = "An error occurred while saving the value.";
+        if (error instanceof Error) errorMessage = error.message;
+        else if (typeof error === "string") errorMessage = error;
+        console.error(errorMessage);
+      }
+    } else {
+      setIsEditing(false);
+    }
   };
 
   // Handle keydown and click outside to close editor
