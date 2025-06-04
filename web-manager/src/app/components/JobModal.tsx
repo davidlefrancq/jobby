@@ -1,4 +1,4 @@
-import { IJobEntity, ISalary } from "@/types/IJobEntity";
+import { ICompanyDetails, IJobEntity, ISalary } from "@/types/IJobEntity";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Pencil, Eye } from "lucide-react";
 import React, { useState } from "react";
@@ -18,6 +18,9 @@ import FieldEditorCompany from "./FieldEditorCompany";
 import BtnDislike from "./BtnDislike";
 import BtnLike from "./BtnLike";
 import BtnRemove from "./BtnRemove";
+import CompanyModal from "./CompanyModal";
+import { CloseButton } from "./CloseButton";
+import BtnEditor from "./BtnEditor";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -30,9 +33,19 @@ export default function JobModal({ job, onClose }: JobModalProps) {
   const dispatch = useAppDispatch()
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [companyDelailsSelected, setCompanyDelailsSelected] = useState<ICompanyDetails | null>(null);
 
   const handleToggleEdit = () => {
     setIsEditMode(prev => !prev);
+  };
+
+  const handleCompanyDetailsSelect = (details: ICompanyDetails | null | undefined) => {
+    console.log("Company details selected:", details);
+    if (details) setCompanyDelailsSelected(details);
+  };
+
+  const handleCompanyDetailsClose = () => {
+    setCompanyDelailsSelected(null);
   };
 
   const handleJobUpdate = async (values: Partial<IJobEntity>) => {
@@ -332,14 +345,10 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           {/* Button Bar */}
           <div className={"absolute top-4 right-4 flex items-center gap-3"}>
             {/* Edit Mode Button */}
-            <button onClick={handleToggleEdit} className="text-gray-500 hover:text-black">
-              {isEditMode ? <Pencil className="w-5 h-5 text-red-500" /> : <Eye className="w-5 h-5 text-blue-500" />}
-            </button>
+            <BtnEditor onClick={handleToggleEdit} className="text-gray-500 hover:text-black" isEditMode={isEditMode} autoPositionning={false} />
             
             {/* Close Button */}
-            <button onClick={onClose} className="text-gray-500 hover:text-black">
-              <X className="w-5 h-5" />
-            </button>
+            <CloseButton onClick={onClose} className="text-gray-500 hover:text-black" autoPositionning={false} />
           </div>
 
           {/* Title */}
@@ -353,7 +362,10 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           </h2>
           <div className="flex text-sm text-gray-500 mb-4">
             {/* Company */}
-            <span className="py-2.5 mr-1">
+            <span
+              className={`py-2.5 mr-1 ${!isEditMode && job.company_details?.siren ? 'cursor-pointer caret-transparent hover:ps-2 hover:pe-2 hover:rounded-xl hover:shadow-xl hover:text-white hover:bg-blue-600 focus:ring-4 focus:ring-blue-300' : ''}`}
+              onClick={!isEditMode ? () => handleCompanyDetailsSelect(job.company_details) : undefined}
+            >
               <FieldEditorCompany
                 job={job}
                 isEditMode={isEditMode}
@@ -504,6 +516,10 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             {job.preference === 'dislike' && <BtnLike job={job} onClose={() => onClose()} />}
             {job.preference === 'like' && <BtnDislike job={job} onClose={() => onClose()} />}
           </div>
+
+          {companyDelailsSelected && (
+            <CompanyModal data={companyDelailsSelected} onClose={handleCompanyDetailsClose} />
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>

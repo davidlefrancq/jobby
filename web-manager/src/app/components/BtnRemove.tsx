@@ -39,7 +39,7 @@ export default function BtnRemove({ job, onRemove }: BtnRemoveProps) {
 
   return (
     <button
-      className="text-gray-500 hover:text-red-600 transition group cursor-pointer"
+      className="text-gray-500 hover:text-red-600 transition group cursor-pointer caret-transparent"
       onClick={handleRemove}
       title="Like"
     >

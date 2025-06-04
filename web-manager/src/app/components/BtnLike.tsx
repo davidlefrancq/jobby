@@ -41,7 +41,7 @@ export default function BtnLike({ job, onClose }: BtnLikeProps) {
 
   return (
     <button
-      className="text-gray-500 hover:text-green-600 transition group cursor-pointer"
+      className="text-gray-500 hover:text-green-600 transition group cursor-pointer caret-transparent"
       onClick={handleLike}
       title="Like"
     >

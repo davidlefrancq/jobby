@@ -18,11 +18,11 @@ export default function BtnLoading({ title, loading, width = "150px", onClick }:
     }
   }
 
-  let btnClassName = "text-white text-center items-center focus:ring-4 font-medium rounded-full text-sm px-2.5 py-2.5 focus:outline-none";
+  let btnClassName = "text-white text-center items-center focus:ring-4 font-medium rounded-full text-sm px-2.5 py-2.5 focus:outline-none caret-transparent";
   if (loading) {
     btnClassName += " bg-blue-100 cursor-not-allowed";
   } else {
-    btnClassName += " bg-blue-500 hover:bg-blue-600 focus:ring-blue-300";
+    btnClassName += " bg-blue-500 hover:bg-blue-600 focus:ring-blue-300 cursor-pointer";
   }
 
   const btnStyle: CSSProperties = {
