@@ -1,5 +1,7 @@
 'use client';
 
+import { JSX } from "react";
+
 const frenchWords = [
   'français',
   'francais',
@@ -61,12 +63,17 @@ interface LanguageFlagProps {
 export default function LanguageFlag({ language, padding }: LanguageFlagProps) {
   const isFrench = frenchWords.some(word => language.toLowerCase().includes(word));
   const isEnglish = englishWords.some(word => language.toLowerCase().includes(word));
+  
+  const flags: JSX.Element[] = [];
+  if (isFrench) flags.push(<FrFlag key="fr" padding={padding} />);
+  if (isEnglish) flags.push(<EnFlag key="en" padding={padding} />);
 
-  if (isFrench) {
-    return <span title={language} className={padding}><FrFlag /></span>;
-  } else if (isEnglish) {
-    return <span title={language} className={padding}><EnFlag /></span>;
-  } else {
-    return language;
-  }
+  // Default case if no flags match
+  if (flags.length === 0 && language) flags.push(<span key="default" className="text-gray-500">{language}</span>);
+
+  return (
+    <span title={language} className={`${padding ?? ''} flex gap-1`}>
+      {flags.length > 0 ? flags : null}
+    </span>
+  );
 }

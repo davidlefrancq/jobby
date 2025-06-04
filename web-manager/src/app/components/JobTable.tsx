@@ -7,6 +7,7 @@ import TruncatedText from './TruncatedText';
 import SalaryItem from './SalaryItem';
 import JobStatus from './JobStatus';
 import Link from 'next/link';
+import LanguageFlag from './LanguageFlag';
 
 interface JobTableProps {
   jobs: IJobEntity[];
@@ -60,6 +61,9 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('original_job_id')}>
               Source {renderSortIcon('original_job_id')}
             </th>
+            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer">
+              {/* Language */}
+            </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('location')}>
               Localisation {renderSortIcon('location')}
             </th>
@@ -67,7 +71,7 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
               Title {renderSortIcon('title')}
             </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('company')}>
-              Entreprise {renderSortIcon('company')}
+              Company {renderSortIcon('company')}
             </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('contract_type')}>
               Type {renderSortIcon('contract_type')}
@@ -89,6 +93,9 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
                     </Link>
                   : 'N/A'
                 }
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <LanguageFlag language={job.language || ''} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <TruncatedText text={job.location || ''} length={20} />
