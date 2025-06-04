@@ -1,4 +1,3 @@
-// resize-icons.js
 const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +9,7 @@ const originalsFiles = [
 
 const outputDir = 'icons';
 
-// Liste des tailles à générer
+// List of sizes to generate
 const sizes = [
   { name: 'favicon-16', size: 16 },
   { name: 'favicon-24', size: 24 }, // IE9
@@ -30,26 +29,29 @@ const sizes = [
 ];
 
 (async () => {
+  // Check if output directory exists, if not create it
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
   for (const originalFile of originalsFiles) {
+    // Check input file exists
     const inputFile = path.join(__dirname, originalFile);
     if (!fs.existsSync(inputFile)) {
-      console.error(`Fichier introuvable : ${inputFile}`);
+      console.warn(`⚠️ File not found: ${inputFile}. Skipping...`);
       continue;
     }
 
+    // Generate icons for each size
     for (const { name, size } of sizes) {
       const outputFile = path.join(outputDir, `${name}-${originalFile}`);
       await sharp(inputFile)
         .resize(size, size)
         .toFile(outputFile);
-      console.log(`Généré : ${outputFile}`);
+      console.log(`✔️ ${name} icon generated: ${outputFile}`);
     }
   }
 
-  console.log('✔️ Tous les fichiers ont été générés.');
+  console.log('✔️ All icons have been generated successfully.');
 })().catch(err => {
-  console.error('Erreur lors de la génération des icônes :', err);
+  console.error('Error generating icons:', err);
   process.exit(1);
 });
