@@ -51,7 +51,7 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
   };
 
   return (
-    <div className="overflow-x-auto mt-4">
+    <div className="overflow-x-auto mt-0">
       <table className="w-full bg-white shadow-lg rounded-lg overflow-hidden">
         <thead className="bg-gray-100">
           <tr>

@@ -97,7 +97,7 @@ export default function JobQueueDisliked() {
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Disliked ? '' : 'hidden'}`}>
       
-      <div className="items-right text-right mt-4 mb-0 text-sm text-gray-500">
+      <div className="items-right text-right mt-0 mb-0 text-sm text-gray-500">
         {dislikedJobs.length}/{dislikedCounter} jobs
       </div>
 

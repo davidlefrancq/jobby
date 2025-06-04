@@ -160,30 +160,32 @@ export default function JobQueueUnrated() {
   }, [unratedCounter]);
 
   return (      
-    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 overflow-x-hidden ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
-      {/* { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null } */}
+    <div className={`container mx-auto p-4 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 overflow-x-hidden`}>
+        {/* { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null } */}
 
-      <AnimatePresence mode="wait">
-        {jobTargeted && (
-          <motion.div
-            key={jobTargeted._id.toString()}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          >
-            <JobCard
-              job={jobTargeted}
-              onLike={handleLike}
-              onDislike={handleDislike}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence mode="wait">
+          {jobTargeted && (
+            <motion.div
+              key={jobTargeted._id.toString()}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <JobCard
+                job={jobTargeted}
+                onLike={handleLike}
+                onDislike={handleDislike}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <div className="flex flex-col items-center justify-center w-full h-full">
-        <span className="text-lg font-semibold text-gray-500">{unratedCounter ? unratedCounter : 'No more offers.'}</span>
+        <div className="flex flex-col items-center justify-center w-full h-full">
+          <span className="text-lg font-semibold text-gray-500">{unratedCounter ? unratedCounter : 'No more offers.'}</span>
+        </div>
       </div>
-    </div>      
+    </div>
   );
 }
