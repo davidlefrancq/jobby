@@ -1,0 +1,16 @@
+{
+  "name": "logo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "resize-icons.js",
+  "scripts": {
+    "start": "node resize-icons.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sharp": "^0.34.2"
+  }
+}
