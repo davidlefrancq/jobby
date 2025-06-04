@@ -10,6 +10,7 @@ import { setLikedJobs, setLikedSkip, setLikedCounter } from "../store/jobsReduce
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
+import DisplayBanner from "./DisplayBanner";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -96,14 +97,13 @@ export default function JobQueueLiked() {
   }, [loaderRef, hasMore, isFetching, skip]);
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Liked ? '' : 'hidden'}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 mt-1 ${jobQueueSelected === JobQueueEnum.Liked ? '' : 'hidden'}`}>
       
-      <div className="items-right text-right mt-0 mb-0 text-sm text-gray-500">
-        {likedJobs.length}/{likedCounter} jobs
-      </div>
+      {/* Liked Counter */}
+      <DisplayBanner value={`${likedJobs.length}/${likedCounter} liked`} />
 
       <JobTable jobs={likedJobs} onView={(job: IJobEntity) => setJobSelected(job)} />
-      
+
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
         {!hasMore && "No more liked job"}

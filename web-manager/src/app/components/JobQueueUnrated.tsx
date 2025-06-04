@@ -11,6 +11,7 @@ import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { JobQueueEnum } from "@/constants/JobQueueEnum";
+import DisplayBanner from "./DisplayBanner";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -162,7 +163,9 @@ export default function JobQueueUnrated() {
   return (      
     <div className={`container mx-auto p-4 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
       <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 overflow-x-hidden`}>
-        {/* { jobTargeted ? <JobCard key={jobTargeted._id.toString()} job={jobTargeted} onLike={handleLike}  onDislike={handleDislike} /> : null } */}
+
+        {/* Unrated Counter */}
+        <DisplayBanner value={`${jobTargeted ? 1 : 0}/${unratedCounter} unrated`} />
 
         <AnimatePresence mode="wait">
           {jobTargeted && (
@@ -182,9 +185,6 @@ export default function JobQueueUnrated() {
           )}
         </AnimatePresence>
 
-        <div className="flex flex-col items-center justify-center w-full h-full">
-          <span className="text-lg font-semibold text-gray-500">{unratedCounter ? unratedCounter : 'No more offers.'}</span>
-        </div>
       </div>
     </div>
   );

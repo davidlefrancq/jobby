@@ -10,6 +10,7 @@ import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
 import JobTable from "./JobTable";
+import DisplayBanner from "./DisplayBanner";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -95,14 +96,13 @@ export default function JobQueueDisliked() {
   }, [loaderRef, hasMore, isFetching, skip]);
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${jobQueueSelected === JobQueueEnum.Disliked ? '' : 'hidden'}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 mt-1 ${jobQueueSelected === JobQueueEnum.Disliked ? '' : 'hidden'}`}>
       
-      <div className="items-right text-right mt-0 mb-0 text-sm text-gray-500">
-        {dislikedJobs.length}/{dislikedCounter} jobs
-      </div>
+      {/* Disliked Counter */}
+      <DisplayBanner value={`${dislikedJobs.length}/${dislikedCounter} disliked`} />
 
       <JobTable jobs={dislikedJobs} onView={(job: IJobEntity) => setJobSelected(job)} />
-      
+
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
         {!hasMore && "No more disliked job"}
