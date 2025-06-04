@@ -47,6 +47,11 @@ export interface ICompanyMarketPositioning {
   differentiators: string[] | null;
 }
 
+export interface ICompanyNafApe {
+  code: string | null;
+  activity: string | null;
+}
+
 export interface ICompanyDetails {
   clients?: string[] | null;
   creation_date?: Date | null;sector?: string | null;
@@ -61,11 +66,13 @@ export interface ICompanyDetails {
   revenue?: ICompanyCA[] | null;
   share_capital: ICompanyShareCapital | null;
   siren?: string | null;
+  naf_ape?: ICompanyNafApe | null;
   website?: string | null;
 }
 
 export interface IJobEntity {
   _id: Types.ObjectId;
+  collective_agreement: string | null;
   company: string | null;
   company_details?: ICompanyDetails | null;
   contract_type?: string | null;

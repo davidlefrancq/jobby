@@ -1,6 +1,6 @@
 import { Schema, model, models } from 'mongoose';
 import { IJob } from './IJob';
-import { ICompanyCA, ICompanyDetails, ICompanyLeadership, ICompanyLocation, ICompanyMarketPositioning, ICompanyShareCapital, ISalary } from '@/types/IJobEntity';
+import { ICompanyCA, ICompanyDetails, ICompanyLeadership, ICompanyLocation, ICompanyMarketPositioning, ICompanyNafApe, ICompanyShareCapital, ISalary } from '@/types/IJobEntity';
 
 /**
  * Salary subdocument schema.
@@ -74,6 +74,12 @@ const CompanyShareCapitalSchema = new Schema<ICompanyShareCapital>(
   { _id: false }
 );
 
+/** Company NAF/APE */
+const NafApeSchema = new Schema<ICompanyNafApe>({
+  code: { type: String, default: null },
+  activity: { type: String, default: null },
+}, { _id: false });
+
 /**
  * Company details subdocument schema.
  */
@@ -92,6 +98,7 @@ const CompanyDetailsSchema = new Schema<ICompanyDetails>(
     revenue: { type: [CompanyRevenueSchema], default: null },
     share_capital: { type: CompanyShareCapitalSchema, default: null },
     siren: { type: String, default: null },
+    naf_ape: { type: NafApeSchema, default: null },
     website: { type: String, default: null },
   },
   { _id : false }
@@ -102,6 +109,7 @@ const CompanyDetailsSchema = new Schema<ICompanyDetails>(
  */
 const JobSchema = new Schema<IJob>(
   {
+    collective_agreement: { type: String, default: null },
     company: { type: String, required: true },
     company_details: { type: CompanyDetailsSchema, default: null },
     contract_type: { type: String, default: null },
