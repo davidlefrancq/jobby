@@ -1,0 +1,13 @@
+{
+  "name": "http-request-operator",
+  "version": "1.0.0",
+  "description": "Puppeteer render API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "puppeteer": "^24.10.0"
+  }
+}
