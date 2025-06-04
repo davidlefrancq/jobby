@@ -42,16 +42,40 @@ const sizes = [
 
     // Generate icons for each size
     for (const { name, size } of sizes) {
-      const outputFile = path.join(outputDir, `${name}-${originalFile}`);
-      await sharp(inputFile)
-        .resize(size, size)
-        .toFile(outputFile);
-      console.log(`✔️ ${name} icon generated: ${outputFile}`);
+      try {
+        const newFileName = `${name}-${originalFile}`;
+        const isExisting = fs.existsSync(path.join(outputDir, newFileName));
+        if (!isExisting) {
+          const outputFile = path.join(outputDir, newFileName);
+          await sharp(inputFile)
+            .resize(size, size)
+            .toFile(outputFile);
+          console.log(`🟢 ${name} icon generated: ${outputFile}`);        
+        }
+      } catch (error) {
+        console.error(`🔴 Error generating ${name} icon: ${error.message}`);
+      }
     }
   }
 
-  console.log('✔️ All icons have been generated successfully.');
+  // Generate rounded favicon
+  try {
+    const faviconFileName = `favicon.ico`;
+    const faviconOutputFile = path.join(outputDir, faviconFileName);
+    if (!fs.existsSync(faviconOutputFile)) {
+      await sharp(path.join(__dirname, originalsFiles[0]))
+        .resize(128, 128)
+        .toFile(faviconOutputFile);
+      console.log(`🟢 Rounded favicon generated: ${faviconOutputFile}`);
+    } else {
+      console.log(`⚠️ Rounded favicon already exists: ${faviconOutputFile}`);
+    }
+  } catch (error) {
+    console.error(`🔴 Error generating rounded favicon: ${error.message}`);
+  }
+
+  console.log('🟢 All icons have been generated successfully.');
 })().catch(err => {
-  console.error('Error generating icons:', err);
+  console.error('🔴 Error generating icons:', err);
   process.exit(1);
 });
