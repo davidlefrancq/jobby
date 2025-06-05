@@ -14,6 +14,7 @@ const frenchWords = [
 const englishWords = [
   'english',
   'anglais',
+  'anglaise',
   'england',
 ]
 
@@ -61,8 +62,8 @@ interface LanguageFlagProps {
 }
 
 export default function LanguageFlag({ language, cssClassStyle }: LanguageFlagProps) {
-  const isFrench = frenchWords.some(word => language.toLowerCase().includes(word));
-  const isEnglish = englishWords.some(word => language.toLowerCase().includes(word));
+  const isFrench = frenchWords.some(word => language.toLowerCase().includes(word)) || language.toLowerCase() === 'fr';
+  const isEnglish = englishWords.some(word => language.toLowerCase().includes(word)) || language.toLowerCase() === 'en';
   
   const flags: JSX.Element[] = [];
   if (isFrench) flags.push(<FrFlag key="fr" cssClassStyle={cssClassStyle} />);
