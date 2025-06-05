@@ -39,22 +39,20 @@ export default function JobQueueUnrated() {
     if (!inLoading && hasMore) {
       setInLoading(true);
       try {
-        const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit, skip });
+        const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit: 9, skip: 0 });
         if (data && data.length > 0) {
           addJobs(data);
-          setInLoading(false);
         } else if (data && data.length === 0) {
-          setInLoading(false);
           setHasMore(false);
         } else {
-          console.log({ data })
-          setInLoading(false);
           handleAddError('Failed to load unrated jobs.', 'error');
         }
       } catch (error) {
         console.error(error);
-        setInLoading(false);
         handleAddError('Failed to load unrated jobs.', 'error');
+      } finally {
+        // Reset loading state
+        setInLoading(false);
       }
     }
   }
