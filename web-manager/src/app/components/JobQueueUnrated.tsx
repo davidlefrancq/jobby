@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { IJobEntity } from "@/types/IJobEntity";
-import { setUnratedJobs, setUnratedSkip, removeUnratedJob, setUnratedCounter, addLikedJob, addDislikedJob } from "../store/jobsReducer";
+import { setUnratedJobs, removeUnratedJob, setUnratedCounter, addLikedJob, addDislikedJob } from "../store/jobsReducer";
 import {  } from "../store/n8nReducer";
 import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
@@ -19,7 +19,7 @@ let firstLoad = true;
 
 export default function JobQueueUnrated() {
   const dispatch = useAppDispatch()
-  const { unratedJobs: jobs, jobQueueSelected, uratedLimit: limit, unratedSkip: skip, unratedCounter} = useAppSelector(state => state.jobsReducer)
+  const { unratedJobs: jobs, jobQueueSelected, unratedCounter} = useAppSelector(state => state.jobsReducer)
   const { franceTravailStarted, googleAlertsStarted, linkedInStarted } = useAppSelector(state => state.n8nReducer)
 
   const [jobsUnrated, setJobsUnrated] = useState<IJobEntity[]>([]);
@@ -32,7 +32,6 @@ export default function JobQueueUnrated() {
     const filteredJobs = jobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
     // persist in the store
     dispatch(setUnratedJobs([...filteredJobs, ...newJobs]));
-    dispatch(setUnratedSkip(skip + newJobs.length));
   }
 
   const loadUnratedJobs = async () => {
@@ -160,7 +159,7 @@ export default function JobQueueUnrated() {
 
   return (      
     <div className={`container mx-auto p-4 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
-      <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 overflow-x-hidden`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${hasMore ? 'overflow-x-hidden' : ''} min-h[calc(100vh-4rem)]`}>
 
         {/* Unrated Counter */}
         <DisplayBanner value={`${jobTargeted ? 1 : 0}/${unratedCounter} unrated`} />
@@ -182,6 +181,22 @@ export default function JobQueueUnrated() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {!hasMore && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={'no-more-jobs'}
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <div className="text-center text-gray-500 bg-gray-100 rounded-lg shadow-md p-4">
+                No more unrated jobs available.
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        )}
 
       </div>
     </div>
