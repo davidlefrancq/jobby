@@ -18,21 +18,21 @@ const englishWords = [
 ]
 
 interface FlagProps {
-  padding?: string;
+  cssClassStyle?: string;
 }
 
-const FrFlag = ({ padding }: FlagProps) => {
+const FrFlag = ({ cssClassStyle }: FlagProps) => {
   let className = 'w-5 h-5';
-  if (padding) className += ` ${padding}`;
+  if (cssClassStyle) className += ` ${cssClassStyle}`;
   return <svg className={className} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
     <circle cx="256" cy="256" fill="#f0f0f0" r="256"/>
     <path d="m512 256c0-110.071-69.472-203.906-166.957-240.077v480.155c97.485-36.172 166.957-130.007 166.957-240.078z" fill="#d80027"/>
     <path d="m0 256c0 110.071 69.473 203.906 166.957 240.077v-480.154c-97.484 36.171-166.957 130.006-166.957 240.077z" fill="#0052b4"/>
   </svg>
 }
-const EnFlag = ({ padding }: FlagProps) => {
+const EnFlag = ({ cssClassStyle }: FlagProps) => {
   let className = 'w-5 h-5';
-  if (padding) className += padding;
+  if (cssClassStyle) className += ` ${cssClassStyle}`;
   return <svg className={className} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
     <circle cx="256" cy="256" fill="#f0f0f0" r="256"/>
     <g fill="#0052b4">
@@ -57,22 +57,22 @@ const EnFlag = ({ padding }: FlagProps) => {
 
 interface LanguageFlagProps {
   language: string;
-  padding?: 'pr-2' | 'pl-2' | 'pr-2 pl-2';
+  cssClassStyle?: string;
 }
 
-export default function LanguageFlag({ language, padding }: LanguageFlagProps) {
+export default function LanguageFlag({ language, cssClassStyle }: LanguageFlagProps) {
   const isFrench = frenchWords.some(word => language.toLowerCase().includes(word));
   const isEnglish = englishWords.some(word => language.toLowerCase().includes(word));
   
   const flags: JSX.Element[] = [];
-  if (isFrench) flags.push(<FrFlag key="fr" padding={padding} />);
-  if (isEnglish) flags.push(<EnFlag key="en" padding={padding} />);
+  if (isFrench) flags.push(<FrFlag key="fr" cssClassStyle={cssClassStyle} />);
+  if (isEnglish) flags.push(<EnFlag key="en" cssClassStyle={cssClassStyle} />);
 
   // Default case if no flags match
   if (flags.length === 0 && language) flags.push(<span key="default" className="text-gray-500">{language}</span>);
 
   return (
-    <span title={language} className={`${padding ?? ''} flex gap-1`}>
+    <span title={language} className={`${cssClassStyle ?? ''} flex gap-1`}>
       {flags.length > 0 ? flags : null}
     </span>
   );

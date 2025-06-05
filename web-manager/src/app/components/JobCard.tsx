@@ -51,7 +51,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           {/* Details */}
           <div className="flex text-gray-500 text-sm">
             {/* Language */}
-            {job.language ? <LanguageFlag language={job.language} padding={"pr-2"} />: null}
+            {job.language ? <LanguageFlag language={job.language} cssClassStyle='mr-1' />: null}
             {/* Location */}
             <span title='Location'>{job.location}</span>
             {/* Contract Type */}
