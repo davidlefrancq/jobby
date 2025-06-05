@@ -1,23 +1,126 @@
 {
-  "name": "Company Workflow",
+  "name": "Companies Details Workflow",
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "POST",
-        "path": "enrich-company-details",
-        "responseMode": "lastNode",
-        "responseData": "noData",
+        "path": "enrich-companies-details",
         "options": {}
       },
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        -40,
+        -140,
+        140
+      ],
+      "id": "94ef81f3-98f1-49bf-8fe0-f29c92152674",
+      "webhookId": "b949673f-f9b9-438c-a079-7893c8b6ee1f"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        280
+      ],
+      "id": "9657d625-1a6e-40e5-a4a1-195b93318e7c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {
+          "limit": 1,
+          "skip": "={{ $json.i }}"
+        },
+        "query": "={ \"$and\": [ { \"company_details.siren\": { \"$ne\" : null } }, {\"company_details.creation_date\": null} ] }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        340,
         200
       ],
-      "id": "58acdd42-ce2f-4816-9a31-62ed701bd675",
-      "webhookId": "1ef54366-17e3-4d08-8410-d8d6b5ac532b"
+      "id": "ecb8b845-e529-4b84-b185-6fc09e85c098",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2541037b-c1b7-4705-a7bb-2f2d715e1315",
+              "name": "i",
+              "value": 0,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        200
+      ],
+      "id": "8d640d38-2085-4c02-a256-3c70fb019bc5",
+      "name": "i = 0"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "470a468c-2003-44b5-87ac-b85f4b1145fb",
+              "name": "i",
+              "value": "={{ $json.i }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        200
+      ],
+      "id": "dcf0017b-d8d0-4697-af11-9e4e4c907b60",
+      "name": "i"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5b0a61a2-1b96-48e0-a788-b437da114b59",
+              "name": "i",
+              "value": "={{ parseInt($node[\"i\"].json['i']) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1920,
+        200
+      ],
+      "id": "a2530723-0ffe-469b-a90b-288db9a3e05b",
+      "name": "i++"
     },
     {
       "parameters": {
@@ -26,12 +129,12 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        740,
-        260
+        800,
+        200
       ],
-      "id": "11b974ed-df72-470f-ae9e-a9e3c56a9b98",
+      "id": "1ff1b607-61a2-41ff-a453-1f91a6f572f8",
       "name": "Wait",
-      "webhookId": "0aced321-4839-41a0-8cd1-b96906b50ac9"
+      "webhookId": "c85f78c4-c829-4f57-bee5-fdb9cf1e31c1"
     },
     {
       "parameters": {
@@ -41,10 +144,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1060,
-        260
+        1120,
+        200
       ],
-      "id": "ac1c4246-328c-4bbb-96e6-814ce1ea8653",
+      "id": "2a0e2604-f9b6-4ab7-a79d-932db5042d3c",
       "name": "HTML to JSON"
     },
     {
@@ -55,10 +158,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1220,
-        260
+        1280,
+        200
       ],
-      "id": "35d597c8-a8fb-41f8-99ff-eb6ae1364b3d",
+      "id": "5d6be12d-1f1b-4c4b-b81e-3b64f6975496",
       "name": "JSON Mapping"
     },
     {
@@ -70,10 +173,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
       "position": [
-        1380,
-        200
+        1440,
+        140
       ],
-      "id": "5cd4556f-8b8b-4cab-b37c-edcc6d1017ea",
+      "id": "6d7033c8-e5a4-4e44-aeb9-2eb2c8784d96",
       "name": "Merge"
     },
     {
@@ -84,10 +187,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1540,
-        260
+        1600,
+        200
       ],
-      "id": "e1170305-0f58-4808-bae1-acc332cdc850",
+      "id": "12d801b1-54ae-4e76-9573-c716671124d3",
       "name": "Prepare Update"
     },
     {
@@ -107,10 +210,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        900,
-        260
+        960,
+        200
       ],
-      "id": "03c3f933-81cf-45ad-b0d6-978396842faa",
+      "id": "4dde02f7-4811-457d-93b5-e71a8d9f3aec",
       "name": "HTTP Puppeteer Request"
     },
     {
@@ -124,10 +227,10 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1700,
-        260
+        1760,
+        200
       ],
-      "id": "a08834fa-4321-424b-b5f7-7b1b7185e2b5",
+      "id": "5fa92bc6-a284-4b3b-9985-368cd8dd4e9a",
       "name": "MongoDB Update Company Details",
       "alwaysOutputData": true,
       "credentials": {
@@ -158,16 +261,6 @@
               }
             },
             {
-              "id": "26b214fe-9994-45fd-8d09-f34c5c516835",
-              "leftValue": "={{ $json.company_details }}",
-              "rightValue": "",
-              "operator": {
-                "type": "object",
-                "operation": "exists",
-                "singleValue": true
-              }
-            },
-            {
               "id": "8943b144-8304-4a42-807b-8cbebecea385",
               "leftValue": "={{ $json.company_details.creation_date }}",
               "rightValue": "",
@@ -185,48 +278,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        520,
-        200
+        580,
+        140
       ],
-      "id": "2782afb4-e54e-409c-a619-c0e77d3da0cf",
+      "id": "5c76006f-da50-4027-b364-169a885753e6",
       "name": "If valide"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "if (!$json.query || !$json.query._id || $json.query._id.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { _id: $json.query._id }};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        120,
-        200
-      ],
-      "id": "36b02dee-e8d3-4daa-a420-1c334547b1f5",
-      "name": "Code"
-    },
-    {
-      "parameters": {
-        "collection": "jobs",
-        "options": {},
-        "query": "={ \"_id\": \"{{ $json._id }}\" }"
-      },
-      "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.1,
-      "position": [
-        280,
-        200
-      ],
-      "id": "92b0ec9a-7cac-4d35-a9cd-8b14ce1785f1",
-      "name": "MongoDB",
-      "alwaysOutputData": true,
-      "credentials": {
-        "mongoDb": {
-          "id": "EkVdtE5MEWwZdbTY",
-          "name": "MongoDB account"
-        }
-      },
-      "onError": "continueErrorOutput"
     }
   ],
   "pinData": {},
@@ -235,7 +291,62 @@
       "main": [
         [
           {
-            "node": "Code",
+            "node": "i = 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "i = 0",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "If valide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "i = 0": {
+      "main": [
+        [
+          {
+            "node": "i",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "i": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "i++": {
+      "main": [
+        [
+          {
+            "node": "i",
             "type": "main",
             "index": 0
           }
@@ -310,7 +421,13 @@
     },
     "MongoDB Update Company Details": {
       "main": [
-        []
+        [
+          {
+            "node": "i++",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "If valide": {
@@ -328,39 +445,17 @@
           }
         ]
       ]
-    },
-    "Code": {
-      "main": [
-        [
-          {
-            "node": "MongoDB",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "MongoDB": {
-      "main": [
-        [
-          {
-            "node": "If valide",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "d37d66c4-b130-4c41-ad55-85cf495bbd50",
+  "versionId": "b4504d5f-2a82-4ea9-94ab-8699de793e27",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
   },
-  "id": "A9KoQaXUVTIlSJan",
+  "id": "Yo6MknghXf6YYbUA",
   "tags": []
 }

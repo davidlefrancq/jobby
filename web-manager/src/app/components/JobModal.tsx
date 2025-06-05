@@ -1,11 +1,11 @@
 import { ICompanyDetails, IJobEntity, ISalary } from "@/types/IJobEntity";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Pencil, Eye } from "lucide-react";
 import React, { useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch } from "../store";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
+import { addNotification } from "../store/notificationsReducer";
 import Link from "next/link";
 import FieldEditorLevel from "./FieldEditorLevel";
 import FieldEditorInterestIndicator from "./FieldEditorInterestIndicator";
@@ -21,6 +21,7 @@ import BtnRemove from "./BtnRemove";
 import CompanyModal from "./CompanyModal";
 import { CloseButton } from "./CloseButton";
 import BtnEditor from "./BtnEditor";
+import { N8NWorkflow } from "../lib/N8NWorkflow";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -40,7 +41,6 @@ export default function JobModal({ job, onClose }: JobModalProps) {
   };
 
   const handleCompanyDetailsSelect = (details: ICompanyDetails | null | undefined) => {
-    console.log("Company details selected:", details);
     if (details) setCompanyDelailsSelected(details);
   };
 
@@ -51,11 +51,29 @@ export default function JobModal({ job, onClose }: JobModalProps) {
   const handleJobUpdate = async (values: Partial<IJobEntity>) => {
     try {
       const jobUpdated = await jobRepository.update(job._id.toString(), values);
-      console.log("Job updated:", jobUpdated);
       if (jobUpdated) {
         if (jobUpdated.preference === 'dislike') dispatch(updateDislikedJob(jobUpdated));
         else if (jobUpdated.preference === 'like') dispatch(updateLikedJob(jobUpdated));
         else if (!jobUpdated.preference) dispatch(updateUnratedJob(jobUpdated));
+
+        /** Start N8N Company Details Workflow */
+        if (values.company_details && values.company_details.siren) {
+          const n8nWorkflow = N8NWorkflow.getInstance();
+          const cdwResponse = await n8nWorkflow.startCompanyDetailsWorkflow({ _id: jobUpdated._id.toString() });
+          if (cdwResponse.error) {
+            dispatch(addAlert({
+              date: new Date().toISOString(),
+              message: `Failed to start Company Details Workflow: ${cdwResponse.error}`,
+              type: "error"
+            }));
+          } else {
+            dispatch(addNotification({
+              id: Date.now(),
+              message: "Company Details Workflow is complete."
+            }));
+          }
+          
+        }
       }
     } catch (error) {
       dispatch(addAlert({

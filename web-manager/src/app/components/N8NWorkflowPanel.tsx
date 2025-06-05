@@ -3,24 +3,25 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 import { addAlert } from '@/app/store/alertsReducer';
-import { setFranceTravailStarted, setGoogleAlertsStarted, setLinkedInStarted } from '@/app/store/n8nReducer';
+import { setFranceTravailStarted, setGoogleAlertsStarted, setLinkedInStarted, setCompaniesDetailsStarted } from '@/app/store/n8nReducer';
 import { addNotification } from '@/app/store/notificationsReducer';
 import { N8NWorkflow, StartWorkflowProps } from "../lib/N8NWorkflow";
 import { N8N_WORKFLOW_NAMES } from "@/constants/n8n-webhooks";
 
 interface N8NWorkflowPanelProps {
-  startedFtWorkflow: boolean;
-  resetStartedFtWorkflow: () => void;
+  started: boolean;
+  onFinish: () => void;
 }
 
-const n8nWorkflow = new N8NWorkflow();
+const n8nWorkflow = N8NWorkflow.getInstance();
+const nbWorkflows = 4; // Number of workflows to track progress
 
-export default function N8NWorkflowPanel({ startedFtWorkflow, resetStartedFtWorkflow }: N8NWorkflowPanelProps) {
+export default function N8NWorkflowPanel({ started, onFinish }: N8NWorkflowPanelProps) {
   const dispatch = useAppDispatch()
-  const { franceTravailStarted, googleAlertsStarted, linkedInStarted } = useAppSelector(state => state.n8nReducer)
+  const { franceTravailStarted, googleAlertsStarted, linkedInStarted, companiesDetailsStarted } = useAppSelector(state => state.n8nReducer)
 
   const [progress, setProgress] = useState(0);    
-  const hiddenClass = startedFtWorkflow ? '' : 'hidden';
+  const hiddenClass = started ? '' : 'hidden';
 
   const workflowFranceTravailHandler = async () => {
     if (!franceTravailStarted) {
@@ -63,6 +64,27 @@ export default function N8NWorkflowPanel({ startedFtWorkflow, resetStartedFtWork
       }
     }
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const workflowCompaniesDetailsHandler = async () => {
+    if (!companiesDetailsStarted) {
+      dispatch(setCompaniesDetailsStarted(true));
+      try {
+        const workflow: StartWorkflowProps = {
+          workflow: N8N_WORKFLOW_NAMES.CompaniesDetails,
+          setError: (error: string) => {
+            dispatch(addAlert({ date: new Date().toISOString(), message: error, type: 'error' }));
+          }
+        };
+        await n8nWorkflow.startWorkflow(workflow);
+      } catch (error) {
+        console.error(error);
+        dispatch(addAlert({ date: new Date().toISOString(), message: 'Failed to start CompaniesDetails workflow.', type: 'error' }));
+      } finally {
+        dispatch(addNotification({ id: Date.now(), message: 'Workflow CompaniesDetails finished.' }));
+      }
+    }
+  }
   
   const workflowLinkedInHandler = async () => {
     if (!linkedInStarted) {
@@ -84,10 +106,11 @@ export default function N8NWorkflowPanel({ startedFtWorkflow, resetStartedFtWork
     }
   }
 
-  const workflowHandler = async () => {
+  const runWorkflows = async () => {
     await workflowFranceTravailHandler();
     // await workflowGoogleAlertsHandler();
     await workflowLinkedInHandler();
+    await workflowCompaniesDetailsHandler();
   }
 
   useEffect(() => {
@@ -95,27 +118,29 @@ export default function N8NWorkflowPanel({ startedFtWorkflow, resetStartedFtWork
     if (franceTravailStarted) counter++;
     // if (googleAlertsStarted) counter++;
     if (linkedInStarted) counter++;
-    const progress = (counter / 3) * 100;
+    if (companiesDetailsStarted) counter++;
+    const progress = (counter / nbWorkflows) * 100;
     setProgress(progress);
-  }, [franceTravailStarted, googleAlertsStarted, linkedInStarted]);
+  }, [franceTravailStarted, googleAlertsStarted, linkedInStarted, companiesDetailsStarted]);
 
   useEffect(() => {
-    if (startedFtWorkflow && !franceTravailStarted && !linkedInStarted) {      
-      workflowHandler().then(() => {
+    if (started && !franceTravailStarted && !linkedInStarted && !companiesDetailsStarted) {      
+      runWorkflows().then(() => {
         setProgress(100);
         setTimeout(() => {
           setProgress(0);
           dispatch(setFranceTravailStarted(false));
           dispatch(setGoogleAlertsStarted(false));
           dispatch(setLinkedInStarted(false));
-          resetStartedFtWorkflow();
+          dispatch(setCompaniesDetailsStarted(false));
+          onFinish();
         }, 2000);
       }).catch(err => {
         const msg = `Failed to start workflow: ${String(err)}`;
         dispatch(addAlert({ date: new Date().toISOString(), message: msg, type: 'error' }));
       })
     }
-  }, [startedFtWorkflow]);
+  }, [started]);
 
   return (
     <div className={`w-full h-2 bg-gray-200 rounded-full ${hiddenClass}`}>

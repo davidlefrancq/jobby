@@ -21,7 +21,7 @@ export default function JobBoard() {
   const dispatch = useAppDispatch()
   const { notifications } = useAppSelector(state => state.notificationsReducer)
 
-  const [startedFtWorkflow, setStartedFtWorkflow] = useState(false);
+  const [startedFtWorkflows, setStartedFtWorkflows] = useState(false);
 
   const handleRemoveNotification = (id: number) => {
     dispatch(removeNotification(id));
@@ -40,7 +40,7 @@ export default function JobBoard() {
         <div className="flex items-center gap-2">
           
           {/* Worflows Button */}
-          <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflow} onClick={() => setStartedFtWorkflow(!startedFtWorkflow)} />
+          <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflows} onClick={() => setStartedFtWorkflows(!startedFtWorkflows)} />
           
           {/* N8N Button */}
           <Link
@@ -56,7 +56,7 @@ export default function JobBoard() {
         </div>
       </div>
 
-      <N8NWorkflowPanel startedFtWorkflow={startedFtWorkflow} resetStartedFtWorkflow={() => setStartedFtWorkflow(false)} />
+      <N8NWorkflowPanel started={startedFtWorkflows} onFinish={() => setStartedFtWorkflows(false)} />
       <ErrorsPanel />
       <JobQueuePanel />
     </div>
