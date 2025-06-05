@@ -50,6 +50,11 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
     return sortConfig.direction === 'asc' ? <ArrowUp className="inline w-4 h-4 ml-1" /> : <ArrowDown className="inline w-4 h-4 ml-1" />;
   };
 
+  const getSourceName = (job: IJobEntity) => {
+    const data = new URL(job.source).hostname.split('.');
+    return data[data.length - 2] || 'N/A';
+  }
+
   return (
     <div className="overflow-x-auto mt-0">
       <table className="w-full bg-white shadow-lg rounded-lg overflow-hidden">
@@ -89,7 +94,8 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={(e) => e.stopPropagation()}>
                 {job.original_job_id
                   ? <Link href={job.source} target={'_blank'} className="text-blue-500 hover:underline">
-                      {job.original_job_id }
+                      {/* {job.original_job_id } */}
+                      {getSourceName(job)}
                     </Link>
                   : 'N/A'
                 }
