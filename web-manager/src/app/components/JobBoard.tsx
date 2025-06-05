@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { RefreshCcw } from 'lucide-react';
+import { Lora } from "next/font/google";
 import { useAppDispatch, useAppSelector } from '@/app/store';
 import { removeNotification } from '@/app/store/notificationsReducer';
 import BtnLoading from './BtnLoading';
@@ -11,6 +12,10 @@ import ErrorsPanel from './ErrorsPanel';
 import N8NWorkflowPanel from './N8NWorkflowPanel';
 import JobQueuePanel from './JobQueuePanel';
 
+const lora = Lora({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
 
 export default function JobBoard() {
   const dispatch = useAppDispatch()
@@ -26,9 +31,9 @@ export default function JobBoard() {
     <div className="w-full mx-0 p-3">
       <div className="flex justify-between items-center pt-2 ms-2 pe-2 pb-8 mb-1 border-b border-gray-200">
         {/* App Name */}
-        <div className="flex items-center gap-2">
-          <img src="icon-192-jobby-logo-rounded.png" alt="Job Board Logo" className="w-9 h-9 rounded-full mr-2" />
-          <h1 className="text-4xl font-bold text-gray-800">Jobby</h1>
+        <div className="flex items-center gap-0">
+          <img src="icon-192-jobby-persona-logo-rounded.png" alt="Job Board Logo" className="h-14 w-14 rounded-full" />
+          <h1 className={`${lora.className} text-3xl font-bold text-gray-800`}>Jobby</h1>
         </div>
         
         {/* Actions bar */}

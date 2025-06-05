@@ -5,6 +5,8 @@ const path = require('path');
 const originalsFiles = [
   'jobby-logo-rounded.png',
   'jobby-logo-square-shaped.png',
+  'jobby-persona-logo.png',
+  'jobby-persona-logo-rounded.png',
 ];
 
 const outputDir = 'icons';
@@ -63,7 +65,7 @@ const sizes = [
     const faviconFileName = `favicon.ico`;
     const faviconOutputFile = path.join(outputDir, faviconFileName);
     if (!fs.existsSync(faviconOutputFile)) {
-      await sharp(path.join(__dirname, originalsFiles[0]))
+      await sharp(path.join(__dirname, originalsFiles[3]))
         .resize(128, 128)
         .toFile(faviconOutputFile);
       console.log(`🟢 Rounded favicon generated: ${faviconOutputFile}`);
