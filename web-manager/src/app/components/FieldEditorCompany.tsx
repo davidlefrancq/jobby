@@ -160,7 +160,14 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
           className="border rounded px-2 py-1 w-full mr-1"
           placeholder="SIREN (optional)"
         />
-        <BtnLoading loading={inSaving} onClick={save} title={<Save className="w-4 h-4" />} width={"80px"} height={"28px"} />
+        <BtnLoading
+          loading={inSaving}
+          onClick={save}
+          title={<Save className="w-4 h-4" />}
+          width={"80px"}
+          height={"28px"}
+          rounded='rounded-xl'
+        />
         <FieldEditorErrorPanel message={error} close={handleRemoveError} />
       </div>
     );

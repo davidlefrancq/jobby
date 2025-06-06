@@ -40,7 +40,12 @@ export default function JobBoard() {
         <div className="flex items-center gap-2">
           
           {/* Worflows Button */}
-          <BtnLoading title={<RefreshCcw size={18} />} width={'40px'} loading={startedFtWorkflows} onClick={() => setStartedFtWorkflows(!startedFtWorkflows)} />
+          <BtnLoading
+            title={<RefreshCcw size={18} />}
+            width={'40px'}
+            loading={startedFtWorkflows}
+            onClick={() => setStartedFtWorkflows(!startedFtWorkflows)}
+          />
           
           {/* N8N Button */}
           <Link
