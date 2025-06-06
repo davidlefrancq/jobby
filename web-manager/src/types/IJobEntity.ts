@@ -1,5 +1,3 @@
-import { Types } from 'mongoose';
-
 export type JobPreference = 'like' | 'dislike' | null;
 
 export interface ISalary {
@@ -21,25 +19,25 @@ export interface ICompanyLocation {
 
 export interface ICompanyShareCapital {
   amount: number;
-  currency: string;
+  currency: string | null;
 }
 
 export interface ICompanyCA {
-  amount: number;
-  currency: string;
+  amount: number | null;
+  currency: string | null;
   siret: string;
-  year: number;
+  year: number | null;
 }
 
 export interface ICompanyLeadership {
-  email?: string | null;
-  github?: string | null;
-  linkedin?: string | null;
-  name: string;
-  phone?: string | null;
-  position?: string;
-  twitter?: string | null;
-  website?: string | null;
+  email: string | null;
+  github: string | null;
+  linkedin: string | null;
+  name: string | null;
+  phone: string | null;
+  position: string | null;
+  twitter: string | null;
+  website: string | null;
 }
 
 export interface ICompanyMarketPositioning {
@@ -53,40 +51,39 @@ export interface ICompanyNafApe {
 }
 
 export interface ICompanyDetails {
-  clients?: string[] | null;
-  creation_date?: Date | null;sector?: string | null;
-  description?: string | null;
-  global_workforce?: number | null;
-  leadership?: ICompanyLeadership[] | null;
-  legal_form?: string | null;
-  locations?: ICompanyLocation[] | null;
-  logo?: string | null;
-  market_positioning?: ICompanyMarketPositioning | null;  
-  products?: string[] | null;
-  revenue?: ICompanyCA[] | null;
+  clients: string[] | null;
+  creation_date: Date | null;sector?: string | null;
+  description: string | null;
+  global_workforce: number | null;
+  leadership: ICompanyLeadership[] | null;
+  legal_form: string | null;
+  locations: ICompanyLocation[] | null;
+  logo: string | null;
+  market_positioning: ICompanyMarketPositioning | null;  
+  products: string[] | null;
+  revenue: ICompanyCA[] | null;
   share_capital: ICompanyShareCapital | null;
-  siren?: string | null;
-  naf_ape?: ICompanyNafApe | null;
-  website?: string | null;
+  siren: string | null;
+  naf_ape: ICompanyNafApe | null;
+  website: string | null;
 }
 
 export interface IJobEntity {
-  _id: Types.ObjectId;
   collective_agreement: string | null;
   company: string | null;
-  company_details?: ICompanyDetails | null;
-  contract_type?: string | null;
+  company_details: ICompanyDetails | null;
+  contract_type: string | null;
   date: string | null;
   description: string | null;
-  interest_indicator: string;
+  interest_indicator: string | null;
   language: string | null;
-  level?: string | null;
+  level: string | null;
   location: string | null;
   methodologies: string[] | null;
   original_job_id: string | null;
-  preference: JobPreference;
-  salary: ISalary;
-  source: string;
+  preference: JobPreference | null;
+  salary: ISalary | null;
+  source: string | null;
   technologies: string[] | null;
   teleworking: boolean;
   title: string;

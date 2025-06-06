@@ -7,7 +7,7 @@ import { ICompanyCA, ICompanyDetails, ICompanyLeadership, ICompanyLocation, ICom
  */
 const SalarySchema = new Schema<ISalary>(
   {
-    currency: { type: String, required: true },
+    currency: { type: String, default: null },
     min: { type: Number, default: null },
     max: { type: Number, default: null },
   },
@@ -56,10 +56,10 @@ const CompanyMarketPositioningSchema = new Schema<ICompanyMarketPositioning>(
 /** Company revenue */
 const CompanyRevenueSchema = new Schema<ICompanyCA>(
   {
-    amount: { type: Number, required: true },
-    currency: { type: String, required: true },
-    siret: { type: String, required: true },
-    year: { type: Number, required: true },
+    amount: { type: Number, default: null },
+    currency: { type: String, default: null },
+    siret: { type: String, default: null },
+    year: { type: Number, default: null },
   },
   { _id: false }
 );
@@ -69,7 +69,7 @@ const CompanyRevenueSchema = new Schema<ICompanyCA>(
 const CompanyShareCapitalSchema = new Schema<ICompanyShareCapital>(
   {
     amount: { type: Number, required: true },
-    currency: { type: String, required: true },
+    currency: { type: String, default: '' },
   },
   { _id: false }
 );
@@ -110,23 +110,23 @@ const CompanyDetailsSchema = new Schema<ICompanyDetails>(
 const JobSchema = new Schema<IJob>(
   {
     collective_agreement: { type: String, default: null },
-    company: { type: String, required: true },
+    company: { type: String, default: null },
     company_details: { type: CompanyDetailsSchema, default: null },
     contract_type: { type: String, default: null },
-    date: { type: String, required: true },
-    description: { type: String, required: true },
-    interest_indicator: { type: String, required: true },
+    date: { type: String, default: null },
+    description: { type: String, default: null },
+    interest_indicator: { type: String, default: null },
     level: { type: String, default: null },
-    language: { type: String, default: '' },
-    location: { type: String, required: true },
+    language: { type: String, default: null },
+    location: { type: String, default: null },
     methodologies: { type: [String], required: true },
     preference: { type: String, default: null },
-    salary: { type: SalarySchema, required: true },
-    source: { type: String, required: true },
+    salary: { type: SalarySchema, default: null },
+    source: { type: String, default: null },
     technologies: { type: Schema.Types.Mixed, default: null },
-    teleworking: { type: Boolean, required: true },
-    title: { type: String, required: true },
-    original_job_id: { type: String, unique: true, default: null },
+    teleworking: { type: Boolean, default: false },
+    title: { type: String, default: 'unknown' },
+    original_job_id: { type: String, default: null },
     created_at: { type: Date, default: new Date() },
     updated_at: { type: Date, default: new Date() },
   },
@@ -136,4 +136,4 @@ const JobSchema = new Schema<IJob>(
 /**
  * Export Job model. Uses existing model if already compiled (Next.js HMR).
  */
-export const Job = models.Job || model<IJob>('Job', JobSchema);
+export const Job = models['Job']<IJob> || model<IJob>('Job', JobSchema);

@@ -1,11 +1,12 @@
+import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
 import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
 import { dbConnect } from '@/backend/lib/dbConnect';
 import { IJob } from '@/backend/models/IJob';
 import { Job } from '@/backend/models/Job';
-import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
 import { DatabaseConnectionError } from '@/backend/lib/errors/DatabaseError';
 import { CountDislikedJobsError, CountLikedJobsError, CountUnratedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from './errors/JobRepositoryError';
 import { IJobEntity } from '@/types/IJobEntity';
+import { JobSanitizer } from '../models/JobSanitizer';
 
 /**
  * Repository for Job model CRUD operations.
@@ -130,10 +131,13 @@ export class JobRepository {
     if (!this.connection) await this.connect();
 
     try {
-      const job = new Job(data);
+      const sanitizedData = JobSanitizer.sanitize(data);
+      const job = new Job(sanitizedData);
+
       // Validate the job before saving
       const validationError = job.validateSync();
       if (validationError) throw new CreateJobError(`Validation failed: ${validationError.message}`);
+
       return job.save();
     } catch (error) {
       throw new CreateJobError(String(error));
@@ -152,7 +156,8 @@ export class JobRepository {
       const objectId = new mongoose.Types.ObjectId(id);
       const filter = { _id: objectId };
       const option: QueryOptions<IJob> = { new: true, runValidators: true };
-      return Job.findByIdAndUpdate(filter, data, option).exec();
+      const sanitizedData = JobSanitizer.partialSanitize(data);
+      return Job.findByIdAndUpdate(filter, sanitizedData, option).exec();
     } catch (error) {
       throw new UpdateJobError(String(error));
     }
