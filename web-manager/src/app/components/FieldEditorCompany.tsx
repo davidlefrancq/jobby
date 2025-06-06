@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
-import BtnSave from "./BtnSave";
 import { ICompanyDetails, IJobEntity } from "@/types/IJobEntity";
+import BtnLoading from "./BtnLoading";
+import { Save } from "lucide-react";
 
 interface FieldEditorCompanyProps {
   job: IJobEntity;
@@ -18,6 +19,7 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
   const [inputSiren, setInputSiren] = useState<string | null>(job.company_details?.siren || null);
   const [isEditing, setIsEditing] = useState(isEditMode);
   const [error, setError] = useState<string | null>(null);
+  const [inSaving, setInSaving] = useState(false);
 
   const handleRemoveError = () => {
     setError(null);
@@ -67,35 +69,42 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
   }
 
   const save = async () => {
-    console.log("Saving company:", inputCompany, "SIREN:", inputSiren);
+    if (!inSaving && saveFunction && isChanged()) {
+      setInSaving(true);
 
-    if (saveFunction && isChanged()) {
       // Validate inputs
-      if (!isValidSiren(inputSiren)) setError("SIREN must be a 9-digit number.");
+      if (!isValidSiren(inputSiren)) {
+        setError("SIREN must be a 9-digit number.");
+        setInSaving(false);
+      }
+      else {
+        try {
+          const inputJob: Partial<IJobEntity> = {}
 
-      try {
-        const inputJob: Partial<IJobEntity> = {}
+          // If inputCompany has changed, prepare update it
+          if (inputCompany && inputCompany !== job.company) inputJob.company = inputCompany;
+          
+          // If inputSiren has changed, prepare to update it
+          if (inputSiren && inputSiren !== job.company_details?.siren) {
+            const companyDetails = job.company_details || {} as ICompanyDetails;
+            companyDetails.siren = inputSiren;
+            inputJob.company_details = companyDetails;
+          }
 
-        // If inputCompany has changed, prepare update it
-        if (inputCompany && inputCompany !== job.company) inputJob.company = inputCompany;
-        
-        // If inputSiren has changed, prepare to update it
-        if (inputSiren && inputSiren !== job.company_details?.siren) {
-          const companyDetails = job.company_details || {} as ICompanyDetails;
-          companyDetails.siren = inputSiren;
-          inputJob.company_details = companyDetails;
+          // Save job company data
+          await saveFunction(inputJob);
+          setIsEditing(false);
+        } catch (error) {
+          let errorMessage = "An error occurred while saving the value.";
+          if (error instanceof Error) errorMessage = error.message;
+          else if (typeof error === "string") errorMessage = error;
+          setError(errorMessage);
+        } finally {
+          setInSaving(false);
         }
-
-        // Save job company data
-        await saveFunction(inputJob);
-        setIsEditing(false);
-      } catch (error) {
-        let errorMessage = "An error occurred while saving the value.";
-        if (error instanceof Error) errorMessage = error.message;
-        else if (typeof error === "string") errorMessage = error;
-        setError(errorMessage);
       }
     } else {
+      setInSaving(false);
       setIsEditing(false);
     }
   };
@@ -151,7 +160,7 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
           className="border rounded px-2 py-1 w-full mr-1"
           placeholder="SIREN (optional)"
         />
-        <BtnSave onClick={save} />
+        <BtnLoading loading={inSaving} onClick={save} title={<Save className="w-4 h-4" />} width={"80px"} height={"28px"} />
         <FieldEditorErrorPanel message={error} close={handleRemoveError} />
       </div>
     );

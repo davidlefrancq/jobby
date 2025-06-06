@@ -7,10 +7,11 @@ interface BtnLoadingProps {
   title: string | React.ReactNode;
   loading: boolean;
   width?: string;
+  height?: string;
   onClick: () => void;
 }
 
-export default function BtnLoading({ title, loading, width = "150px", onClick }: BtnLoadingProps) {
+export default function BtnLoading({ title, loading, width = '150px', height = '40px', onClick }: BtnLoadingProps) {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!loading) {
       e.preventDefault();
@@ -18,7 +19,7 @@ export default function BtnLoading({ title, loading, width = "150px", onClick }:
     }
   }
 
-  let btnClassName = "text-white text-center items-center focus:ring-4 font-medium rounded-full text-sm px-2.5 py-2.5 focus:outline-none caret-transparent";
+  let btnClassName = "text-white text-center items-center focus:ring-4 font-medium rounded-xl text-sm px-2.5 py-2.5 focus:outline-none caret-transparent";
   if (loading) {
     btnClassName += " bg-blue-100 cursor-not-allowed";
   } else {
@@ -27,8 +28,8 @@ export default function BtnLoading({ title, loading, width = "150px", onClick }:
 
   const btnStyle: CSSProperties = {
     cursor: 'pointer',
-    width: width,
-    height: '40px',
+    width,
+    height,
     display: 'flex',
     justifyContent: 'center',
   }
