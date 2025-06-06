@@ -57,37 +57,47 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
 
   return (
     <div className="overflow-x-auto mt-0">
-      <table className="w-full bg-white shadow-lg rounded-lg overflow-hidden">
+      <table className="table-fixed w-full bg-white shadow-lg rounded-lg overflow-hidden">
         <thead className="bg-gray-100">
           <tr>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('date')}>
-              Date {renderSortIcon('date')}
+            <th className="w-16 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide">
+              {/* Indicator */}
             </th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('original_job_id')}>
-              Source {renderSortIcon('original_job_id')}
-            </th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer">
+            <th className="w-24 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer">
               {/* Language */}
             </th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('location')}>
+            <th className="w-28 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('date')}>
+              Date {renderSortIcon('date')}
+            </th>
+            <th className="w-32 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('original_job_id')}>
+              Source {renderSortIcon('original_job_id')}
+            </th>
+            <th className="w-48 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('location')}>
               Localisation {renderSortIcon('location')}
             </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('title')}>
               Title {renderSortIcon('title')}
             </th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('company')}>
+            <th className="w-64 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('company')}>
               Company {renderSortIcon('company')}
             </th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('contract_type')}>
+            <th className="w-28 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide cursor-pointer" onClick={() => handleSort('contract_type')}>
               Type {renderSortIcon('contract_type')}
             </th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide">Salary</th>
-            <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide">Indicator</th>
+            <th className="w-52 px-6 py-3 text-left text-sm font-medium text-gray-700 uppercase tracking-wide">
+              Salary
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
           {sortedJobs.map((job) => (
             <tr key={job._id.toString()} className="hover:bg-gray-50" onClick={() => onView(job)}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <JobStatus job={job} showLegend={false} />
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <LanguageFlag language={job.language || ''} />
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
               </td>
@@ -101,25 +111,19 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
                 }
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                <LanguageFlag language={job.language || ''} />
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <TruncatedText text={job.location || ''} length={20} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                <TruncatedText text={job.title || ''} length={40} />
+                {<TruncatedText text={job.title || ''} length={72} />}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                <TruncatedText text={job.company || ''} length={20} />
+                <TruncatedText text={job.company || ''} length={34} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <TruncatedText text={job.contract_type || ''} length={10} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <SalaryItem salary={job.salary} />
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                <JobStatus job={job} showLegend={true} />
               </td>
             </tr>
           ))}
