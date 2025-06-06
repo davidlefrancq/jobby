@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type JobPreference = 'like' | 'dislike' | null;
 
 export interface ISalary {
@@ -69,6 +71,7 @@ export interface ICompanyDetails {
 }
 
 export interface IJobEntity {
+  _id?: Types.ObjectId;
   collective_agreement: string | null;
   company: string | null;
   company_details: ICompanyDetails | null;

@@ -18,6 +18,15 @@ export default function BtnDislike({ job, onClose }: BtnDislikeProps) {
   const dispatch = useAppDispatch()
 
   const handleDislike = async () => {
+    if (!job || !job._id) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: "Job not found.",
+        type: "error"
+      }));
+      return;
+    }
+
     try {
       // Assuming there's a dislikeJob function in the job service
       if (!jobRepository) jobRepository = JobRepository.getInstance();
@@ -26,8 +35,10 @@ export default function BtnDislike({ job, onClose }: BtnDislikeProps) {
         dispatch(addAlert({ date: new Date().toISOString(), message: "Failed to dislike job.", type: "error" }));
       } else {
         const dislikedJob: IJobEntity = result;
-        dispatch(removeLikedJob(dislikedJob._id.toString()));
-        dispatch(addDislikedJob(dislikedJob));
+        if (dislikedJob && dislikedJob._id) {
+          dispatch(removeLikedJob(dislikedJob._id.toString()));
+          dispatch(addDislikedJob(dislikedJob));
+        }
         if (onClose) onClose();
       }
     } catch (error) {

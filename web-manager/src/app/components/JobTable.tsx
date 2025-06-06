@@ -8,6 +8,8 @@ import SalaryItem from './SalaryItem';
 import JobStatus from './JobStatus';
 import Link from 'next/link';
 import LanguageFlag from './LanguageFlag';
+import { useAppDispatch } from '../store';
+import { addAlert } from "../store/alertsReducer";
 
 interface JobTableProps {
   jobs: IJobEntity[];
@@ -22,6 +24,8 @@ type SortConfig = {
 const initialSortConfig: SortConfig = { key: 'date', direction: 'desc' };
 
 export default function JobTable({ jobs, onView }: JobTableProps) {
+  const dispatch = useAppDispatch();
+
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' }>(initialSortConfig);
 
   const sortedJobs = useMemo(() => {
@@ -51,8 +55,28 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
   };
 
   const getSourceName = (job: IJobEntity) => {
-    const data = new URL(job.source).hostname.split('.');
-    return data[data.length - 2] || 'N/A';
+    let sourceName = 'N/A';
+
+    if (job.source) {
+      try {
+        const url = new URL(job.source);
+        const hostnameParts = url.hostname.split('.');
+        if (hostnameParts.length > 1) {
+          sourceName = hostnameParts[hostnameParts.length - 2];
+        } else {
+          sourceName = url.hostname;
+        }
+      } catch (error) {
+        dispatch(addAlert({
+          date: new Date().toISOString(),
+          message: `Error parsing job source URL: ${job.source}`,
+          stack: error instanceof Error ? error.stack : String(error),
+          type: 'error',
+        }));
+      }
+    }
+
+    return sourceName;
   }
 
   return (
@@ -90,8 +114,8 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
-          {sortedJobs.map((job) => (
-            <tr key={job._id.toString()} className="hover:bg-gray-50" onClick={() => onView(job)}>
+          {sortedJobs.map((job, key) => (
+            <tr key={key} className="hover:bg-gray-50" onClick={() => onView(job)}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <JobStatus job={job} showLegend={false} />
               </td>
@@ -102,7 +126,7 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
                 {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={(e) => e.stopPropagation()}>
-                {job.original_job_id
+                {job.original_job_id && job.source
                   ? <Link href={job.source} target={'_blank'} className="text-blue-500 hover:underline">
                       {/* {job.original_job_id } */}
                       {getSourceName(job)}

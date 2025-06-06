@@ -14,9 +14,9 @@ interface FieldEditorSalaryProps {
 export default function FieldEditorSalary({ job, isEditMode, saveFunction }: FieldEditorSalaryProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [minSalary, setMinSalary] = useState<number>(job.salary.min || 0);
-  const [maxSalary, setMaxSalary] = useState<number>(job.salary.max || 0);
-  const [currency, setCurrency] = useState<string | null>(job.salary.currency || null);
+  const [minSalary, setMinSalary] = useState<number>(job.salary?.min || 0);
+  const [maxSalary, setMaxSalary] = useState<number>(job.salary?.max || 0);
+  const [currency, setCurrency] = useState<string | null>(job.salary?.currency || null);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

@@ -18,6 +18,15 @@ export default function BtnRemove({ job, onRemove }: BtnRemoveProps) {
   const dispatch = useAppDispatch()
 
   const handleRemove = async () => {
+    if (!job || !job._id) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: "Job not found.",
+        type: "error"
+      }));
+      return;
+    }
+
     try {
       // Assuming there's a dislikeJob function in the job service
       if (!jobRepository) jobRepository = JobRepository.getInstance();

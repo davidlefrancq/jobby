@@ -22,11 +22,11 @@ export default function JobStatus({ job, size = 16, showLegend = false }: JobSta
   
   const interestValue = INTEREST_OPTIONS.includes(job.interest_indicator || '') ? job.interest_indicator : '[N/A]';
 
-  const render = (value: string) => {
+  const render = (value: string | null) => {
     let legend: ReactElement = <>{INTEREST_OPTIONS_LEGEND['[N/A]']}</>
 
     for (const [key, legendValue] of Object.entries(INTEREST_OPTIONS_LEGEND)) {
-      if (value === key && value !== '[N/A]') {
+      if (value && value === key && value !== '[N/A]') {
         legend = (
           <span className="flex items-center gap-1">
             {INTEREST_STATUS[key]}

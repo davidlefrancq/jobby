@@ -6,7 +6,6 @@ import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { IJobEntity } from "@/types/IJobEntity";
 import { setUnratedJobs, removeUnratedJob, setUnratedCounter, addLikedJob, addDislikedJob } from "../store/jobsReducer";
-import {  } from "../store/n8nReducer";
 import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
@@ -18,9 +17,9 @@ const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 let firstLoad = true;
 
 export default function JobQueueUnrated() {
-  const dispatch = useAppDispatch()
-  const { unratedJobs: jobs, jobQueueSelected, unratedCounter} = useAppSelector(state => state.jobsReducer)
-  const { franceTravailStarted, googleAlertsStarted, linkedInStarted } = useAppSelector(state => state.n8nReducer)
+  const dispatch = useAppDispatch();
+  const { unratedJobs: jobs, jobQueueSelected, unratedCounter} = useAppSelector(state => state.jobsReducer);
+  const { franceTravailStarted, googleAlertsStarted, linkedInStarted } = useAppSelector(state => state.n8nReducer);
 
   const [jobsUnrated, setJobsUnrated] = useState<IJobEntity[]>([]);
   const [jobTargeted, setJobTargeted] = useState<IJobEntity | null>(null);
@@ -28,9 +27,9 @@ export default function JobQueueUnrated() {
   const [hasMore, setHasMore] = useState(true);
 
   const addJobs = (newJobs: IJobEntity[]) => {
-    // jobs filtered without newJobs
+    // Jobs filtered without newJobs
     const filteredJobs = jobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
-    // persist in the store
+    // Persist in the store
     dispatch(setUnratedJobs([...filteredJobs, ...newJobs]));
   }
 
@@ -78,6 +77,11 @@ export default function JobQueueUnrated() {
   }
 
   const handleLike = async (job: IJobEntity) => {
+    if (!job || !job._id) {
+      handleAddError('Like: Job not found.', 'error');
+      return;
+    }
+
     try {
       await saveUpdatedJobs({ job: { _id: job._id, preference: 'like' } });
       dispatch(removeUnratedJob(job._id.toString()));
@@ -89,6 +93,11 @@ export default function JobQueueUnrated() {
   };
 
   const handleDislike = async (job: IJobEntity) => {
+    if (!job || !job._id) {
+      handleAddError('Dislike: Job not found.', 'error');
+      return;
+    }
+
     try { 
       await saveUpdatedJobs({ job: { _id: job._id, preference: 'dislike', interest_indicator: '🔴' } });
       dispatch(removeUnratedJob(job._id.toString()));
@@ -165,7 +174,7 @@ export default function JobQueueUnrated() {
         <DisplayBanner value={`${jobTargeted ? 1 : 0}/${unratedCounter} unrated`} />
 
         <AnimatePresence mode="wait">
-          {jobTargeted && (
+          {jobTargeted && jobTargeted._id && (
             <motion.div
               key={jobTargeted._id.toString()}
               initial={{ opacity: 0, x: 50 }}

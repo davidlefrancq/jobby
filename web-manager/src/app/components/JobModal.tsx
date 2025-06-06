@@ -49,9 +49,19 @@ export default function JobModal({ job, onClose }: JobModalProps) {
   };
 
   const handleJobUpdate = async (values: Partial<IJobEntity>) => {
+    // Check if job is valid
+    if (!job || !job._id) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: "Job entity is not valid.",
+        type: "error"
+      }));
+      return;
+    }
+
     try {
       const jobUpdated = await jobRepository.update(job._id.toString(), values);
-      if (jobUpdated) {
+      if (jobUpdated && jobUpdated._id) {
         if (jobUpdated.preference === 'dislike') dispatch(updateDislikedJob(jobUpdated));
         else if (jobUpdated.preference === 'like') dispatch(updateLikedJob(jobUpdated));
         else if (!jobUpdated.preference) dispatch(updateUnratedJob(jobUpdated));
@@ -515,9 +525,13 @@ export default function JobModal({ job, onClose }: JobModalProps) {
               {/* Source */}
               <div className="flex items-center">
                 <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Source :</strong></span>
-                <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
-                  {job.source ? new URL(job.source).hostname : "Lien non disponible"}
-                </Link>
+                {job.source 
+                  ? <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
+                      {job.source && new URL(job.source).hostname || job.source}
+                    </Link>
+                  : <span className="text-gray-400">
+                      {'[N/A]'}
+                    </span>}
                 {job.original_job_id ? <span className="ms-1">{`- Ref: ${job.original_job_id}`}</span> : ''}
               </div>
             </div>
@@ -525,7 +539,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
 
           <div className="flex">
             <div className="w-full text-center text-gray-400">
-              <span className="text-gray-400">{job._id.toString()}</span>
+              <span className="text-gray-400">{job._id ? job._id.toString() : '[N/A]'}</span>
             </div>
           </div>
 

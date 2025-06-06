@@ -104,7 +104,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           ) : <span className="text-gray-400">No source.</span>}
           {/* Mongo job id */}
           <div className="grid grid-flow-col justify-items-end">
-            <span className="text-gray-400">{job._id.toString()}</span>
+            <span className="text-gray-400">{job._id && job._id.toString()}</span>
           </div>
         </div>
       </div>
