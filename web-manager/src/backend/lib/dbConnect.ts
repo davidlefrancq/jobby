@@ -51,6 +51,7 @@ export class MongoConnection {
         await new Promise((resolve) =>
           mongoose.connection.once("open", resolve)
         );
+        mongoose.set('sanitizeFilter', true);
         connection = mongoose;
       }
 
