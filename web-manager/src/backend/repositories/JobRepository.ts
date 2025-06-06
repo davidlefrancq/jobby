@@ -131,6 +131,9 @@ export class JobRepository {
 
     try {
       const job = new Job(data);
+      // Validate the job before saving
+      const validationError = job.validateSync();
+      if (validationError) throw new CreateJobError(`Validation failed: ${validationError.message}`);
       return job.save();
     } catch (error) {
       throw new CreateJobError(String(error));
@@ -148,7 +151,7 @@ export class JobRepository {
     try {
       const objectId = new mongoose.Types.ObjectId(id);
       const filter = { _id: objectId };
-      const option: QueryOptions<IJob> = { new: true };
+      const option: QueryOptions<IJob> = { new: true, runValidators: true };
       return Job.findByIdAndUpdate(filter, data, option).exec();
     } catch (error) {
       throw new UpdateJobError(String(error));
