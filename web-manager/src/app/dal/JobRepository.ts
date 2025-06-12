@@ -1,4 +1,4 @@
-import { JobsSelectRequestProps } from "../interfaces/JobsSelectRequestProps";
+import { IJobsSelectRequest } from "../../interfaces/IJobsSelectRequest";
 import { IJobEntity } from "@/types/IJobEntity";
 import { CountUnratedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from "./errors/JobRepositoryError";
 
@@ -88,7 +88,7 @@ export class JobRepository {
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJobEntity[]> {
+  public async getAll({ filter, limit, skip }: IJobsSelectRequest): Promise<IJobEntity[]> {
     let data: IJobEntity[] = [];
     try {
       const headers = this.getHeaders();

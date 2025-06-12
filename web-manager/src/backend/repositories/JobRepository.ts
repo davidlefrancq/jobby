@@ -1,5 +1,5 @@
 import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
-import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
+import { IJobsSelectRequest } from '@/interfaces/IJobsSelectRequest';
 import { dbConnect } from '@/backend/lib/dbConnect';
 import { IJob } from '@/backend/models/IJob';
 import { Job } from '@/backend/models/Job';
@@ -92,7 +92,7 @@ export class JobRepository {
    * Retrieves all jobs matching the optional filter.
    * @param filter - Mongoose filter query
    */
-  public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
+  public async getAll({ filter, limit, skip }: IJobsSelectRequest): Promise<IJob[]> {
     if (!this.connection) await this.connect();
     
     let data: IJob[] = [];

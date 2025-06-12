@@ -6,6 +6,7 @@ import { CV } from '../models/CV';
 import { ICV } from '../models/ICV';
 import { CVSanitizer } from '../models/CVSanitizer';
 import { CreateCvError, DeleteCvError, GetAllCvsError, GetCvByIdError, UpdateCvError } from './errors/CvRepositoryError';
+import { ICvsSelectRequest } from '@/interfaces/ICvsSelectRequest';
 
 class CvRepository {
   // Holds the singleton instance
@@ -34,13 +35,15 @@ class CvRepository {
     }
   }
 
-  public async getAll(): Promise<ICV[]> {
+  public async getAll({ filter, limit, skip }: ICvsSelectRequest): Promise<ICV[]> {
     if (!this.connection) await this.connect();
 
     let data: ICV[] = [];
     try {
-      const findFilter: mongoose.FilterQuery<ICvEntity> = {};
+      const findFilter: mongoose.FilterQuery<ICvEntity> = filter ? filter : {};
       const query = CV.find(findFilter);
+      if (limit) query.limit(limit);
+      if (skip) query.skip(skip);
       const response = await query.exec();
       if (response && response.length > 0) {
         data = response

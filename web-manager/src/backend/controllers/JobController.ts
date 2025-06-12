@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import jobService from '@/backend/services/JobService';
-import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps';
+import { IJobsSelectRequest } from '@/interfaces/IJobsSelectRequest';
 import { IJobEntity } from '@/types/IJobEntity';
 import { JobRequestFilter } from '../lib/JobRequestFilter';
 
@@ -81,7 +81,7 @@ export default class JobController {
 
     try {
       // Extract query parameters for pagination
-      const jobsRequest: JobsSelectRequestProps = {}
+      const jobsRequest: IJobsSelectRequest = {}
       const query = req.query || {};
       if (query.limit) jobsRequest.limit = parseInt(query.limit as string, 10);
       if (query.skip) jobsRequest.skip = parseInt(query.skip as string, 10);
