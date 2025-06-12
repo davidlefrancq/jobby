@@ -130,7 +130,10 @@ const JobSchema = new Schema<IJob>(
     created_at: { type: Date, default: new Date() },
     updated_at: { type: Date, default: new Date() },
   },
-  { timestamps: true }
+  {
+    collection: 'jobs',
+    timestamps: true
+  }
 );
 
 /**

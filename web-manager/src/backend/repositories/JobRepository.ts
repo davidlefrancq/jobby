@@ -18,10 +18,7 @@ export class JobRepository {
   private connection: typeof mongoose | null = null;
 
   // Private constructor to prevent direct instantiation
-  private constructor() {
-    // Initialize the connection
-    this.connection = null;
-  }
+  private constructor() {}
 
   /**
    * Retrieves the singleton instance.
@@ -98,15 +95,20 @@ export class JobRepository {
   public async getAll({ filter, limit, skip }: JobsSelectRequestProps): Promise<IJob[]> {
     if (!this.connection) await this.connect();
     
+    let data: IJob[] = [];
     try {
       const findFilter: mongoose.FilterQuery<IJobEntity> = filter ? filter : {};
       const query = Job.find(findFilter).sort({ date: -1 });
       if (limit) query.limit(limit);
       if (skip) query.skip(skip);
-      return query.exec();
+      const response = await query.exec();
+      if (response && response.length > 0) {
+        data = response;
+      }
     } catch (error) {
       throw new GetAllJobsError(String(error));
     }
+    return data;
   }
 
   /**
@@ -132,13 +134,13 @@ export class JobRepository {
 
     try {
       const sanitizedData = JobSanitizer.sanitize(data);
-      const job = new Job(sanitizedData);
+      const newJob = new Job(sanitizedData);
 
       // Validate the job before saving
-      const validationError = job.validateSync();
+      const validationError = newJob.validateSync();
       if (validationError) throw new CreateJobError(`Validation failed: ${validationError.message}`);
 
-      return job.save();
+      return newJob.save();
     } catch (error) {
       throw new CreateJobError(String(error));
     }
