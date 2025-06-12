@@ -2,6 +2,7 @@ import { JobsSelectRequestProps } from '@/app/interfaces/JobsSelectRequestProps'
 import { IJob } from '@/backend/models/IJob';
 import jobRepository from '@/backend/repositories/JobRepository';
 import { UpdateQuery } from 'mongoose';
+import { CreateJobError, DeleteJobError, GetJobByIdError, UpdateJobError } from './errors/JobServiceError';
 
 /**
  * Service layer for Job operations.
@@ -61,7 +62,7 @@ export class JobService {
   public async getJobById(id: string): Promise<IJob> {
     const job = await this.repo.getById(id);
     if (!job) {
-      throw new Error(`Job with id ${id} not found`);
+      throw new GetJobByIdError(id);
     }
     return job;
   }
@@ -72,7 +73,11 @@ export class JobService {
    */
   public async createJob(data: Partial<IJob>): Promise<IJob> {
     // Additional business validations can be added here
-    return this.repo.create(data);
+    const newJob = await this.repo.create(data);
+    if (!newJob) {
+      throw new CreateJobError();
+    }
+    return newJob;
   }
 
   /**
@@ -83,7 +88,7 @@ export class JobService {
   public async updateJob(id: string, data: UpdateQuery<IJob>): Promise<IJob> {
     const updated = await this.repo.update(id, data);
     if (!updated) {
-      throw new Error(`Job with id ${id} not found`);
+      throw new UpdateJobError(id);
     }
     return updated;
   }
@@ -95,7 +100,7 @@ export class JobService {
   public async deleteJob(id: string): Promise<void> {
     const deleted = await this.repo.delete(id);
     if (!deleted) {
-      throw new Error(`Job with id ${id} not found`);
+      throw new DeleteJobError(id);
     }
   }
 }
