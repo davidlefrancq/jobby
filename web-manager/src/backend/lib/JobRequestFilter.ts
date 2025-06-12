@@ -1,3 +1,4 @@
+import sanitizeHtml from 'sanitize-html';
 import { IJobEntity } from "@/types/IJobEntity";
 import { FilterQuery } from "mongoose";
 import { NextApiRequest } from "next";
@@ -10,7 +11,8 @@ export class JobRequestFilter {
     // Extracr preference filter
     if (query.preference) {
       if (typeof query.preference === 'string') {
-        const preference = query.preference.toLowerCase();
+        const preferenceSanitized = sanitizeHtml(query.preference);
+        const preference = preferenceSanitized.toLowerCase();
         if (preference === 'null') filter.preference = null;
         else filter.preference = preference;
       }
