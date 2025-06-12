@@ -56,7 +56,7 @@ const jobsSlice = createSlice({
       if (idx !== -1) state.unratedJobs[idx] = action.payload
     },
     removeUnratedJob(state, action: PayloadAction<string>) {
-      state.unratedJobs = state.unratedJobs.filter(j => j._id.toString() !== action.payload)
+      state.unratedJobs = state.unratedJobs.filter(j => j._id?.toString() !== action.payload)
       state.unratedCounter = Math.max(0, state.unratedCounter - 1) // Ensure counter does not go negative
     },
 
@@ -87,7 +87,7 @@ const jobsSlice = createSlice({
       if (jobId !== -1) state.likedJobs[jobId] = action.payload
     },
     removeLikedJob(state, action: PayloadAction<string>) {
-      state.likedJobs = state.likedJobs.filter(j => j._id.toString() !== action.payload)
+      state.likedJobs = state.likedJobs.filter(j => j._id?.toString() !== action.payload)
       state.likedCounter = Math.max(0, state.likedCounter - 1) // Ensure counter does not go negative
     },
 
@@ -118,7 +118,7 @@ const jobsSlice = createSlice({
       if (jobId !== -1) state.dislikedJobs[jobId] = action.payload
     },
     removeDislikedJob(state, action: PayloadAction<string>) {
-      state.dislikedJobs = state.dislikedJobs.filter(j => j._id.toString() !== action.payload)
+      state.dislikedJobs = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload)
       state.dislikedCounter = Math.max(0, state.dislikedCounter - 1) // Ensure counter does not go negative
     },
 
