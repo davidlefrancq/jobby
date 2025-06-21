@@ -1,13 +1,14 @@
 import mongoose, { ConnectOptions } from "mongoose";
 import {
-  DatabaseCollectionError,
   DatabaseConnectionError,
   DatabaseDisconnectError,
   DatabaseEmptyUriError,
   DatabaseNoConnectionError
 } from "./errors/DatabaseError";
 
-const MONGODB_URI = process.env.MONGODB_URI || "";
+interface MongoConnectionOptions {
+  uri?: string;
+}
 
 /**
  * Singleton class managing Mongoose connection.
@@ -15,16 +16,19 @@ const MONGODB_URI = process.env.MONGODB_URI || "";
 export class MongoConnection {
   private static instance: MongoConnection;
   private connection: typeof mongoose | null = null;
-  private uri: string | null = null;
+  private uri: string | undefined;
 
-  private constructor() {}
+  private constructor({ uri }: MongoConnectionOptions) {
+    if (uri) this.uri = uri;
+  }
 
   /**
    * Get the singleton instance of MongoConnection.
    */
-  public static getInstance(): MongoConnection {
+  public static getInstance({ uri }: MongoConnectionOptions): MongoConnection {
     if (!MongoConnection.instance) {
-      MongoConnection.instance = new MongoConnection();
+      if (!uri) throw new DatabaseEmptyUriError("Database URI is required to create MongoConnection instance.");
+      MongoConnection.instance = new MongoConnection({ uri });
     }
     return MongoConnection.instance;
   }
@@ -33,9 +37,12 @@ export class MongoConnection {
    * Connect to MongoDB using the provided URI and options.
    * Handles all mongoose connection states.
    */
-  public async connect(uri: string, options: ConnectOptions = {}): Promise<typeof mongoose> {
+  public async connect(options: ConnectOptions = {}): Promise<typeof mongoose> {
+    // Validate URI
+    if (!this.uri) throw new DatabaseEmptyUriError();
+
+    // If already connected, return the existing connection
     if (this.connection) return this.connection;
-    if (!uri) throw new DatabaseEmptyUriError();
     
     try {
       let connection: typeof mongoose;
@@ -57,14 +64,13 @@ export class MongoConnection {
 
       // Not connected: initiate connection
       else {
-        connection = await mongoose.connect(uri, {
+        connection = await mongoose.connect(this.uri, {
           ...options,
           bufferCommands: false,
         });
         await new Promise((resolve) =>
           mongoose.connection.once("open", resolve)
         );
-        this.uri = uri;
       }
 
       this.connection = connection;
@@ -92,27 +98,8 @@ export class MongoConnection {
         throw new DatabaseDisconnectError(String(err));
       } finally {
         this.connection = null;
-        this.uri = null;
+        this.uri = '';
       }
     }
   }
-}
-
-export function dbConnect(uri: string = MONGODB_URI): Promise<typeof mongoose> {
-  return MongoConnection.getInstance().connect(uri);
-}
-
-export function getCollections() {
-  try {
-    let collections = null
-    const connection = MongoConnection.getInstance().getConnection();
-    if (connection) collections = MongoConnection.getInstance().getCollections();
-    return collections;
-  } catch (error) {
-    throw new DatabaseCollectionError(String(error));
-  }
-}
-
-export function dbDisconnect(): Promise<void> {
-  return MongoConnection.getInstance().disconnect();
 }

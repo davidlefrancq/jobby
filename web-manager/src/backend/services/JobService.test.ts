@@ -1,22 +1,29 @@
+import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import jobService from '@/backend/services/JobService';
+import { JobService } from '@/backend/services/JobService';
 import { IJob } from '@/backend/models/IJob';
-import { getCollections, MongoConnection } from '../lib/dbConnect';
+import { ApiLogger } from '@/errors/ApiLogger';
+import { ApiError } from '@/errors/ApiError';
 
-let mongoServer: MongoMemoryServer;
-let db: MongoConnection;
+let mongoServer: MongoMemoryServer | null = null;
+let jobService: JobService;
+
+// Mock ApiLogger to prevent actual logging during tests
+jest.spyOn(ApiLogger.prototype, 'info').mockImplementation(async () => {});
+jest.spyOn(ApiLogger.prototype, 'warn').mockImplementation(async () => {});
+jest.spyOn(ApiLogger.prototype, 'error').mockImplementation(async () => {});
+jest.spyOn(ApiError.prototype, 'log').mockImplementation(async () => {});
 
 // Start in-memory MongoDB server before all tests
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  process.env.MONGODB_URI = mongoServer.getUri();
-  db = MongoConnection.getInstance();
-  await db.connect(mongoServer.getUri()!);
+  const dbUri = mongoServer.getUri();
+  jobService = JobService.getInstance({ dbUri });
 });
 
 // Clear database after each test
 afterEach(async () => {
-  const collections = await getCollections()
+  const collections = mongoose.connection.collections;
   if (collections) {
     for (const key in collections) {
       await collections[key].deleteMany({});
@@ -26,8 +33,20 @@ afterEach(async () => {
 
 // Stop server and disconnect after all tests
 afterAll(async () => {
-  await db.disconnect()
-  await mongoServer.stop();
+  await jobService.destroy();
+  await mongoose.connection.close(true);
+  await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for Mongoose to close connections
+
+  // Stop the MongoDB server if it exists
+  if (mongoServer) {
+    try {
+      if (typeof mongoServer.stop === "function") {
+        await mongoServer.stop({ force: true, doCleanup: true });
+      }
+    } catch (e) {
+      console.error("🔴 Error stopping MongoDB server:", e);
+    }
+  }
 });
 
 describe('JobService Integration Tests', () => {
@@ -70,7 +89,7 @@ describe('JobService Integration Tests', () => {
 
   it('should throw error when retrieving non-existing job', async () => {
     await expect(jobService.getJobById('608d1f2b8e620f1a7c8b4567')).rejects.toThrow(
-      /not found/
+      /Fail while retrieving job by ID./
     );
   });
 
@@ -85,14 +104,14 @@ describe('JobService Integration Tests', () => {
   it('should throw error when updating non-existing job', async () => {
     await expect(
       jobService.updateJob('608d1f2b8e620f1a7c8b4567', { level: 'Mid' })
-    ).rejects.toThrow(/not found/);
+    ).rejects.toThrow(/Fail while updating job./);
   });
 
   it('should delete an existing job', async () => {
     const created = await jobService.createJob(sampleData);
     await expect(
       jobService.deleteJob(created._id.toString())
-    ).resolves.toBeUndefined();
+    ).resolves.toBeTruthy();
     const listAfterDelete = await jobService.listJobs({ limit: 9, skip: 0 });
     expect(listAfterDelete).toHaveLength(0);
   });
@@ -100,6 +119,6 @@ describe('JobService Integration Tests', () => {
   it('should throw error when deleting non-existing job', async () => {
     await expect(
       jobService.deleteJob('608d1f2b8e620f1a7c8b4567')
-    ).rejects.toThrow(/not found/);
+    ).rejects.toThrow(/Fail while deleting job./);
   });
 });

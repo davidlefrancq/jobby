@@ -1,25 +1,35 @@
 import { ICV } from '@/backend/models/ICV';
-import cvRepository from '@/backend/repositories/CvRepository';
+import { CvRepository } from '@/backend/repositories/CvRepository';
 import { UpdateQuery } from 'mongoose';
-import { BadInputCvDataError, BadInputEmptyIdError, CreateCvError, DeleteCvError, GetCvByIdError, UpdateCvError } from './errors/CvServiceError';
+import { BadInputCvDataError, BadInputJobEmptyIdError, CreateCvError, CvServiceBadDbUriError, DeleteCvError, GetCvByIdError, UpdateCvError } from './errors/CvServiceError';
 import { ICvsSelectRequest } from '@/interfaces/ICvsSelectRequest';
+import { IMongoDbParams } from '../interfaces/IMongoDbParams';
 
-const MSG_ERROR_PREREQUIREMENTS_NOT_MET = 'The prerequisites for the update are not met.';
-
-class CvService {
+export class CvService {
   private static instance: CvService | null = null;
-  private repo = cvRepository;
+  private repo: CvRepository;
 
   // Private constructor prevents direct instantiation
-  private constructor() {}
+  private constructor({ dbUri }: IMongoDbParams) {
+    if (!dbUri) {
+      throw new CvServiceBadDbUriError('Database URI is required to initialize CvService.');
+    }
+
+    this.repo = CvRepository.getInstance({ dbUri });
+  }
 
   /**
    * Returns the singleton instance of CvService.
    */
-  public static getInstance(): CvService {
-    if (CvService.instance === null) {
-      CvService.instance = new CvService();
+  public static getInstance({ dbUri }: IMongoDbParams): CvService {
+    if (!dbUri) {
+      throw new CvServiceBadDbUriError('Database URI is required to get CvService instance.');
     }
+
+    if (!CvService.instance) {
+      CvService.instance = new CvService({ dbUri });
+    }
+
     return CvService.instance;
   }
 
@@ -35,7 +45,7 @@ class CvService {
    * @param id - CV document ID
    */
   public async getCvById(id: string): Promise<ICV> {
-    if (!id) throw new BadInputEmptyIdError(`Get: ${MSG_ERROR_PREREQUIREMENTS_NOT_MET}`);
+    if (!id) throw new BadInputJobEmptyIdError(`Get: The prerequisites for the update are not met.`);
 
     const cv = await this.repo.getById(id);
     if (!cv) throw new GetCvByIdError(id);
@@ -48,7 +58,7 @@ class CvService {
    */
   public async createCv(cvData: Partial<ICV>): Promise<ICV> {
     if (!cvData || Object.keys(cvData).length === 0) {
-      throw new BadInputCvDataError(`Create: ${MSG_ERROR_PREREQUIREMENTS_NOT_MET}`);
+      throw new BadInputCvDataError(`Create: The prerequisites for the update are not met.`);
     }
 
     const newCv = await this.repo.create(cvData);
@@ -64,9 +74,9 @@ class CvService {
    * @param update - Update query object
    */
   public async updateCv(id: string, update: UpdateQuery<ICV>): Promise<ICV | null> {
-    if (!id) throw new BadInputEmptyIdError(`Update: ${MSG_ERROR_PREREQUIREMENTS_NOT_MET}`);
+    if (!id) throw new BadInputJobEmptyIdError(`Update: The prerequisites for the update are not met.`);
     if (!update || Object.keys(update).length === 0) {
-      throw new BadInputCvDataError(`Update: ${MSG_ERROR_PREREQUIREMENTS_NOT_MET}`);
+      throw new BadInputCvDataError(`Update: The prerequisites for the update are not met.`);
     }
 
     const updatedCv = await this.repo.update(id, update);
@@ -81,7 +91,7 @@ class CvService {
    * @param id - CV document ID
    */
   public async deleteCv(id: string): Promise<boolean> {
-    if (!id) throw new BadInputEmptyIdError(`Delete: ${MSG_ERROR_PREREQUIREMENTS_NOT_MET}`);
+    if (!id) throw new BadInputJobEmptyIdError(`Delete: The prerequisites for the update are not met.`);
 
     const deleted = await this.repo.delete(id);
     if (!deleted) {
@@ -90,7 +100,9 @@ class CvService {
 
     return true;
   }
-}
 
-// Export singleton instance
-export default CvService.getInstance();
+  public async destroy(): Promise<void> {
+    await this.repo.destroy();
+    CvService.instance = null;
+  }
+}

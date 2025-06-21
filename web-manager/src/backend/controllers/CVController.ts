@@ -1,8 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import cvService from '@/backend/services/CvService';
+import { CvService } from '@/backend/services/CvService';
 import { ICvsSelectRequest } from '@/interfaces/ICvsSelectRequest';
 import { ICvEntity } from '@/types/ICvEntity';
 import { CVRequestFilter } from '../lib/CVRequestFilter';
+
+// Database URI from environment variables
+const dbUri = process.env.MONGODB_URI || '';
 
 /**
  * Controller for handling HTTP requests related to CVs.
@@ -32,7 +35,7 @@ export default class CVController {
       cvsRequest.filter = CVRequestFilter.getFilterFromNextRequest(req);
 
       // Execute the service method to list cvs
-      const cvs = await cvService.listCvs(cvsRequest);
+      const cvs = await CvService.getInstance({ dbUri }).listCvs(cvsRequest);
       return res.status(200).json(cvs);
     } catch (error) {
       return res.status(500).json({ error: (error as Error).message });
@@ -52,7 +55,7 @@ export default class CVController {
 
     try {
       const { id } = req.query;
-      const cv = await cvService.getCvById(id as string);
+      const cv = await CvService.getInstance({ dbUri }).getCvById(id as string);
       return res.status(200).json(cv);
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });
@@ -72,7 +75,7 @@ export default class CVController {
 
     try {
       const data = req.body;
-      const created = await cvService.createCv(data);
+      const created = await CvService.getInstance({ dbUri }).createCv(data);
       return res.status(201).json(created);
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
@@ -104,7 +107,7 @@ export default class CVController {
       console.log('id', id);
       const data: Partial<ICvEntity> = req.body;
       console.log('data', data);
-      const updated = await cvService.updateCv(id, data);
+      const updated = await CvService.getInstance({ dbUri }).updateCv(id, data);
       return res.status(200).json(updated);
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });
@@ -124,7 +127,7 @@ export default class CVController {
 
     try {
       const { id } = req.query;
-      await cvService.deleteCv(id as string);
+      await CvService.getInstance({ dbUri }).deleteCv(id as string);
       return res.status(204).end();
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });

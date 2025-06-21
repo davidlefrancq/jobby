@@ -1,12 +1,13 @@
 import mongoose, { QueryOptions, UpdateQuery } from 'mongoose';
 import { IJobsSelectRequest } from '@/interfaces/IJobsSelectRequest';
-import { dbConnect } from '@/backend/lib/dbConnect';
+import { MongoConnection } from '@/backend/lib/dbConnect';
 import { IJob } from '@/backend/models/IJob';
 import { Job } from '@/backend/models/Job';
 import { DatabaseConnectionError } from '@/backend/lib/errors/DatabaseError';
 import { CountDislikedJobsError, CountLikedJobsError, CountUnratedJobsError, CreateJobError, DeleteJobError, GetAllJobsError, GetJobByIdError, UpdateJobError } from './errors/JobRepositoryError';
 import { IJobEntity } from '@/types/IJobEntity';
 import { JobSanitizer } from '../models/JobSanitizer';
+import { IMongoDbParams } from '../interfaces/IMongoDbParams';
 
 /**
  * Repository for Job model CRUD operations.
@@ -15,29 +16,39 @@ import { JobSanitizer } from '../models/JobSanitizer';
 export class JobRepository {
   // Holds the singleton instance
   private static instance: JobRepository | null = null;
+  private mongoConnection: MongoConnection | null = null;
   private connection: typeof mongoose | null = null;
+  private dbUri: string;
 
   // Private constructor to prevent direct instantiation
-  private constructor() {}
+  private constructor({ dbUri }: IMongoDbParams) {
+    if (!dbUri) throw new DatabaseConnectionError('Database URI is required to create JobRepository instance.');
+    this.dbUri = dbUri;
+    this.mongoConnection = MongoConnection.getInstance({ uri: dbUri });
+  }
 
   /**
    * Retrieves the singleton instance.
    */
-  public static getInstance(): JobRepository {
+  public static getInstance({ dbUri }: IMongoDbParams): JobRepository {
     if (JobRepository.instance === null) {
-      JobRepository.instance = new JobRepository();
+      if (!dbUri) throw new DatabaseConnectionError('Database URI is required to create JobRepository instance.');
+      JobRepository.instance = new JobRepository({ dbUri });
     }
     return JobRepository.instance;
   }
 
-  private async connect(): Promise<void> {
+  private async connect(): Promise<boolean> {
     if (!this.connection) {
+      if (!this.dbUri) throw new DatabaseConnectionError('Database URI is required.');
       try {
-        this.connection = await dbConnect();
+        if (!this.mongoConnection) this.mongoConnection = MongoConnection.getInstance({ uri: this.dbUri });
+        this.connection = await this.mongoConnection.connect();
       } catch (error) {
         throw new DatabaseConnectionError(String(error));
       }
     }
+    return true;
   }
 
   /**
@@ -178,7 +189,12 @@ export class JobRepository {
       throw new DeleteJobError(`Delete has failed: ${String(error)}`);
     }
   }
-}
 
-// Export the singleton instance
-export default JobRepository.getInstance();
+  /**
+   * Destroys the singleton instance.
+   */
+  public async destroy(): Promise<void> {
+    if (this.connection) await this.connection.disconnect();
+    JobRepository.instance = null;
+  }
+}
