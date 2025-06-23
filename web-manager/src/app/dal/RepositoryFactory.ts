@@ -1,8 +1,10 @@
+import { CvRepository } from "./CvRepository";
 import { JobRepository } from "./JobRepository";
 
 export class RepositoryFactory {
   private static instance: RepositoryFactory | null = null;
   private jobRepository: JobRepository | null = null;
+  private cvRepository: CvRepository | null = null;
 
   // Private constructor to prevent direct instantiation
   private constructor() {}
@@ -23,6 +25,15 @@ export class RepositoryFactory {
       this.jobRepository = JobRepository.getInstance();
     }
     return this.jobRepository;
+  }
+  /**
+   * Retrieves the cv repository.
+   */
+  public getCvRepository(): CvRepository {
+    if (this.cvRepository === null) {
+      this.cvRepository = CvRepository.getInstance();
+    }
+    return this.cvRepository;
   }
 
   /** Destructor */
