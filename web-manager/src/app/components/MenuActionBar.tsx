@@ -15,7 +15,7 @@ export default function MenuActionBar() {
   const { target } = useAppSelector(state => state.menuReducer)
 
   const startWorkflowsHandler = () => {
-    if (isStartedWorkflows) {
+    if (!isStartedWorkflows) {
       dispatch(setIsStartedWorkflows(true));
     }
   }

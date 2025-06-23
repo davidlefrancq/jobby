@@ -5,6 +5,8 @@ import JobBoard from "./components/JobBoard";
 import CVPanel from "./components/CVPanel";
 import { useAppSelector } from "./store";
 import { MenuTargetEnum } from "./store/menuReducer";
+import N8NWorkflowPanel from "./components/N8NWorkflowPanel";
+import ErrorsPanel from "./components/ErrorsPanel";
 
 const lora = Lora({
   weight: ["400", "700"],
@@ -28,6 +30,9 @@ export default function HomePage() {
           <MenuActionBar />
 
         </div>
+        
+        <N8NWorkflowPanel />
+        <ErrorsPanel />
 
         {target === MenuTargetEnum.Jobs && <JobBoard />}
         {target === MenuTargetEnum.CVs && <CVPanel />}
