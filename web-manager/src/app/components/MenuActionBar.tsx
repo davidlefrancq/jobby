@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { RefreshCcw } from "lucide-react";
 import BtnLoading from "./Btn/BtnLoading";
@@ -8,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/app/store';
 import { setIsStartedWorkflows } from '@/app/store/n8nReducer';
 import { MenuTargetEnum, selectMenuTarget } from '@/app/store/menuReducer';
 import Btn from './Btn/Btn';
+import png_n8n from '../../../public/n8n.png';
 
 export default function MenuActionBar() {
   const dispatch = useAppDispatch()
@@ -53,7 +55,7 @@ export default function MenuActionBar() {
         target="_blank"
         className="bg-red-400 text-white p-0 rounded-full opacity-75 hover:opacity-100"
       >
-        <img src="n8n.png" alt="Rocket" className="w-10 h-10 rounded-full" />
+        <Image src={png_n8n} alt="N8N" className="w-10 h-10 rounded-full" />
       </Link>
 
       {/* Notifications Button */}
