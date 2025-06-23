@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import { MongoConnection } from '../lib/dbConnect';
 import { DatabaseConnectionError } from '../lib/errors/DatabaseError';
 import { ICvEntity } from '@/types/ICvEntity';
@@ -43,6 +43,22 @@ export class CvRepository {
         throw new DatabaseConnectionError(String(error));
       }
     }
+  }
+
+  /**
+   * Counts all CVs based on an optional filter.
+   * @param filter - Optional filter for counting
+   */
+  public async count(filter?: FilterQuery<ICvEntity>): Promise<number> {
+    if (!this.connection) await this.connect();
+    let count: number = 0;
+    try {
+      const findFilter: mongoose.FilterQuery<ICvEntity> = filter ? filter : {};
+      count = await CV.countDocuments(findFilter).exec();
+    } catch (error) {
+      throw new GetAllCvsError(String(error));
+    }
+    return count;
   }
 
   public async getAll({ filter, limit, skip }: ICvsSelectRequest): Promise<ICV[]> {

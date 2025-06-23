@@ -14,6 +14,27 @@ const dbUri = process.env.MONGODB_URI || '';
 export default class CVController {
 
   /**
+   * Handles GET /api/cvs/count
+   * Returns the count of all cvs.
+   */
+  public static async count(req: NextApiRequest, res: NextApiResponse) {
+    // Check if the request is a GET request
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', ['GET']);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
+    }
+    
+    try {
+      // Extract filter parameters from request
+      const filter = CVRequestFilter.getFilterFromNextRequest(req);
+      const count = await CvService.getInstance({ dbUri }).countCvs(filter);
+      return res.status(200).json({ count });
+    } catch (error) {
+      return res.status(500).json({ error: (error as Error).message });
+    }
+  }
+
+  /**
    * Handles GET /api/cvs
    * Lists all cvs, optionally filtered via query parameters.
    */

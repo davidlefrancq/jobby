@@ -1,9 +1,10 @@
 import { ICV } from '@/backend/models/ICV';
 import { CvRepository } from '@/backend/repositories/CvRepository';
-import { UpdateQuery } from 'mongoose';
+import { FilterQuery, UpdateQuery } from 'mongoose';
 import { BadInputCvDataError, BadInputJobEmptyIdError, CreateCvError, CvServiceBadDbUriError, DeleteCvError, GetCvByIdError, UpdateCvError } from './errors/CvServiceError';
 import { ICvsSelectRequest } from '@/interfaces/ICvsSelectRequest';
 import { IMongoDbParams } from '../interfaces/IMongoDbParams';
+import { ICvEntity } from '@/types/ICvEntity';
 
 export class CvService {
   private static instance: CvService | null = null;
@@ -31,6 +32,15 @@ export class CvService {
     }
 
     return CvService.instance;
+  }
+
+  /**
+   * Counts all CVs.
+   * @param filter - Optional filter for counting
+   */
+  public async countCvs(filter?: FilterQuery<ICvEntity>): Promise<number> {
+    if (!this.repo) throw new CvServiceBadDbUriError('CvRepository is not initialized.');
+    return this.repo.count(filter);
   }
 
   /**
