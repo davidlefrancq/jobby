@@ -1,39 +1,31 @@
 'use client';
 
-import { IJobEntity } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
-import BtnSave from "./BtnSave";
+import { IJobEntity } from "@/types/IJobEntity";
+import Toggle from "../Toggle";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 
-interface FieldEditorLevelProps {
+interface FieldEditorTeleworkingProps {
   job: IJobEntity;
   isEditMode: boolean;
-  saveFunction?: (value: string | null) => Promise<void>;
+  saveFunction?: (value: boolean) => Promise<void>;
 }
 
-export default function FieldEditorLevel({ job, isEditMode, saveFunction }: FieldEditorLevelProps) {
+export default function FieldEditorTeleworking ({ job, isEditMode, saveFunction }: FieldEditorTeleworkingProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [jobLevel, setJobLevel] = useState<string | null>(job.level || null);
+  const [teleworking, setTeleworking] = useState(job.teleworking || false);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // job.level is a string or null. It's a level of the job. It can be 'junior', 'mid', 'senior' or null.
-  const levels = ['junior', 'intermédiaire', 'senior']; // this is a proposition list but not exhaustive
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedLevel = e.target.value;
-    setJobLevel(selectedLevel);
-  }
 
   const handleremoveError = () => {
     setError(null);
   }
 
   const save = async () => {
-    if (saveFunction && isEditMode) {
+    if (saveFunction) {
       try {
-        await saveFunction(jobLevel || null);
+        await saveFunction(teleworking);
         setIsEditing(false);
       } catch (error) {
         let errorMessage = "An error occurred while saving the value.";
@@ -45,7 +37,8 @@ export default function FieldEditorLevel({ job, isEditMode, saveFunction }: Fiel
       setIsEditing(false);
     }
   }
-  
+
+  // Handle keydown and click outside to close editor
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -64,39 +57,35 @@ export default function FieldEditorLevel({ job, isEditMode, saveFunction }: Fiel
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
-    }
+    };
   }, []);
 
-  if (isEditMode && isEditing) {
+  // Save when toggle switch
+  useEffect(() => {
+    save();
+  }, [teleworking]);
+
+  // Form editor for teleworking
+  if (isEditMode) {
     return (
       <div ref={ref} className="flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
-        <input
-          type="text"
-          value={jobLevel ? jobLevel : ''}
-          onChange={(e) => handleChange(e)}
-          className="border rounded px-2 py-1 mr-1"
-          list="levels"
-          placeholder="Job level (junior, senior, etc.)"
-        />
-        <datalist id="levels">
-          {levels.map((level) => (
-            <option key={level} value={level} />
-          ))}
-        </datalist>
-        <BtnSave onClick={save} />
+        <Toggle checked={teleworking} onChange={(value: boolean) => {
+          if (isEditing) setTeleworking(value);
+        }} />
         <FieldEditorErrorPanel message={error} close={handleremoveError} />
       </div>
     );
   }
 
-  let className = '';
+  // Display teleworking
+  let className = ''
   if (isEditMode) className = 'cursor-pointer hover:text-blue-600';
   return (
     <span
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {jobLevel || '[N/A]'}
+      {teleworking ? 'Oui' : 'Non'}
     </span>
-  );
+  )
 }

@@ -2,10 +2,10 @@
 
 import { IJobEntity } from "@/types/IJobEntity";
 import { ThumbsDown } from "lucide-react";
-import { JobRepository } from "../dal/JobRepository";
-import { useAppDispatch } from "../store";
-import { addAlert } from "../store/alertsReducer";
-import { removeLikedJob, addDislikedJob } from "../store/jobsReducer";
+import { JobRepository } from "../../dal/JobRepository";
+import { useAppDispatch } from "../../store";
+import { addAlert } from "../../store/alertsReducer";
+import { removeLikedJob, addDislikedJob } from "../../store/jobsReducer";
 
 interface BtnDislikeProps {
   job: IJobEntity;

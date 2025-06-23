@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import BtnSave from "./BtnSave";
+import BtnSave from "../Btn/BtnSave";
 import { X } from "lucide-react";
-import { GrowingSpinner } from "./GrowingSpinner";
+import { GrowingSpinner } from "../GrowingSpinner";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
-import TagList from "./TagList";
+import TagList from "../TagList";
 
 interface FieldEditorStringArrayProps {
   items: string[] | null | undefined;

@@ -2,10 +2,10 @@
 
 import { IJobEntity } from "@/types/IJobEntity";
 import { Trash2 } from "lucide-react";
-import { JobRepository } from "../dal/JobRepository";
-import { useAppDispatch } from "../store";
-import { addAlert } from "../store/alertsReducer";
-import { removeDislikedJob, removeLikedJob, removeUnratedJob } from "../store/jobsReducer";
+import { JobRepository } from "../../dal/JobRepository";
+import { useAppDispatch } from "../../store";
+import { addAlert } from "../../store/alertsReducer";
+import { removeDislikedJob, removeLikedJob, removeUnratedJob } from "../../store/jobsReducer";
 
 interface BtnRemoveProps {
   job: IJobEntity;

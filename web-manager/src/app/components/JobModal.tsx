@@ -7,20 +7,20 @@ import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jo
 import { addAlert } from "../store/alertsReducer";
 import { addNotification } from "../store/notificationsReducer";
 import Link from "next/link";
-import FieldEditorLevel from "./FieldEditorLevel";
-import FieldEditorInterestIndicator from "./FieldEditorInterestIndicator";
-import FieldEditorSalary from "./FieldEditorSalary";
-import FieldEditorDescription from "./FieldEditorDescription";
-import FieldEditorTeleworking from "./FieldEditorTeleworking";
-import FieldEditorString from "./FieldEditorString";
-import FieldEditorStringArray from "./FieldEditorStringArray";
-import FieldEditorCompany from "./FieldEditorCompany";
-import BtnDislike from "./BtnDislike";
-import BtnLike from "./BtnLike";
-import BtnRemove from "./BtnRemove";
+import FieldEditorLevel from "./FieldEditor/FieldEditorLevel";
+import FieldEditorInterestIndicator from "./FieldEditor/FieldEditorInterestIndicator";
+import FieldEditorSalary from "./FieldEditor/FieldEditorSalary";
+import FieldEditorDescription from "./FieldEditor/FieldEditorDescription";
+import FieldEditorTeleworking from "./FieldEditor/FieldEditorTeleworking";
+import FieldEditorString from "./FieldEditor/FieldEditorString";
+import FieldEditorStringArray from "./FieldEditor/FieldEditorStringArray";
+import FieldEditorCompany from "./FieldEditor/FieldEditorCompany";
+import BtnDislike from "./Btn/BtnDislike";
+import BtnLike from "./Btn/BtnLike";
+import BtnRemove from "./Btn/BtnRemove";
 import CompanyModal from "./CompanyModal";
-import { CloseButton } from "./CloseButton";
-import BtnEditor from "./BtnEditor";
+import { CloseButton } from "./Btn/CloseButton";
+import BtnEditor from "./Btn/BtnEditor";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 
 interface JobModalProps {

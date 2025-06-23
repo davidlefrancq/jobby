@@ -1,7 +1,7 @@
 'use client';
 
 import { AlertCircle } from "lucide-react";
-import { CloseButton } from "./CloseButton";
+import { CloseButton } from "./Btn/CloseButton";
 import { MessageType } from "@/types/MessageType";
 import { StyleMapping } from "../lib/StyleMapping";
 import Accordion from "./Acordion";

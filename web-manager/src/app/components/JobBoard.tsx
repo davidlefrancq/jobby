@@ -5,7 +5,7 @@ import { RefreshCcw } from 'lucide-react';
 import { Lora } from "next/font/google";
 import { useAppDispatch, useAppSelector } from '@/app/store';
 import { removeNotification } from '@/app/store/notificationsReducer';
-import BtnLoading from './BtnLoading';
+import BtnLoading from './Btn/BtnLoading';
 import NotificationsPanel from './NotificationsPanel';
 import Link from 'next/link';
 import ErrorsPanel from './ErrorsPanel';

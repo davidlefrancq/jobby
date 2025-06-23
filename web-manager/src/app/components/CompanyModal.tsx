@@ -1,7 +1,7 @@
 'use client';
 
 import { ICompanyDetails } from "@/types/IJobEntity";
-import { CloseButton } from "./CloseButton";
+import { CloseButton } from "./Btn/CloseButton";
 import Image from "next/image";
 
 interface IDisplayBannerProps {

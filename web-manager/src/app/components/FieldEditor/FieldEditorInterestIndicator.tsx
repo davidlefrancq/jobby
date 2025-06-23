@@ -2,7 +2,7 @@
 
 import { IJobEntity } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
-import BtnSave from "./BtnSave";
+import BtnSave from "../Btn/BtnSave";
 import { INTEREST_OPTIONS, INTEREST_OPTIONS_LEGEND } from "@/constants/job-interest-status";
 
 interface FieldEditorInterestIndicatorProps {
