@@ -6,10 +6,12 @@ import { alertsReducer } from './alertsReducer'
 import { jobsReducer } from './jobsReducer'
 import { n8nReducer } from './n8nReducer'
 import { menuReducer } from './menuReducer'
+import { cvsReducer } from './cvsReducer'
 
 export const store = configureStore({
   reducer: {
     alertsReducer,
+    cvsReducer,
     jobsReducer,
     menuReducer,
     n8nReducer,
