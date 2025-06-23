@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface N8NState {
+  isStartedWorkflows: boolean
   linkedInStarted: boolean
   googleAlertsStarted: boolean
   franceTravailStarted: boolean
@@ -8,6 +9,7 @@ interface N8NState {
 }
 
 const initialState: N8NState = {
+  isStartedWorkflows: false,
   linkedInStarted: false,
   googleAlertsStarted: false,
   franceTravailStarted: false,
@@ -18,6 +20,9 @@ const n8nSlice = createSlice({
   name: 'n8n',
   initialState,
   reducers: {
+    setIsStartedWorkflows(state, action: PayloadAction<boolean>) {
+      state.isStartedWorkflows = action.payload
+    },
     setLinkedInStarted(state, action: PayloadAction<boolean>) {
       state.linkedInStarted = action.payload
     },
@@ -34,6 +39,7 @@ const n8nSlice = createSlice({
 })
 
 export const {
+  setIsStartedWorkflows,
   setLinkedInStarted,
   setGoogleAlertsStarted,
   setFranceTravailStarted,

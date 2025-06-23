@@ -2,18 +2,18 @@
 
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Bell } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from "@/app/store";
+import { removeNotification } from '@/app/store/notificationsReducer';
 
 export interface INotification {
   id: number;
   message: string;
 }
 
-interface NotificationsProps {
-  notifications: INotification[];
-  removeNotification: (id: number) => void;
-}
+export default function NotificationsPanel() {
+  const dispatch = useAppDispatch()
+  const { notifications } = useAppSelector(state => state.notificationsReducer)
 
-export default function NotificationsPanel({ notifications, removeNotification }: NotificationsProps) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -54,7 +54,7 @@ export default function NotificationsPanel({ notifications, removeNotification }
   const handleRemoveNotification = (id: number) => {
     if (notifications.length > 0) {
       if (id && removeNotification) {
-        removeNotification(id);
+        dispatch(removeNotification(id));
       }
     }
   }
