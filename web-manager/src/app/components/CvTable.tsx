@@ -5,10 +5,11 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import TruncatedText from './TruncatedText';
 // import { useAppDispatch } from '../store';
 import { ICvEntity } from '@/types/ICvEntity';
+import { removeCv, setCvs, setCvsCounter, setCvsSkip, setSelectedCvId, updateCv } from "../store/cvsReducer";
+import { useAppDispatch } from '../store';
 
 interface CvTableProps {
   cvs: ICvEntity[];
-  onView: (cv: ICvEntity) => void;
 }
 
 type SortKey = keyof Pick<ICvEntity, 'title' | 'city' | 'createdAt' | 'updatedAt'>;
@@ -18,8 +19,8 @@ type SortConfig = {
 };
 const initialSortConfig: SortConfig = { key: 'createdAt', direction: 'desc' };
 
-export default function CvTable({ cvs, onView }: CvTableProps) {
-  // const dispatch = useAppDispatch();
+export default function CvTable({ cvs }: CvTableProps) {
+  const dispatch = useAppDispatch();
 
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' }>(initialSortConfig);
 
@@ -67,7 +68,7 @@ export default function CvTable({ cvs, onView }: CvTableProps) {
         </thead>
         <tbody className="divide-y divide-gray-200">
           {sortedCvs.map((cv, key) => (
-            <tr key={key} className="hover:bg-gray-50" onClick={() => onView(cv)}>
+            <tr key={key} className="hover:bg-gray-50" onClick={() => dispatch(setSelectedCvId(cv._id?.toString()))} style={{ cursor: 'pointer' }}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 {cv.createdAt ? new Date(cv.createdAt).toLocaleDateString() : 'N/A'}
               </td>

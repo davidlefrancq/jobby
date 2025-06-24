@@ -18,9 +18,15 @@ export default function FieldEditorStringLight({ className, initialValue, legend
     setInputValue(e.target.value);
   };
 
+  // Save when input value changes
   useEffect(() => {
     if (typeof saveFunction === 'function' && inputValue) saveFunction(inputValue)
   }, [inputValue]);
+
+  // Reset input value when initialValue changes
+  useEffect(() => {
+    setInputValue(initialValue || null);
+  }, [initialValue]);
 
   let style = "flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 max-w-xl shadow-md";
   if (className) {

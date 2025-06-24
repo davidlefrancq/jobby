@@ -313,14 +313,6 @@ export class JobSanitizer {
         : undefined;
     }
 
-    if (input.created_at && input.created_at instanceof Date) {
-      output.created_at = input.created_at;
-    }
-
-    if (input.updated_at && input.updated_at instanceof Date) {
-      output.updated_at = input.updated_at;
-    }
-
     return output;
   }
 
@@ -352,8 +344,6 @@ export class JobSanitizer {
       technologies: output.technologies || null,
       teleworking: output.teleworking || false,
       title: output.title || 'unknown',
-      created_at: output.created_at || new Date(),
-      updated_at: output.updated_at || null,
     }
     return response as IJob;
   }

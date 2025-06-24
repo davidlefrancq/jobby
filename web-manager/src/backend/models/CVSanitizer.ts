@@ -182,9 +182,6 @@ export class CVSanitizer {
       education:output.education || [],
       skills: output.skills || [],
       interests: output.interests || [],
-
-      createdAt: output.createdAt || null,
-      updatedAt: output.updatedAt || null
     }
 
     return response as ICV;

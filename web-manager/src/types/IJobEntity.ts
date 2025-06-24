@@ -90,6 +90,6 @@ export interface IJobEntity {
   technologies: string[] | null;
   teleworking: boolean;
   title: string;
-  created_at: Date | null;
-  updated_at: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

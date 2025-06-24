@@ -20,6 +20,11 @@ export default function FieldEditorBoolLight ({ className, initialValue, legendV
     if (typeof saveFunction === 'function') saveFunction(value);
   }, [value]);
 
+  // Reset value when initialValue changes
+  useEffect(() => {
+    setValue(initialValue || false);
+  }, [initialValue]);
+
   let style = "flex items-center bg-blue-50 px-2 py-2 max-w-xl shadow-md";
   if (className) {
     style += ` ${className}`;

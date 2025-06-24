@@ -10,59 +10,70 @@ import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 
-interface ICvFormNewProps {
+interface ICvFormEditProps {
+  cv?: ICvEntity;
   onClose: () => void;
 }
 
-export default function CVFormNew({ onClose }: ICvFormNewProps) {
+export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   const dispatch = useAppDispatch()
   const { cvs } = useAppSelector(state => state.cvsReducer)
 
   // Flat fields for the form
-  const [title, setTitle] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState<Date | null>(null);
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [linkedin, setLinkedin] = useState('');
-  const [github, setGithub] = useState('');
-  const [website, setWebsite] = useState('');
-  const [drivingLicense, setDrivingLicense] = useState(false);
-  const [skills, setSkills] = useState<string[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
+  const [title, setTitle] = useState(cv ? cv.title : '');
+  const [firstName, setFirstName] = useState(cv ? cv.first_name : '');
+  const [lastName, setLastName] = useState(cv ? cv.last_name : '');
+  const [city, setCity] = useState(cv ? cv.city : '');
+  const [country, setCountry] = useState(cv ? cv.country : '');
+  const [email, setEmail] = useState(cv ? cv.email : '');
+  const [linkedin, setLinkedin] = useState(cv ? cv.linkedin : '');
+  const [github, setGithub] = useState(cv ? cv.github : '');
+  const [website, setWebsite] = useState(cv ? cv.website : '');
+  const [drivingLicense, setDrivingLicense] = useState(cv ? cv.driving_license : false);
+  const [skills, setSkills] = useState<string[]>(cv ? cv.skills : []);
+  const [interests, setInterests] = useState<string[]>(cv ? cv.interests : []);
 
 
   const handleResset = () => {
-    setTitle('');
-    setFirstName('');
-    setLastName('');
-    setBirthDate(null);
-    setCity('');
-    setCountry('');
-    setEmail('');
-    setPhone('');
-    setLinkedin('');
-    setGithub('');
-    setWebsite('');
-    setDrivingLicense(false);
-    setSkills([]);
-    setInterests([]);
+    if (!cv) {
+      setTitle('');
+      setFirstName('');
+      setLastName('');
+      setCity('');
+      setCountry('');
+      setEmail('');
+      setLinkedin('');
+      setGithub('');
+      setWebsite('');
+      setDrivingLicense(false);
+      setSkills([]);
+      setInterests([]);
+    }
+    else {
+      setTitle(cv.title);
+      setFirstName(cv.first_name);
+      setLastName(cv.last_name);
+      setCity(cv.city || '');
+      setCountry(cv.country || '');
+      setEmail(cv.email || '');
+      setLinkedin(cv.linkedin || '');
+      setGithub(cv.github || '');
+      setWebsite(cv.website || '');
+      setDrivingLicense(cv.driving_license || false);
+      setSkills(cv.skills || []);
+      setInterests(cv.interests || []);
+    }
   };
 
-  const handleSubmit = async () => {
+  const handleCreateCv = async () => {
     try {
       const newCv: Partial<ICvEntity> = {
         title,
         first_name: firstName,
         last_name: lastName,
-        birth_date: birthDate,
         city,
         country,
         email,
-        phone,
         linkedin,
         github,
         website,
@@ -84,6 +95,51 @@ export default function CVFormNew({ onClose }: ICvFormNewProps) {
         type: "error",
       }));
     }
+  }
+
+  const handleUpdateCv = async () => {
+    if (cv && cv._id) {
+      try {
+        const updatedCv: Partial<ICvEntity> = {};
+
+        if (title !== cv.title) updatedCv.title = title;
+        if (firstName !== cv.first_name) updatedCv.first_name = firstName;
+        if (lastName !== cv.last_name) updatedCv.last_name = lastName;
+        if (city !== cv.city) updatedCv.city = city;
+        if (country !== cv.country) updatedCv.country = country;
+        if (email !== cv.email) updatedCv.email = email;
+        if (linkedin !== cv.linkedin) updatedCv.linkedin = linkedin;
+        if (github !== cv.github) updatedCv.github = github;
+        if (website !== cv.website) updatedCv.website = website;
+        if (drivingLicense !== cv.driving_license) updatedCv.driving_license = drivingLicense;
+        if (JSON.stringify(skills) !== JSON.stringify(cv.skills)) {
+          updatedCv.skills = skills;
+        }
+        if (JSON.stringify(interests) !== JSON.stringify(cv.interests)) {
+          updatedCv.interests = interests;
+        }
+
+        const updated = await cvRepository.update(cv._id.toString(), updatedCv);
+        console.log({ updated });
+        if (updated) {
+          const newCvList: ICvEntity[] = [...cvs.filter(cv => cv._id?.toString() !== updated._id?.toString()), updated];
+          dispatch(setCvs(newCvList));
+          dispatch(setCvsCounter(newCvList.length));
+          onClose();
+        }
+      } catch (error) {
+        dispatch(addAlert({
+          date: new Date().toISOString(),
+          message: (error as Error).message,
+          type: "error",
+        }));
+      }
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!cv || !cv._id) await handleCreateCv();
+    else await handleUpdateCv();
   };
 
   return (

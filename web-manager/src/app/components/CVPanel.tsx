@@ -6,7 +6,7 @@ import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { ICvEntity } from "@/types/ICvEntity";
 import DisplayBanner from "./DisplayBanner";
-import CVFormNew from "./CVFormNew";
+import CVFormEdit from "./CVFormEdit";
 import CvTable from "./CvTable";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
@@ -21,6 +21,7 @@ export default function CVPanel() {
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [showNewForm, setShowNewForm] = useState(false);
+  const [selectedCv, setSelectedCv] = useState<ICvEntity | undefined>(undefined);
 
   const addCvs = (newCvs: ICvEntity[]) => {
     // Cvs filtered without newCvs
@@ -108,6 +109,14 @@ export default function CVPanel() {
     return () => observer.disconnect();
   }, [hasMore, isFetching, cvsLimit, cvsSkip]);
 
+  useEffect(() => {
+    if (selectedCvId) {
+      setSelectedCv(cvs.find(cv => cv._id?.toString() === selectedCvId));
+    } else {
+      setSelectedCv(undefined);
+    }
+  }, [selectedCvId]);
+
   return (
     <div className="p-4 border rounded shadow">
       <h2 className="text-xl font-bold mb-2">CV Panel</h2>
@@ -124,15 +133,14 @@ export default function CVPanel() {
         )}
       </div>
 
-      {showNewForm && (
-        <CVFormNew onClose={() => setShowNewForm(false)} />
+      {showNewForm || selectedCv && (
+        <CVFormEdit cv={selectedCv} onClose={() => {
+          setShowNewForm(false)
+          dispatch(setSelectedCvId(undefined));
+        }} />
       )}
 
-      <CvTable cvs={cvs} onView={(cv) => {
-        if (cv && cv._id) {
-          dispatch(setSelectedCvId(cv._id.toString()))
-        }
-      }} />
+      <CvTable cvs={cvs} />
 
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">

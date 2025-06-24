@@ -44,9 +44,21 @@ export default function FieldEditorStringArrayLight({ className, items, legendVa
     setItemList(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Save when itemList changes
   useEffect(() => {
     if (typeof saveFunction === 'function') saveFunction(itemList)
   }, [itemList]);
+
+  // Reset itemList when items prop changes
+  useEffect(() => {
+    if (items) {
+      setItemList(items);
+      setNewTech("");
+    } else {
+      setItemList([]);
+      setNewTech("");
+    }
+  }, [items]);
 
   let style = "flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 max-w-xl shadow-md";
   if (className) {

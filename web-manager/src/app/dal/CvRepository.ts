@@ -103,7 +103,7 @@ export class CvRepository {
     let updatedCv: ICvEntity;
     try {
       const headers = this.getHeaders();
-      const url = `/api/cvs/${data._id}`;
+      const url = `/api/cvs/${id}`;
       const res = await fetch(url, {
         method: 'PUT',
         headers,

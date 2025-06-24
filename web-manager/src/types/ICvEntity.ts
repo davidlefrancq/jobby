@@ -39,6 +39,6 @@ export interface ICvEntity {
   skills: string[]; // liste libre sans doublon
   interests: string[];
 
-  createdAt: Date | null;
-  updatedAt: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

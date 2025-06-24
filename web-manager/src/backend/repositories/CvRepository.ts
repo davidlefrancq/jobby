@@ -1,4 +1,4 @@
-import mongoose, { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery, QueryOptions } from 'mongoose';
 import { MongoConnection } from '../lib/dbConnect';
 import { DatabaseConnectionError } from '../lib/errors/DatabaseError';
 import { ICvEntity } from '@/types/ICvEntity';
@@ -120,11 +120,12 @@ export class CvRepository {
   public async update(id: string, data: Partial<ICV>): Promise<ICV | null> {
     if (!this.connection) await this.connect();
 
-    try {
-      const sanitizedData = CVSanitizer.sanitize(data);
-
-      const updatedCv = await CV.findByIdAndUpdate(id, sanitizedData, { new: true }).exec();
-      return updatedCv;
+    try {      
+      const objectId = new mongoose.Types.ObjectId(id);
+      const filter = { _id: objectId };
+      const option: QueryOptions<ICV> = { new: true, runValidators: true };
+      const sanitizedData = CVSanitizer.partialSanitize(data);
+      return CV.findByIdAndUpdate(filter, sanitizedData, option).exec();
     } catch (error) {
       throw new UpdateCvError(String(error));
     }
