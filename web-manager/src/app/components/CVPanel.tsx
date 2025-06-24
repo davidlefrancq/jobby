@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
-import { clearCvs, removeCv, setCvs, setCvsCounter, setCvsLimit, setCvsSkip, setSelectedCvId, updateCv } from "../store/cvsReducer";
+import { removeCv, setCvs, setCvsCounter, setCvsSkip, setSelectedCvId, updateCv } from "../store/cvsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { ICvEntity } from "@/types/ICvEntity";
 import DisplayBanner from "./DisplayBanner";
+import CVFormNew from "./CVFormNew";
+import CvTable from "./CvTable";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 
@@ -18,6 +20,7 @@ export default function CVPanel() {
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [showNewForm, setShowNewForm] = useState(false);
 
   const addCvs = (newCvs: ICvEntity[]) => {
     // Cvs filtered without newCvs
@@ -109,10 +112,27 @@ export default function CVPanel() {
     <div className="p-4 border rounded shadow">
       <h2 className="text-xl font-bold mb-2">CV Panel</h2>
       <DisplayBanner value={`${cvs.length}/${cvsCounter} CVs`} />
-      {/* <p>{cv.title || '—'}</p> */}
-      {/* <p>{cv.created_at ? cv.created_at.toLocaleString() : null}</p> */}
 
-      {/* Tu peux ajouter d'autres champs ici en lecture seule */}
+      <div className="flex justify-end mb-4">
+        {!showNewForm && (
+          <button
+            onClick={() => setShowNewForm(true)}
+            className="px-4 py-2 bg-green-600 text-white rounded"
+          >
+            + Ajouter un CV
+          </button>
+        )}
+      </div>
+
+      {showNewForm && (
+        <CVFormNew onClose={() => setShowNewForm(false)} />
+      )}
+
+      <CvTable cvs={cvs} onView={(cv) => {
+        if (cv && cv._id) {
+          dispatch(setSelectedCvId(cv._id.toString()))
+        }
+      }} />
 
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">

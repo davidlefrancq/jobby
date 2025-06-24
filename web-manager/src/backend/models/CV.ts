@@ -47,8 +47,8 @@ const CvSchema = new Schema<ICV>(
     skills: { type: [String], default: [] },
     interests: { type: [String], default: [] },
 
-    created_at: { type: Date, default: null },
-    updated_at: { type: Date, default: null },
+    createdAt: { type: Date, default: () => new Date() },
+    updatedAt: { type: Date, default: () => new Date() },
   },
   {
     collection: "curriculum_vitaes",

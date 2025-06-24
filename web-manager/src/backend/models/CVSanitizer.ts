@@ -150,12 +150,12 @@ export class CVSanitizer {
       sanitizedCV.interests = input.interests.map(interest => sanitizeHtml(interest, { allowedTags: [], allowedAttributes: {} }));
     }
 
-    if (input.created_at) {
-      sanitizedCV.created_at = new Date(input.created_at);
+    if (input.createdAt) {
+      sanitizedCV.createdAt = new Date(input.createdAt);
     }
 
-    if (input.updated_at) {
-      sanitizedCV.updated_at = new Date(input.updated_at);
+    if (input.updatedAt) {
+      sanitizedCV.updatedAt = new Date(input.updatedAt);
     }
 
     return sanitizedCV;
@@ -183,8 +183,8 @@ export class CVSanitizer {
       skills: output.skills || [],
       interests: output.interests || [],
 
-      created_at: output.created_at || null,
-      updated_at: output.updated_at || null
+      createdAt: output.createdAt || null,
+      updatedAt: output.updatedAt || null
     }
 
     return response as ICV;
