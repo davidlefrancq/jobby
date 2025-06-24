@@ -111,6 +111,11 @@ export class CvRepository {
         throw new CreateCvError(`Validation error: ${String(validationError)}`);
       }
 
+      // Dates
+      const createAt = new Date();
+      if (!newCv.created_at) newCv.created_at = createAt;
+      if (!newCv.updated_at) newCv.updated_at = createAt;
+
       return newCv.save();
     } catch (error) {
       throw new CreateCvError(String(error));
@@ -122,6 +127,8 @@ export class CvRepository {
 
     try {
       const sanitizedData = CVSanitizer.sanitize(data);
+      sanitizedData.updated_at = new Date();
+
       const updatedCv = await CV.findByIdAndUpdate(id, sanitizedData, { new: true }).exec();
       return updatedCv;
     } catch (error) {
