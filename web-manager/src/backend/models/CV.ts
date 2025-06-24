@@ -30,12 +30,12 @@ const EducationSchema = new Schema<IEducation>(
 const CvSchema = new Schema<ICV>( 
     {
     title: { type: String, required: true },
-    first_name: { type: String, required: true },
-    last_name: { type: String, required: true },
-    birth_date: { type: Date, required: true },
+    first_name: { type: String, default: null },
+    last_name: { type: String, default: null },
+    birth_date: { type: Date, default: null },
     city: { type: String, default: null },
     country: { type: String, default: null },
-    email: { type: String, required: true },
+    email: { type: String, default: null },
     phone: { type: String, default: null },
     linkedin: { type: String, default: null },
     github: { type: String, default: null },
