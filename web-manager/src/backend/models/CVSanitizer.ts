@@ -138,8 +138,8 @@ export class CVSanitizer {
       sanitizedCV.experiences = input.experiences.map(exp => this.sanitizeExperience(exp));
     }
 
-    if (input.education) {
-      sanitizedCV.education = input.education.map(edu => this.sanitiserEducation(edu));
+    if (input.educations) {
+      sanitizedCV.educations = input.educations.map(edu => this.sanitiserEducation(edu));
     }
 
     if (input.skills) {
@@ -179,7 +179,7 @@ export class CVSanitizer {
       driving_license: output.driving_license || false,
 
       experiences: output.experiences || [],
-      education:output.education || [],
+      educations:output.educations || [],
       skills: output.skills || [],
       interests: output.interests || [],
     }

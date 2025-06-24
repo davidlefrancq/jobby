@@ -43,7 +43,7 @@ const CvSchema = new Schema<ICV>(
     driving_license: { type: Boolean, default: false },
 
     experiences: { type: [ExperienceSchema], default: [] },
-    education: { type: [EducationSchema], default: [] },
+    educations: { type: [EducationSchema], default: [] },
     skills: { type: [String], default: [] },
     interests: { type: [String], default: [] },
 

@@ -35,7 +35,7 @@ export interface ICvEntity {
   driving_license: boolean;
   
   experiences: IExperience[];
-  education: IEducation[];
+  educations: IEducation[];
   skills: string[]; // liste libre sans doublon
   interests: string[];
 

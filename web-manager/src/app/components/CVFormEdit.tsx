@@ -7,6 +7,8 @@ import { setCvs, setCvsCounter } from "../store/cvsReducer";
 import FieldEditorStringArrayLight from "./FieldEditor/FieldEditorStringArrayLight";
 import FieldEditorStringLight from "./FieldEditor/FieldEditorStringLight";
 import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
+import CVFormEditExperience from "./CVFormEditExperience";
+import CVFormEditEducation from "./CVFormEditEducation";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 
@@ -182,20 +184,29 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
       {/* Interests */}
       <FieldEditorStringArrayLight className={"mt-1"} items={interests} saveFunction={(value) => setInterests(value)} legendValue={""} />
 
-      {/* Submit button */}
-      <button type="button" onClick={handleSubmit} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-        Enregistrer
-      </button>
+      <CVFormEditExperience experience={cv?.experiences ? cv.experiences[0] : undefined} />
 
-      {/* Reset Button */}
-      <button type="reset" onClick={handleResset} className="ml-2 mt-4 px-4 py-2 bg-gray-300 text-black rounded">
-        Réinitialiser
-      </button>
+      <CVFormEditEducation education={cv?.educations ? cv.educations[0] : undefined} />
 
-      {/* Cancel button */}
-      <button type="button" onClick={onClose} className="ml-2 mt-4 px-4 py-2 bg-red-500 text-white rounded">
-        Annuler
-      </button>
+      {/* Buttons */}
+      <div className="flex justify-end p-2 max-w-xl mt-1">
+        {/* Cancel button */}
+        <button type="button" onClick={onClose} className="px-4 py-2 bg-red-500 text-white rounded">
+          Annuler
+        </button>
+
+        {/* Reset Button */}
+        <button type="reset" onClick={handleResset} className="ml-2 px-4 py-2 bg-gray-300 text-black rounded">
+          Réinitialiser
+        </button>
+
+        {/* Submit button */}
+        <button type="button" onClick={handleSubmit} className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+          Enregistrer
+        </button>    
+      </div>
+    
+
     </div>
   );
 }

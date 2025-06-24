@@ -77,7 +77,7 @@ describe('CVService Integration Tests', () => {
         isAlternance: false,
       },
     ],
-    education: [
+    educations: [
       {
         title: 'Bachelor in Computer Science',
         institution: 'University of Paris',
@@ -89,8 +89,8 @@ describe('CVService Integration Tests', () => {
     ],
     skills: ['JavaScript', 'Node.js', 'React'],
     interests: ['Coding', 'Gaming'],
-    created_at: new Date(),
-    updated_at: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   it('should create and return a new cv', async () => {
@@ -120,11 +120,11 @@ describe('CVService Integration Tests', () => {
     expect(fetched.website).toBe(sampleData.website);
     expect(fetched.driving_license).toBe(sampleData.driving_license);
     expect(fetched.experiences).toHaveLength(1);
-    expect(fetched.education).toHaveLength(1);
+    expect(fetched.educations).toHaveLength(1);
     expect(fetched.skills).toEqual(expect.arrayContaining(sampleData.skills || []));
     expect(fetched.interests).toEqual(expect.arrayContaining(sampleData.interests || []));
-    expect(fetched.created_at).toBeDefined();
-    expect(fetched.updated_at).toBeDefined();
+    expect(fetched.createdAt).toBeDefined();
+    expect(fetched.updatedAt).toBeDefined();
 
     const experience = fetched.experiences[0];
     expect(experience.title).toBe(sampleData.experiences![0].title);
@@ -135,13 +135,13 @@ describe('CVService Integration Tests', () => {
     expect(experience.description).toBe(sampleData.experiences![0].description);
     expect(experience.isAlternance).toBe(sampleData.experiences![0].isAlternance);
 
-    const education = fetched.education[0];
-    expect(education.title).toBe(sampleData.education![0].title);
-    expect(education.institution).toBe(sampleData.education![0].institution);
-    expect(education.location).toBe(sampleData.education![0].location);
-    expect(education.dateStart).toEqual(sampleData.education![0].dateStart);
-    expect(education.dateEnd).toEqual(sampleData.education![0].dateEnd);
-    expect(education.description).toBe(sampleData.education![0].description);
+    const educations = fetched.educations[0];
+    expect(educations.title).toBe(sampleData.educations![0].title);
+    expect(educations.institution).toBe(sampleData.educations![0].institution);
+    expect(educations.location).toBe(sampleData.educations![0].location);
+    expect(educations.dateStart).toEqual(sampleData.educations![0].dateStart);
+    expect(educations.dateEnd).toEqual(sampleData.educations![0].dateEnd);
+    expect(educations.description).toBe(sampleData.educations![0].description);
   });
 
   it('should throw error when retrieving non-existing cv', async () => {
