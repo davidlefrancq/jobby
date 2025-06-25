@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ICvEntity } from "@/types/ICvEntity";
+import { ICvEntity, IExperience, IEducation } from "@/types/ICvEntity";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { addAlert } from "../store/alertsReducer";
@@ -7,8 +7,9 @@ import { setCvs, setCvsCounter } from "../store/cvsReducer";
 import FieldEditorStringArrayLight from "./FieldEditor/FieldEditorStringArrayLight";
 import FieldEditorStringLight from "./FieldEditor/FieldEditorStringLight";
 import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
-import CVFormEditExperience from "./CVFormEditExperience";
-import CVFormEditEducation from "./CVFormEditEducation";
+import CVFormEditExperience, { IExperienceSaveFunctionParams } from "./CVFormEditExperience";
+import CVFormEditEducation, { IEducationSaveFunctionParams } from "./CVFormEditEducation";
+import TruncatedText from "./TruncatedText";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 
@@ -34,6 +35,12 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   const [drivingLicense, setDrivingLicense] = useState(cv ? cv.driving_license : false);
   const [skills, setSkills] = useState<string[]>(cv ? cv.skills : []);
   const [interests, setInterests] = useState<string[]>(cv ? cv.interests : []);
+  const [experiences, setExperiences] = useState<IExperience[]>(cv ? cv.experiences : []);
+  const [educations, setEducations] = useState<IEducation[]>(cv ? cv.educations : []);
+
+  // Selected elements
+  const [selectedExperience, setSelectedExperience] = useState<IExperience | undefined>(undefined);
+  const [selectedEducation, setSelectedEducation] = useState<IEducation | undefined>(undefined);
 
 
   const handleResset = () => {
@@ -67,6 +74,40 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
     }
   };
 
+  const handleAddExperience = ({ experience, initialValue }: IExperienceSaveFunctionParams) => {
+    const filterFunction = (exp: IExperience) => {
+      // Check if the experience already exists in the list
+      let isDifferent = exp.title !== experience.title;
+      if (initialValue) {
+        // Check if the experience is different from the initial value
+        // (to replace original by the new one)
+        const isDifferentAsInit = exp.title !== initialValue.title;
+        if (!isDifferentAsInit) isDifferent = isDifferentAsInit;
+      }
+      return isDifferent;
+    }
+    const experiencesWithoutNew = experiences.filter(filterFunction);
+    const newExperiences = [...experiencesWithoutNew, experience];
+    setExperiences(newExperiences);
+  }
+
+  const handleAddEducation = ({ education, initialValue }: IEducationSaveFunctionParams) => {
+    const filterFunction = (edu: IEducation) => {
+      // Check if the education already exists in the list
+      let isDifferent = edu.title !== education.title;
+      if (initialValue) {
+        // Check if the education is different from the initial value
+        // (to replace original by the new one)
+        const isDifferentAsInit = edu.title !== initialValue.title;
+        if (!isDifferentAsInit) isDifferent = isDifferentAsInit;
+      }
+      return isDifferent;
+    }
+    const educationsWithoutNew = educations.filter(filterFunction);
+    const newEducations = [...educationsWithoutNew, education];
+    setEducations(newEducations);
+  }
+
   const handleCreateCv = async () => {
     try {
       const newCv: Partial<ICvEntity> = {
@@ -82,6 +123,8 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
         driving_license: drivingLicense,
         skills,
         interests,
+        educations,
+        experiences,
       }
       const created = await cvRepository.create(newCv);
       if (created) {
@@ -102,8 +145,8 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   const handleUpdateCv = async () => {
     if (cv && cv._id) {
       try {
+        // Prepare the updated CV object
         const updatedCv: Partial<ICvEntity> = {};
-
         if (title !== cv.title) updatedCv.title = title;
         if (firstName !== cv.first_name) updatedCv.first_name = firstName;
         if (lastName !== cv.last_name) updatedCv.last_name = lastName;
@@ -120,9 +163,15 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
         if (JSON.stringify(interests) !== JSON.stringify(cv.interests)) {
           updatedCv.interests = interests;
         }
+        if (JSON.stringify(experiences) !== JSON.stringify(cv.experiences)) {
+          updatedCv.experiences = experiences;
+        }
+        if (JSON.stringify(educations) !== JSON.stringify(cv.educations)) {
+          updatedCv.educations = educations;
+        }
 
+        // Call the repository to update the CV
         const updated = await cvRepository.update(cv._id.toString(), updatedCv);
-        console.log({ updated });
         if (updated) {
           const newCvList: ICvEntity[] = [...cvs.filter(cv => cv._id?.toString() !== updated._id?.toString()), updated];
           dispatch(setCvs(newCvList));
@@ -149,44 +198,223 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
       <h3 className="text-lg font-bold mb-2">Nouveau CV</h3>
 
       {/* CV Title */}
-      <FieldEditorStringLight className="mt-1" initialValue={title} saveFunction={(value) => setTitle(value)} legendValue="Titre du CV" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={title}
+        saveFunction={(value) => setTitle(value)}
+        legendValue="Titre du CV"
+      />
 
       {/* First name */}
-      <FieldEditorStringLight className="mt-1" initialValue={firstName} saveFunction={(value) => setFirstName(value)} legendValue="Prénom" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={firstName}
+        saveFunction={(value) => setFirstName(value)}
+        legendValue="Prénom"
+      />
 
       {/* Last name */}
-      <FieldEditorStringLight className="mt-1" initialValue={lastName} saveFunction={(value) => setLastName(value)} legendValue="Nom" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={lastName}
+        saveFunction={(value) => setLastName(value)}
+        legendValue="Nom"
+      />
 
       {/* Email */}
-      <FieldEditorStringLight className="mt-1" initialValue={email} saveFunction={(value) => setEmail(value)} legendValue="Email" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={email}
+        saveFunction={(value) => setEmail(value)}
+        legendValue="Email"
+      />
       
       {/* City */}
-      <FieldEditorStringLight className="mt-1" initialValue={city} saveFunction={(value) => setCity(value)} legendValue="Ville" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={city}
+        saveFunction={(value) => setCity(value)}
+        legendValue="Ville"
+      />
       
       {/* Country */}
-      <FieldEditorStringLight className="mt-1" initialValue={country} saveFunction={(value) => setCountry(value)} legendValue="Pays" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={country}
+        saveFunction={(value) => setCountry(value)}
+        legendValue="Pays"
+        />
       
       {/* Driving License Checkbox */}
-      <FieldEditorBoolLight className="mt-1" initialValue={drivingLicense} saveFunction={(value) => setDrivingLicense(value)} legendValue="Permis de conduire" />
+      <FieldEditorBoolLight
+        className="mt-1"
+        initialValue={drivingLicense}
+        saveFunction={(value) => setDrivingLicense(value)}
+        legendValue="Permis de conduire"
+      />
 
       {/* Linkedin */}
-      <FieldEditorStringLight className="mt-1" initialValue={linkedin}  saveFunction={(value) => setLinkedin(value)} legendValue="LinkedIn" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={linkedin}
+        saveFunction={(value) => setLinkedin(value)}
+        legendValue="LinkedIn"
+      />
 
       {/* Github */}
-      <FieldEditorStringLight className="mt-1" initialValue={github}  saveFunction={(value) => setGithub(value)} legendValue="GitHub" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={github}
+        saveFunction={(value) => setGithub(value)}
+        legendValue="GitHub"
+      />
 
       {/* Website */}
-      <FieldEditorStringLight className="mt-1" initialValue={website}  saveFunction={(value) => setWebsite(value)} legendValue="Site web" />
+      <FieldEditorStringLight
+        className="mt-1"
+        initialValue={website}
+        saveFunction={(value) => setWebsite(value)}
+        legendValue="Site web"
+      />
 
       {/** Skills */}
-      <FieldEditorStringArrayLight className={"mt-1"} items={skills} saveFunction={(value) => setSkills(value)} legendValue={"Compétences"} />
+      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
+        <label className="block text-sm font-medium text-gray-700">Compétences</label>
+        <p className="text-xs text-gray-500">List des compétences et outils professionnels que vous maîtrisez.</p>
+        <FieldEditorStringArrayLight
+          className={"mt-1"}
+          items={skills}
+          saveFunction={(value) => setSkills(value)}
+          legendValue={"Compétences"}
+        />
+      </div>
 
       {/* Interests */}
-      <FieldEditorStringArrayLight className={"mt-1"} items={interests} saveFunction={(value) => setInterests(value)} legendValue={""} />
+      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
+        <label className="block text-sm font-medium text-gray-700">
+          {`Centres d'intérêt`}
+        </label>
+        <p className="text-xs text-gray-500">
+          {`Liste de vos centres d'intérêt, séparés par des virgules.`}
+        </p>
+        <FieldEditorStringArrayLight
+          className={"mt-1"}
+          items={interests}
+          saveFunction={(value) => setInterests(value)}
+          legendValue={"Centres d'intérêt"}
+        />
+      </div>
 
-      <CVFormEditExperience experience={cv?.experiences ? cv.experiences[0] : undefined} />
+      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
+        <label className="block text-sm font-medium text-gray-700">Expériences professionnelles</label>
+        <p className="text-xs text-gray-500">Liste de vos expériences professionnelles.</p>
+        <CVFormEditExperience
+          experience={selectedExperience}
+          saveFunction={handleAddExperience}
+        />
+        {experiences.length > 0 && (
+          <div>
+            {/* Cards of experiences */}
+            { experiences.length > 0 && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {experiences.map((exp, index) => (
+                  <div key={index} className="bg-white p-4 rounded shadow">
+                    <h4 className="font-semibold">{exp.title}</h4>
+                    <p className="text-xs text-gray-500">{exp.company}</p>
+                    <p className="text-xs text-gray-500">
+                      {exp.dateStart ? new Date(exp.dateStart).toLocaleDateString() : null}
+                      {exp.dateStart && exp.dateEnd ? ' - ' : null}
+                      {exp.dateEnd ? new Date(exp.dateEnd).toLocaleDateString() : null}
+                    </p>
+                    <p className="text-xs text-gray-700 mt-1">
+                      <TruncatedText text={exp.description} length={100} />
+                    </p>
 
-      <CVFormEditEducation education={cv?.educations ? cv.educations[0] : undefined} />
+                    {/* Delete button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const newExperiences = experiences.filter((_, i) => i !== index);
+                        setExperiences(newExperiences);
+                      }}
+                      className="mt-2 text-red-600 hover:text-red-900"
+                    >
+                      Supprimer
+                    </button>
+
+                    {/* Edit button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedExperience(exp);
+                      }}
+                      className="ml-2 text-blue-600 hover:text-blue-900"
+                    >
+                      Modifier
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
+        <label className="block text-sm font-medium text-gray-700">Formations</label>
+        <p className="text-xs text-gray-500">Liste de vos formations.</p>
+        <CVFormEditEducation
+          education={selectedEducation}
+          saveFunction={handleAddEducation}
+        />
+        {educations.length > 0 && (
+          <div>
+            {/* Cards of educations */}
+            {educations.length > 0 && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {educations.map((edu, index) => (
+                  <div key={index} className="bg-white p-4 rounded shadow">
+                    <h4 className="font-semibold">{edu.title}</h4>
+                    <p className="text-xs text-gray-500">{edu.institution}</p>
+                    <p className="text-xs text-gray-500">
+                      {edu.dateStart ? new Date(edu.dateStart).toLocaleDateString() : null}
+                      {edu.dateStart && edu.dateEnd ? ' - ' : null}
+                      {edu.dateEnd ? new Date(edu.dateEnd).toLocaleDateString() : null}
+                    </p>
+                    <p className="text-xs text-gray-700 mt-1">
+                      <TruncatedText text={edu.description} length={100} />
+                    </p>
+
+                    {/* Delete button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const newEducations = educations.filter((_, i) => i !== index);
+                        setEducations(newEducations);
+                      }}
+                      className="mt-2 text-red-600 hover:text-red-900"
+                    >
+                      Supprimer
+                    </button>
+
+                    {/* Edit button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedEducation(edu);
+                      }}
+                      className="ml-2 text-blue-600 hover:text-blue-900"
+                    >
+                      Modifier
+                    </button>
+
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Buttons */}
       <div className="flex justify-end p-2 max-w-xl mt-1">

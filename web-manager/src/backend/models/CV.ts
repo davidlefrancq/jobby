@@ -9,7 +9,7 @@ const ExperienceSchema = new Schema<IExperience>(
     location: { type: String, required: true },
     dateStart: { type: Date, default: null },
     dateEnd: { type: Date, default: null },
-    description: { type: String, required: true },
+    description: { type: String, default: null },
     isAlternance: { type: Boolean, default: false },
   },
   { _id: false }
@@ -22,7 +22,7 @@ const EducationSchema = new Schema<IEducation>(
     location: { type: String, required: true },
     dateStart: { type: Date, default: null },
     dateEnd: { type: Date, default: null },
-    description: { type: String, required: true },
+    description: { type: String, default: null },
   },
   { _id: false }
 );

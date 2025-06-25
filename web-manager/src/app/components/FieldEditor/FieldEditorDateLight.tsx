@@ -40,7 +40,7 @@ export default function FieldEditorDateLight({ className, initialValue, legendVa
       <div className="text-sm text-gray-600 w-full">
         <input
           type="date"
-          value={inputValue ? inputValue.toISOString().split('T')[0] : ''}
+          value={inputValue ? new Date(inputValue).toISOString().split('T')[0] : ''}
           onChange={(e) => handleChange(e)}
           className="flex-1 w-[80%] px-2 py-1 mr-1 border rounded text-sm focus:outline-none"
           placeholder={legendValue ? legendValue : "Description"}
