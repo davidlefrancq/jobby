@@ -7,11 +7,13 @@ import { jobsReducer } from './jobsReducer'
 import { n8nReducer } from './n8nReducer'
 import { menuReducer } from './menuReducer'
 import { cvsReducer } from './cvsReducer'
+import { healthReducer } from './healthReducer'
 
 export const store = configureStore({
   reducer: {
     alertsReducer,
     cvsReducer,
+    healthReducer,
     jobsReducer,
     menuReducer,
     n8nReducer,
