@@ -30,7 +30,6 @@ export default function FieldEditorBoolLight ({ className, initialValue, legendV
     style += ` ${className}`;
   }
 
-  // Form editor for teleworking
   return (
     <div ref={ref} className={style}>
       {/* Toggle Switch */}
