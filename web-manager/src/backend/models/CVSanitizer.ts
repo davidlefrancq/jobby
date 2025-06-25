@@ -150,14 +150,6 @@ export class CVSanitizer {
       sanitizedCV.interests = input.interests.map(interest => sanitizeHtml(interest, { allowedTags: [], allowedAttributes: {} }));
     }
 
-    if (input.createdAt) {
-      sanitizedCV.createdAt = new Date(input.createdAt);
-    }
-
-    if (input.updatedAt) {
-      sanitizedCV.updatedAt = new Date(input.updatedAt);
-    }
-
     return sanitizedCV;
   }
 
