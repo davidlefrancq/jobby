@@ -123,7 +123,7 @@ export default function CVPanel() {
       <DisplayBanner value={`${cvs.length}/${cvsCounter} CVs`} />
 
       <div className="flex justify-end mb-4">
-        {!showNewForm && (
+        {!showNewForm && !selectedCv && (
           <button
             onClick={() => setShowNewForm(true)}
             className="px-4 py-2 bg-green-600 text-white rounded"
@@ -133,7 +133,7 @@ export default function CVPanel() {
         )}
       </div>
 
-      {showNewForm || selectedCv && (
+      {(showNewForm || selectedCv) && (
         <CVFormEdit cv={selectedCv} onClose={() => {
           setShowNewForm(false)
           dispatch(setSelectedCvId(undefined));
