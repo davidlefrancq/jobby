@@ -195,7 +195,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
 
   return (
     <div className="p-4 border rounded mb-4">
-      <h3 className="text-lg font-bold mb-2">Nouveau CV</h3>
+      <h3 className="text-lg font-bold mb-2">CV Editor</h3>
 
       {/* CV Title */}
       <FieldEditorStringLight
