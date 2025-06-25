@@ -25,7 +25,7 @@ export default function FieldEditorBoolLight ({ className, initialValue, legendV
     setValue(initialValue || false);
   }, [initialValue]);
 
-  let style = "flex items-center bg-blue-50 px-2 py-2 max-w-xl shadow-md";
+  let style = "flex items-center bg-blue-50 px-2 py-2 shadow-md";
   if (className) {
     style += ` ${className}`;
   }

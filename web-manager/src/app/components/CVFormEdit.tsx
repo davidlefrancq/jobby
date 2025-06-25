@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ICvEntity, IExperience, IEducation } from "@/types/ICvEntity";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
@@ -10,6 +10,8 @@ import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
 import CVFormEditExperience, { IExperienceSaveFunctionParams } from "./CVFormEditExperience";
 import CVFormEditEducation, { IEducationSaveFunctionParams } from "./CVFormEditEducation";
 import TruncatedText from "./TruncatedText";
+import StepManager from "./Annimation/StepManager";
+import Step from "./Annimation/Step";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 
@@ -42,6 +44,9 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   const [selectedExperience, setSelectedExperience] = useState<IExperience | undefined>(undefined);
   const [selectedEducation, setSelectedEducation] = useState<IEducation | undefined>(undefined);
 
+  // Progress steps
+  const [currentStep, setCurrentStep] = useState(0);
+  const totalSteps = 6;
 
   const handleResset = () => {
     if (!cv) {
@@ -193,248 +198,391 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
     else await handleUpdateCv();
   };
 
+  // Close the form when Escape key is pressed
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="p-4 border rounded mb-4">
-      <h3 className="text-lg font-bold mb-2">CV Editor</h3>
-
-      {/* CV Title */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={title}
-        saveFunction={(value) => setTitle(value)}
-        legendValue="Titre du CV"
-      />
-
-      {/* First name */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={firstName}
-        saveFunction={(value) => setFirstName(value)}
-        legendValue="Prénom"
-      />
-
-      {/* Last name */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={lastName}
-        saveFunction={(value) => setLastName(value)}
-        legendValue="Nom"
-      />
-
-      {/* Email */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={email}
-        saveFunction={(value) => setEmail(value)}
-        legendValue="Email"
-      />
-      
-      {/* City */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={city}
-        saveFunction={(value) => setCity(value)}
-        legendValue="Ville"
-      />
-      
-      {/* Country */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={country}
-        saveFunction={(value) => setCountry(value)}
-        legendValue="Pays"
-        />
-      
-      {/* Driving License Checkbox */}
-      <FieldEditorBoolLight
-        className="mt-1"
-        initialValue={drivingLicense}
-        saveFunction={(value) => setDrivingLicense(value)}
-        legendValue="Permis de conduire"
-      />
-
-      {/* Linkedin */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={linkedin}
-        saveFunction={(value) => setLinkedin(value)}
-        legendValue="LinkedIn"
-      />
-
-      {/* Github */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={github}
-        saveFunction={(value) => setGithub(value)}
-        legendValue="GitHub"
-      />
-
-      {/* Website */}
-      <FieldEditorStringLight
-        className="mt-1"
-        initialValue={website}
-        saveFunction={(value) => setWebsite(value)}
-        legendValue="Site web"
-      />
-
-      {/** Skills */}
-      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
-        <label className="block text-sm font-medium text-gray-700">Compétences</label>
-        <p className="text-xs text-gray-500">List des compétences et outils professionnels que vous maîtrisez.</p>
-        <FieldEditorStringArrayLight
-          className={"mt-1"}
-          items={skills}
-          saveFunction={(value) => setSkills(value)}
-          legendValue={"Compétences"}
-        />
+    <div className="p-4 bg-white shadow-xl rounded-lg max-w-2xl mx-auto">
+      <div className="flex">
+        <div className="flex-1">
+          <h3 className="text-lg font-bold mb-2">CV Editor</h3>
+        </div>
+        <div className="flex-2">
+          <button type="button" onClick={onClose} className="px-4 py-2 bg-red-500 text-white rounded w-[110px]">
+            Annuler
+          </button> 
+        </div>
       </div>
 
-      {/* Interests */}
-      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
-        <label className="block text-sm font-medium text-gray-700">
-          {`Centres d'intérêt`}
-        </label>
-        <p className="text-xs text-gray-500">
-          {`Liste de vos centres d'intérêt, séparés par des virgules.`}
-        </p>
-        <FieldEditorStringArrayLight
-          className={"mt-1"}
-          items={interests}
-          saveFunction={(value) => setInterests(value)}
-          legendValue={"Centres d'intérêt"}
-        />
+      {/* Steps menu */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          type="button"
+          onClick={() => setCurrentStep((s) => Math.max(0, s - 1))}
+          disabled={currentStep === 0}
+          className="px-4 py-2 bg-gray-300 text-black rounded disabled:opacity-50 w-[110px]"
+        >
+          Précédent
+        </button>
+
+        <span className="text-sm text-gray-600">
+          Étape {currentStep + 1} / {totalSteps}
+        </span>
+
+        {(currentStep !== totalSteps - 1) && <button
+          type="button"
+          onClick={() => setCurrentStep((s) => Math.min(totalSteps - 1, s + 1))}
+          disabled={currentStep === totalSteps - 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50 w-[110px]"
+        >
+          Suivant
+        </button>}
+
+        {currentStep === totalSteps - 1 && (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-green-500 text-white rounded w-[110px]"
+          >
+            Enregistrer
+          </button>
+        )}
       </div>
 
-      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
-        <label className="block text-sm font-medium text-gray-700">Expériences professionnelles</label>
-        <p className="text-xs text-gray-500">Liste de vos expériences professionnelles.</p>
-        <CVFormEditExperience
-          experience={selectedExperience}
-          saveFunction={handleAddExperience}
-        />
-        {experiences.length > 0 && (
-          <div>
+      <StepManager currentStep={currentStep}>
+        <Step stepKey={0}>
+          {/* CV Title */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={title}
+            saveFunction={(value) => setTitle(value)}
+            legendValue="Titre du CV"
+          />
+
+          {/* First name */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={firstName}
+            saveFunction={(value) => setFirstName(value)}
+            legendValue="Prénom"
+          />
+
+          {/* Last name */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={lastName}
+            saveFunction={(value) => setLastName(value)}
+            legendValue="Nom"
+          />
+
+          {/* Email */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={email}
+            saveFunction={(value) => setEmail(value)}
+            legendValue="Email"
+          />
+          
+          {/* City */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={city}
+            saveFunction={(value) => setCity(value)}
+            legendValue="Ville"
+          />
+          
+          {/* Country */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={country}
+            saveFunction={(value) => setCountry(value)}
+            legendValue="Pays"
+            />
+          
+          {/* Driving License Checkbox */}
+          <FieldEditorBoolLight
+            className="mt-1"
+            initialValue={drivingLicense}
+            saveFunction={(value) => setDrivingLicense(value)}
+            legendValue="Permis de conduire"
+          />
+        </Step>
+
+        <Step stepKey={1}>
+          {/* Linkedin */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={linkedin}
+            saveFunction={(value) => setLinkedin(value)}
+            legendValue="LinkedIn"
+          />
+
+          {/* Github */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={github}
+            saveFunction={(value) => setGithub(value)}
+            legendValue="GitHub"
+          />
+
+          {/* Website */}
+          <FieldEditorStringLight
+            className="mt-1"
+            initialValue={website}
+            saveFunction={(value) => setWebsite(value)}
+            legendValue="Site web"
+          />
+        </Step>
+
+        <Step stepKey={2}>
+          {/** Skills */}
+          <div className="mt-2 shadow-sm rounded-md p-2 bg-blue-50">
+            <label className="block text-sm font-medium text-gray-700">Compétences</label>
+            <p className="text-xs text-gray-500">List des compétences et outils professionnels que vous maîtrisez.</p>
+            <FieldEditorStringArrayLight
+              className={"mt-1"}
+              items={skills}
+              saveFunction={(value) => setSkills(value)}
+              legendValue={"Compétences"}
+            />
+          </div>
+
+          {/* Interests */}
+          <div className="mt-2 shadow-sm rounded-md p-2 bg-blue-50">
+            <label className="block text-sm font-medium text-gray-700">
+              {`Centres d'intérêt`}
+            </label>
+            <p className="text-xs text-gray-500">
+              {`Liste de vos centres d'intérêt, séparés par des virgules.`}
+            </p>
+            <FieldEditorStringArrayLight
+              className={"mt-1"}
+              items={interests}
+              saveFunction={(value) => setInterests(value)}
+              legendValue={"Centres d'intérêt"}
+            />
+          </div>
+        </Step>
+
+        <Step stepKey={3}>
+          <div className="mt-2 shadow-sm rounded-md p-2 bg-blue-50">
+            <label className="block text-sm font-medium text-gray-700">Expériences professionnelles</label>
+            <p className="text-xs text-gray-500">Liste de vos expériences professionnelles.</p>
+            
+            {/* Experience edit form */}
+            <CVFormEditExperience
+              experience={selectedExperience}
+              saveFunction={handleAddExperience}
+            />
+            
             {/* Cards of experiences */}
-            { experiences.length > 0 && (
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {experiences.map((exp, index) => (
-                  <div key={index} className="bg-white p-4 rounded shadow">
-                    <h4 className="font-semibold">{exp.title}</h4>
-                    <p className="text-xs text-gray-500">{exp.company}</p>
-                    <p className="text-xs text-gray-500">
-                      {exp.dateStart ? new Date(exp.dateStart).toLocaleDateString() : null}
-                      {exp.dateStart && exp.dateEnd ? ' - ' : null}
-                      {exp.dateEnd ? new Date(exp.dateEnd).toLocaleDateString() : null}
-                    </p>
-                    <p className="text-xs text-gray-700 mt-1">
-                      <TruncatedText text={exp.description} length={100} />
-                    </p>
+            {experiences.length > 0 && (
+              <div>
+                { experiences.length > 0 && (
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {experiences.map((exp, index) => (
+                      <div key={index} className="bg-white p-4 rounded shadow">
+                        <h4 className="font-semibold">{exp.title}</h4>
+                        <p className="text-xs text-gray-500">{exp.company}</p>
+                        <p className="text-xs text-gray-500">
+                          {exp.dateStart ? new Date(exp.dateStart).toLocaleDateString() : null}
+                          {exp.dateStart && exp.dateEnd ? ' - ' : null}
+                          {exp.dateEnd ? new Date(exp.dateEnd).toLocaleDateString() : null}
+                        </p>
+                        <p className="text-xs text-gray-700 mt-1">
+                          <TruncatedText text={exp.description} length={100} />
+                        </p>
 
-                    {/* Delete button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const newExperiences = experiences.filter((_, i) => i !== index);
-                        setExperiences(newExperiences);
-                      }}
-                      className="mt-2 text-red-600 hover:text-red-900"
-                    >
-                      Supprimer
-                    </button>
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const newExperiences = experiences.filter((_, i) => i !== index);
+                            setExperiences(newExperiences);
+                          }}
+                          className="mt-2 text-red-600 hover:text-red-900"
+                        >
+                          Supprimer
+                        </button>
 
-                    {/* Edit button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedExperience(exp);
-                      }}
-                      className="ml-2 text-blue-600 hover:text-blue-900"
-                    >
-                      Modifier
-                    </button>
+                        {/* Edit button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedExperience(exp);
+                          }}
+                          className="ml-2 text-blue-600 hover:text-blue-900"
+                        >
+                          Modifier
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </Step>
 
-      <div className="mt-2 shadow-sm rounded-md p-2 max-w-xl bg-blue-50">
-        <label className="block text-sm font-medium text-gray-700">Formations</label>
-        <p className="text-xs text-gray-500">Liste de vos formations.</p>
-        <CVFormEditEducation
-          education={selectedEducation}
-          saveFunction={handleAddEducation}
-        />
-        {educations.length > 0 && (
-          <div>
-            {/* Cards of educations */}
+        <Step stepKey={4}>
+          <div className="mt-2 shadow-sm rounded-md p-2 bg-blue-50">
+            <label className="block text-sm font-medium text-gray-700">Formations</label>
+            <p className="text-xs text-gray-500">Liste de vos formations.</p>
+            <CVFormEditEducation
+              education={selectedEducation}
+              saveFunction={handleAddEducation}
+            />
             {educations.length > 0 && (
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {educations.map((edu, index) => (
-                  <div key={index} className="bg-white p-4 rounded shadow">
-                    <h4 className="font-semibold">{edu.title}</h4>
-                    <p className="text-xs text-gray-500">{edu.institution}</p>
-                    <p className="text-xs text-gray-500">
-                      {edu.dateStart ? new Date(edu.dateStart).toLocaleDateString() : null}
-                      {edu.dateStart && edu.dateEnd ? ' - ' : null}
-                      {edu.dateEnd ? new Date(edu.dateEnd).toLocaleDateString() : null}
-                    </p>
-                    <p className="text-xs text-gray-700 mt-1">
-                      <TruncatedText text={edu.description} length={100} />
-                    </p>
+              <div>
+                {/* Cards of educations */}
+                {educations.length > 0 && (
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {educations.map((edu, index) => (
+                      <div key={index} className="bg-white p-4 rounded shadow">
+                        <h4 className="font-semibold">{edu.title}</h4>
+                        <p className="text-xs text-gray-500">{edu.institution}</p>
+                        <p className="text-xs text-gray-500">
+                          {edu.dateStart ? new Date(edu.dateStart).toLocaleDateString() : null}
+                          {edu.dateStart && edu.dateEnd ? ' - ' : null}
+                          {edu.dateEnd ? new Date(edu.dateEnd).toLocaleDateString() : null}
+                        </p>
+                        <p className="text-xs text-gray-700 mt-1">
+                          <TruncatedText text={edu.description} length={100} />
+                        </p>
 
-                    {/* Delete button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const newEducations = educations.filter((_, i) => i !== index);
-                        setEducations(newEducations);
-                      }}
-                      className="mt-2 text-red-600 hover:text-red-900"
-                    >
-                      Supprimer
-                    </button>
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const newEducations = educations.filter((_, i) => i !== index);
+                            setEducations(newEducations);
+                          }}
+                          className="mt-2 text-red-600 hover:text-red-900"
+                        >
+                          Supprimer
+                        </button>
 
-                    {/* Edit button */}
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSelectedEducation(edu);
-                      }}
-                      className="ml-2 text-blue-600 hover:text-blue-900"
-                    >
-                      Modifier
-                    </button>
+                        {/* Edit button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setSelectedEducation(edu);
+                          }}
+                          className="ml-2 text-blue-600 hover:text-blue-900"
+                        >
+                          Modifier
+                        </button>
 
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
-        )}
-      </div>
+        </Step>
 
-      {/* Buttons */}
-      <div className="flex justify-end p-2 max-w-xl mt-1">
-        {/* Cancel button */}
-        <button type="button" onClick={onClose} className="px-4 py-2 bg-red-500 text-white rounded">
-          Annuler
-        </button>
+        <Step stepKey={5}>
+          {/* Summary of the CV */}
+          <div className="flex justify-end p-2 max-w-xl mt-1">
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold">Récapitulatif</h4>
+              <p className="text-xs text-gray-500 mb-4">Vérifiez les informations saisies avant de sauvegarder.</p>
+              
+              {/* Personal info */}
+              <div className="mt-2 shadow-md rounded-md p-2">
+                <p className="text-sm font-semibold">{title}</p>
+                <p className="text-sm">{firstName} {lastName} ({city} {country})</p>
+                <p className="text-sm">{email}</p>
+              </div>
+              <div className="mt-2 shadow-md rounded-md p-2">
+                <p><span className="text-sm font-semibold">Permis de conduire:</span> {drivingLicense ? 'oui' : 'non'}</p>
+              </div>
+              
+              {/* Skills */}
+              <div className="mt-2 shadow-md rounded-md p-2">
+                <p><span className="text-md font-semibold">Compétences:</span></p>
+                {skills.length > 0 && <p className="text-sm">
+                  {skills.map((skill, index) => (
+                    <span key={index} className="inline-block bg-gray-200 text-gray-800 rounded-full px-2 py-1 text-xs mr-1 mb-1">
+                      #{skill}
+                    </span>
+                  ))}
+                </p>}
+              </div>
+              
+              {/* Interests */}
+              <div className="mt-2 shadow-md rounded-md p-2">
+                <p><span className="text-md font-semibold">Centres d'intérêt:</span></p>
+                {interests.length > 0 && <p className="text-sm">
+                  {interests.map((interest, index) => (
+                    <span key={index} className="inline-block bg-gray-200 text-gray-800 rounded-full px-2 py-1 text-xs mr-1 mb-1">
+                      #{interest}
+                    </span>
+                  ))}
+                </p>}
+              </div>
 
-        {/* Reset Button */}
-        <button type="reset" onClick={handleResset} className="ml-2 px-4 py-2 bg-gray-300 text-black rounded">
-          Réinitialiser
-        </button>
+              {/* Experiences */}
+              {experiences.length > 0 && (
+                <div className="mt-2 shadow-md rounded-md p-2">
+                  <h5 className="text-sm font-semibold">Expériences professionnelles:</h5>
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                      {experiences.map((exp, index) => (
+                        <div key={index} className="bg-white p-4 rounded border border-gray-400">
+                          <h4 className="font-semibold">{exp.title}</h4>
+                          <p className="text-xs text-gray-500">{exp.company}</p>
+                          <p className="text-xs text-gray-500">
+                            {exp.dateStart ? new Date(exp.dateStart).toLocaleDateString() : null}
+                            {exp.dateStart && exp.dateEnd ? ' - ' : null}
+                            {exp.dateEnd ? new Date(exp.dateEnd).toLocaleDateString() : null}
+                          </p>
+                          <p className="text-xs text-gray-700 mt-1">
+                            {exp.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+              )}
 
-        {/* Submit button */}
-        <button type="button" onClick={handleSubmit} className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
-          Enregistrer
-        </button>    
-      </div>
-    
+              {/* Educations */}
+              {educations.length > 0 && (
+                <div className="mt-2 shadow-md rounded-md p-2">
+                  <h5 className="text-sm font-semibold">Formations:</h5>
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                      {educations.map((edu, index) => (
+                        <div key={index} className="bg-white p-4 rounded border border-gray-400">
+                          <h4 className="font-semibold">{edu.title}</h4>
+                          <p className="text-xs text-gray-500">{edu.institution}</p>
+                          <p className="text-xs text-gray-500">
+                            {edu.dateStart ? new Date(edu.dateStart).toLocaleDateString() : null}
+                            {edu.dateStart && edu.dateEnd ? ' - ' : null}
+                            {edu.dateEnd ? new Date(edu.dateEnd).toLocaleDateString() : null}
+                          </p>
+                          <p className="text-xs text-gray-700 mt-1">
+                            {edu.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                </div>
+              )}
 
+            </div>
+                
+          </div>
+        </Step>
+      </StepManager>    
     </div>
   );
 }

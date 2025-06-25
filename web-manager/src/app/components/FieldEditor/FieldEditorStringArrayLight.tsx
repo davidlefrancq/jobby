@@ -60,7 +60,7 @@ export default function FieldEditorStringArrayLight({ className, items, legendVa
     }
   }, [items]);
 
-  let style = "flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 max-w-xl shadow-md";
+  let style = "flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 shadow-md";
   if (className) {
     style += ` ${className}`;
   }
@@ -71,7 +71,7 @@ export default function FieldEditorStringArrayLight({ className, items, legendVa
         <input
           ref={inputRef}
           type="text"
-          className="flex-1 w-[80%] px-2 py-1 mr-1 border rounded text-sm focus:outline-none"
+          className="flex-1 w-[85%] px-2 py-1 mr-1 border rounded text-sm focus:outline-none"
           placeholder={legendValue || "Add a value..."}
           value={newTech}
           onChange={(e) => setNewTech(e.target.value)}
