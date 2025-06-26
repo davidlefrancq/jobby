@@ -1,31 +1,39 @@
 'use client';
 
+import { IJobEntity } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
+import BtnSave from "../Btn/BtnSave";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
-import BtnSave from "./BtnSave";
 
-interface FieldEditorStringProps {
-  initialValue: string | null | undefined;
-  legendValue?: string;
+interface FieldEditorLevelProps {
+  job: IJobEntity;
   isEditMode: boolean;
   saveFunction?: (value: string | null) => Promise<void>;
 }
 
-export default function FieldEditorString({ initialValue, legendValue, isEditMode, saveFunction }: FieldEditorStringProps) {
+export default function FieldEditorLevel({ job, isEditMode, saveFunction }: FieldEditorLevelProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [inputValue, setInputValue] = useState<string | null | undefined>(initialValue);
+  const [jobLevel, setJobLevel] = useState<string | null>(job.level || null);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // job.level is a string or null. It's a level of the job. It can be 'junior', 'mid', 'senior' or null.
+  const levels = ['junior', 'intermédiaire', 'senior']; // this is a proposition list but not exhaustive
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedLevel = e.target.value;
+    setJobLevel(selectedLevel);
+  }
 
   const handleremoveError = () => {
     setError(null);
   }
 
   const save = async () => {
-    if (saveFunction && isEditMode && inputValue !== undefined) {
+    if (saveFunction && isEditMode) {
       try {
-        await saveFunction(inputValue);
+        await saveFunction(jobLevel || null);
         setIsEditing(false);
       } catch (error) {
         let errorMessage = "An error occurred while saving the value.";
@@ -37,11 +45,7 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
       setIsEditing(false);
     }
   }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-
+  
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -60,7 +64,7 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
-    };
+    }
   }, []);
 
   if (isEditMode && isEditing) {
@@ -68,11 +72,17 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
       <div ref={ref} className="flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
         <input
           type="text"
-          value={inputValue || ''}
-          onChange={handleChange}
-          className="border rounded px-2 py-1 w-full mr-1"
-          placeholder={legendValue ? legendValue : "Enter value"}
+          value={jobLevel ? jobLevel : ''}
+          onChange={(e) => handleChange(e)}
+          className="border rounded px-2 py-1 mr-1"
+          list="levels"
+          placeholder="Job level (junior, senior, etc.)"
         />
+        <datalist id="levels">
+          {levels.map((level) => (
+            <option key={level} value={level} />
+          ))}
+        </datalist>
         <BtnSave onClick={save} />
         <FieldEditorErrorPanel message={error} close={handleremoveError} />
       </div>
@@ -80,14 +90,13 @@ export default function FieldEditorString({ initialValue, legendValue, isEditMod
   }
 
   let className = '';
-  if (isEditMode) className += 'cursor-pointer hover:text-blue-600';
+  if (isEditMode) className = 'cursor-pointer hover:text-blue-600';
   return (
-    <div
-      ref={ref}
+    <span
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {inputValue || '[N/A]'}
-    </div>
+      {jobLevel || '[N/A]'}
+    </span>
   );
 }

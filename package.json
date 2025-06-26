@@ -12,6 +12,7 @@
     "n8n:logs": "docker-compose logs -f",
     "n8n:logs:nextjs": "docker-compose logs -f nextjs",
     "n8n:restart": "docker-compose restart",
+    "n8n:images:update": "docker-compose pull",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

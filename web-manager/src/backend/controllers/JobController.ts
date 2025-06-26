@@ -1,8 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import jobService from '@/backend/services/JobService';
+import { JobService } from '@/backend/services/JobService';
 import { IJobsSelectRequest } from '@/interfaces/IJobsSelectRequest';
 import { IJobEntity } from '@/types/IJobEntity';
 import { JobRequestFilter } from '../lib/JobRequestFilter';
+
+// Database URI from environment variables
+const dbUri = process.env.MONGODB_URI || '';
 
 /**
  * Controller for handling HTTP requests related to Jobs.
@@ -22,7 +25,7 @@ export default class JobController {
     }
 
     try {
-      const count = await jobService.countUnratedJobs();
+      const count = await JobService.getInstance({ dbUri }).countUnratedJobs();
       return res.status(200).json({ count });
     } catch (error) {
       return res.status(500).json({ error: (error as Error).message });
@@ -40,7 +43,7 @@ export default class JobController {
       return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
     try {
-      const count = await jobService.countLikedJobs();
+      const count = await JobService.getInstance({ dbUri }).countLikedJobs();
       return res.status(200).json({ count });
     }
     catch (error) {
@@ -59,7 +62,7 @@ export default class JobController {
       return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
     try {
-      const count = await jobService.countDislikedJobs();
+      const count = await JobService.getInstance({ dbUri }).countDislikedJobs();
       return res.status(200).json({ count });
     }
     catch (error) {
@@ -90,7 +93,7 @@ export default class JobController {
       jobsRequest.filter = JobRequestFilter.getFilterFromNextRequest(req);
 
       // Execute the service method to list jobs
-      const jobs = await jobService.listJobs(jobsRequest);
+      const jobs = await JobService.getInstance({ dbUri }).listJobs(jobsRequest);
       return res.status(200).json(jobs);
     } catch (error) {
       return res.status(500).json({ error: (error as Error).message });
@@ -110,7 +113,7 @@ export default class JobController {
 
     try {
       const { id } = req.query;
-      const job = await jobService.getJobById(id as string);
+      const job = await JobService.getInstance({ dbUri }).getJobById(id as string);
       return res.status(200).json(job);
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });
@@ -130,7 +133,7 @@ export default class JobController {
 
     try {
       const data = req.body;
-      const created = await jobService.createJob(data);
+      const created = await JobService.getInstance({ dbUri }).createJob(data);
       return res.status(201).json(created);
     } catch (error) {
       return res.status(400).json({ error: (error as Error).message });
@@ -162,7 +165,7 @@ export default class JobController {
       console.log('id', id);
       const data: Partial<IJobEntity> = req.body;
       console.log('data', data);
-      const updated = await jobService.updateJob(id, data);
+      const updated = await JobService.getInstance({ dbUri }).updateJob(id, data);
       return res.status(200).json(updated);
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });
@@ -182,7 +185,7 @@ export default class JobController {
 
     try {
       const { id } = req.query;
-      await jobService.deleteJob(id as string);
+      await JobService.getInstance({ dbUri }).deleteJob(id as string);
       return res.status(204).end();
     } catch (error) {
       return res.status(404).json({ error: (error as Error).message });

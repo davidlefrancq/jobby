@@ -1,7 +1,7 @@
 'use client';
 
 import { CSSProperties } from "react";
-import { GrowingSpinner } from "./GrowingSpinner";
+import { GrowingSpinner } from "../GrowingSpinner";
 
 interface BtnLoadingProps {
   title: string | React.ReactNode;

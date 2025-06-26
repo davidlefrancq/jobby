@@ -1,5 +1,5 @@
-import CVController from '@/backend/controllers/CVController';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import CVController from '@/backend/controllers/CVController';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const {

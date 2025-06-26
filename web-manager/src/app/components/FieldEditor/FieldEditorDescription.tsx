@@ -1,34 +1,30 @@
-'use client';
+'user client';
 
-import { useEffect, useRef, useState } from "react";
 import { IJobEntity } from "@/types/IJobEntity";
-import Toggle from "./Toggle";
+import { useEffect, useRef, useState } from "react";
+import BtnSave from "../Btn/BtnSave";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 
-interface FieldEditorTeleworkingProps {
+interface FieldEditorDescriptionProps {
   job: IJobEntity;
   isEditMode: boolean;
-  saveFunction?: (value: boolean) => Promise<void>;
+  saveAction?: (value: string | null) => Promise<void>;
 }
 
-export default function FieldEditorTeleworking ({ job, isEditMode, saveFunction }: FieldEditorTeleworkingProps) {
+export default function FieldEditorDescription({ job, isEditMode, saveAction }: FieldEditorDescriptionProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [teleworking, setTeleworking] = useState(job.teleworking || false);
+  const [description, setDescription] = useState<string | null>(job.description || null);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleremoveError = () => {
-    setError(null);
-  }
-
   const save = async () => {
-    if (saveFunction) {
+    if (saveAction) {
       try {
-        await saveFunction(teleworking);
+        await saveAction(description || null);
         setIsEditing(false);
       } catch (error) {
-        let errorMessage = "An error occurred while saving the value.";
+        let errorMessage = "An error occurred while saving the description.";
         if (error instanceof Error) errorMessage = error.message;
         else if (typeof error === "string") errorMessage = error;
         setError(errorMessage);
@@ -38,7 +34,14 @@ export default function FieldEditorTeleworking ({ job, isEditMode, saveFunction 
     }
   }
 
-  // Handle keydown and click outside to close editor
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+  };
+
+  const handleremoveError = () => {
+    setError(null);
+  }
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -60,32 +63,29 @@ export default function FieldEditorTeleworking ({ job, isEditMode, saveFunction 
     };
   }, []);
 
-  // Save when toggle switch
-  useEffect(() => {
-    save();
-  }, [teleworking]);
-
-  // Form editor for teleworking
-  if (isEditMode) {
+  if (isEditMode && isEditing) {
     return (
       <div ref={ref} className="flex items-center bg-blue-100 shadow-md rounded py-1 px-1">
-        <Toggle checked={teleworking} onChange={(value: boolean) => {
-          if (isEditing) setTeleworking(value);
-        }} />
+        <textarea
+          value={description || ''}
+          onChange={handleChange}
+          className="border rounded px-2 py-1 w-full resize-y min-h-[100px] mr-1"
+          placeholder="Description of the job"
+        />
+        <BtnSave onClick={save} />
         <FieldEditorErrorPanel message={error} close={handleremoveError} />
       </div>
     );
   }
 
-  // Display teleworking
-  let className = ''
-  if (isEditMode) className = 'cursor-pointer hover:text-blue-600';
+  let className = '';
+  if (isEditMode) className += 'cursor-pointer hover:text-blue-600';
   return (
     <span
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {teleworking ? 'Oui' : 'Non'}
+      {description || '[N/A]'}
     </span>
-  )
+  );
 }

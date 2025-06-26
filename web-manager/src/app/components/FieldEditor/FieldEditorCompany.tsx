@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 import { ICompanyDetails, IJobEntity } from "@/types/IJobEntity";
-import BtnLoading from "./BtnLoading";
+import BtnLoading from "../Btn/BtnLoading";
 import { Save } from "lucide-react";
 
 interface FieldEditorCompanyProps {

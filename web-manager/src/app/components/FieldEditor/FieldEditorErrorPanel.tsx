@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CloseButton } from "./CloseButton";
+import { CloseButton } from "../Btn/CloseButton";
 
 interface FieldEditorErrorPanelProps {
   message: string | null;

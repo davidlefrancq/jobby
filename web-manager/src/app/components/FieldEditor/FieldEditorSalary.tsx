@@ -2,7 +2,7 @@
 
 import { IJobEntity, ISalary } from "@/types/IJobEntity";
 import { useEffect, useRef, useState } from "react";
-import BtnSave from "./BtnSave";
+import BtnSave from "../Btn/BtnSave";
 import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 
 interface FieldEditorSalaryProps {

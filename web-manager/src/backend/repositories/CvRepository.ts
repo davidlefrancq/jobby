@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { dbConnect } from '../lib/dbConnect';
+import mongoose, { FilterQuery, QueryOptions } from 'mongoose';
+import { MongoConnection } from '../lib/dbConnect';
 import { DatabaseConnectionError } from '../lib/errors/DatabaseError';
 import { ICvEntity } from '@/types/ICvEntity';
 import { CV } from '../models/CV';
@@ -7,32 +7,58 @@ import { ICV } from '../models/ICV';
 import { CVSanitizer } from '../models/CVSanitizer';
 import { CreateCvError, DeleteCvError, GetAllCvsError, GetCvByIdError, UpdateCvError } from './errors/CvRepositoryError';
 import { ICvsSelectRequest } from '@/interfaces/ICvsSelectRequest';
+import { IMongoDbParams } from '../interfaces/IMongoDbParams';
 
-class CvRepository {
+export class CvRepository {
   // Holds the singleton instance
   private static instance: CvRepository | null = null;
+  private mongoConnection: MongoConnection | null = null;
   private connection: typeof mongoose | null = null;
+  private dbUri: string;
   
-  private constructor() {}
+  private constructor({ dbUri }: IMongoDbParams) {
+    if (!dbUri) throw new DatabaseConnectionError('Database URI is required to create CvRepository instance.');
+    this.dbUri = dbUri;
+    this.mongoConnection = MongoConnection.getInstance({ uri: dbUri });
+  }
 
   /**
    * Retrieves the singleton instance.
    */
-  public static getInstance(): CvRepository {
+  public static getInstance({ dbUri }: IMongoDbParams): CvRepository {
     if (CvRepository.instance === null) {
-      CvRepository.instance = new CvRepository();
+      if (!dbUri) throw new DatabaseConnectionError('Database URI is required to create CvRepository instance.');
+      CvRepository.instance = new CvRepository({ dbUri });
     }
     return CvRepository.instance;
   }
 
   private async connect(): Promise<void> {
     if (!this.connection) {
+      if (!this.dbUri) throw new DatabaseConnectionError('Database URI is required.');
       try {
-        this.connection = await dbConnect();
+        if (!this.mongoConnection) this.mongoConnection = MongoConnection.getInstance({ uri: this.dbUri });
+        this.connection = await this.mongoConnection.connect();
       } catch (error) {
         throw new DatabaseConnectionError(String(error));
       }
     }
+  }
+
+  /**
+   * Counts all CVs based on an optional filter.
+   * @param filter - Optional filter for counting
+   */
+  public async count(filter?: FilterQuery<ICvEntity>): Promise<number> {
+    if (!this.connection) await this.connect();
+    let count: number = 0;
+    try {
+      const findFilter: mongoose.FilterQuery<ICvEntity> = filter ? filter : {};
+      count = await CV.countDocuments(findFilter).exec();
+    } catch (error) {
+      throw new GetAllCvsError(String(error));
+    }
+    return count;
   }
 
   public async getAll({ filter, limit, skip }: ICvsSelectRequest): Promise<ICV[]> {
@@ -94,10 +120,12 @@ class CvRepository {
   public async update(id: string, data: Partial<ICV>): Promise<ICV | null> {
     if (!this.connection) await this.connect();
 
-    try {
-      const sanitizedData = CVSanitizer.sanitize(data);
-      const updatedCv = await CV.findByIdAndUpdate(id, sanitizedData, { new: true }).exec();
-      return updatedCv;
+    try {      
+      const objectId = new mongoose.Types.ObjectId(id);
+      const filter = { _id: objectId };
+      const option: QueryOptions<ICV> = { new: true, runValidators: true };
+      const sanitizedData = CVSanitizer.partialSanitize(data);
+      return CV.findByIdAndUpdate(filter, sanitizedData, option).exec();
     } catch (error) {
       throw new UpdateCvError(String(error));
     }
@@ -113,7 +141,12 @@ class CvRepository {
       throw new DeleteCvError(String(error));
     }
   }
-}
 
-// Export the singleton instance
-export default CvRepository.getInstance();
+  public async destroy(): Promise<void> {
+    if (this.connection) {
+      await this.connection.disconnect();
+      this.connection = null;
+      CvRepository.instance = null;
+    }
+  }
+}

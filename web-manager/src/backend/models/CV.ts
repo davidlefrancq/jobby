@@ -9,7 +9,7 @@ const ExperienceSchema = new Schema<IExperience>(
     location: { type: String, required: true },
     dateStart: { type: Date, default: null },
     dateEnd: { type: Date, default: null },
-    description: { type: String, required: true },
+    description: { type: String, default: null },
     isAlternance: { type: Boolean, default: false },
   },
   { _id: false }
@@ -22,7 +22,7 @@ const EducationSchema = new Schema<IEducation>(
     location: { type: String, required: true },
     dateStart: { type: Date, default: null },
     dateEnd: { type: Date, default: null },
-    description: { type: String, required: true },
+    description: { type: String, default: null },
   },
   { _id: false }
 );
@@ -30,12 +30,12 @@ const EducationSchema = new Schema<IEducation>(
 const CvSchema = new Schema<ICV>( 
     {
     title: { type: String, required: true },
-    first_name: { type: String, required: true },
-    last_name: { type: String, required: true },
-    birth_date: { type: Date, required: true },
+    first_name: { type: String, default: null },
+    last_name: { type: String, default: null },
+    birth_date: { type: Date, default: null },
     city: { type: String, default: null },
     country: { type: String, default: null },
-    email: { type: String, required: true },
+    email: { type: String, default: null },
     phone: { type: String, default: null },
     linkedin: { type: String, default: null },
     github: { type: String, default: null },
@@ -43,12 +43,12 @@ const CvSchema = new Schema<ICV>(
     driving_license: { type: Boolean, default: false },
 
     experiences: { type: [ExperienceSchema], default: [] },
-    education: { type: [EducationSchema], default: [] },
+    educations: { type: [EducationSchema], default: [] },
     skills: { type: [String], default: [] },
     interests: { type: [String], default: [] },
 
-    created_at: { type: Date, default: null },
-    updated_at: { type: Date, default: null },
+    createdAt: { type: Date, default: null },
+    updatedAt: { type: Date, default: null },
   },
   {
     collection: "curriculum_vitaes",

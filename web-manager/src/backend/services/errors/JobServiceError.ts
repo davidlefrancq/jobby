@@ -7,6 +7,30 @@ class JobServiceError extends ApiError {
   }
 }
 
+export class JobServiceBadDbUriError extends JobServiceError {
+  constructor(msg?: string) {
+    const message = `Bad input: Database URI is invalid.`;
+    super(message);
+    this.log(msg);
+  }
+}
+
+export class JobServiceRepositoryNotInitializedError extends JobServiceError {
+  constructor(msg?: string) {
+    const message = `JobRepository is not initialized.`;
+    super(message);
+    this.log(msg);
+  }
+}
+
+export class BadInputCvEmptyIdError extends JobServiceError {
+  constructor(msg?: string) {
+    const message = `Bad input: ID cannot be empty.`;
+    super(message);
+    this.log(msg);
+  }
+}
+
 export class GetJobByIdError extends JobServiceError {
   constructor(id: string) {
     const message = `Fail while retrieving job by ID.`;

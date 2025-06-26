@@ -127,8 +127,6 @@ const JobSchema = new Schema<IJob>(
     teleworking: { type: Boolean, default: false },
     title: { type: String, default: 'unknown' },
     original_job_id: { type: String, default: null },
-    created_at: { type: Date, default: new Date() },
-    updated_at: { type: Date, default: new Date() },
   },
   {
     collection: 'jobs',

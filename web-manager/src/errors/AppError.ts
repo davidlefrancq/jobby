@@ -15,8 +15,8 @@ export class AppError extends Error implements IError {
   log(msg?: string) {
     let logMessage = `[${this.date}] ${this.name}: ${this.message}`;
     if (msg) logMessage += ` ${msg}`;
-    console.error(`🔴 ${logMessage}`);
-    this.logger.error(logMessage, {
+    if (!this.logger) console.error(`🔴 ${logMessage}`);
+    else this.logger.error(logMessage, {
       error: logMessage,
       stack: this.stack,
     });

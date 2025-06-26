@@ -38,7 +38,8 @@ export class AppLogger {
         console.error('Failed to send log:', response.statusText);
       }
     } catch (error) {
-      console.error('Error sending log:', error);
+      console.warn('Log Server - Sending has failed:', String(error));
+      console.error(payload);
     }
   }
 

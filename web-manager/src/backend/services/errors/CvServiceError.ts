@@ -7,7 +7,15 @@ class CvServiceError extends ApiError {
   }
 }
 
-export class BadInputEmptyIdError extends CvServiceError {
+export class CvServiceBadDbUriError extends CvServiceError {
+  constructor(msg?: string) {
+    const message = `Bad input: Database URI is invalid.`;
+    super(message);
+    this.log(msg);
+  }
+}
+
+export class BadInputJobEmptyIdError extends CvServiceError {
   constructor(msg?: string) {
     const message = `Bad input: ID cannot be empty.`;
     super(message);
