@@ -275,6 +275,18 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.motivation_letter !== undefined) {
+      output.motivation_letter = input.motivation_letter
+        ? this.sanitizeString(input.motivation_letter)
+        : null;
+    }
+
+    if (input.motivation_email !== undefined) {
+      output.motivation_email = input.motivation_email
+        ? this.sanitizeString(input.motivation_email)
+        : null;
+    }
+
     if (input.original_job_id !== undefined) {
       output.original_job_id = input.original_job_id
         ? this.sanitizeString(input.original_job_id)
@@ -337,6 +349,8 @@ export class JobSanitizer {
       level: output.level || null,
       location: output.location || null,
       methodologies: output.methodologies || null,
+      motivation_letter: output.motivation_letter || null,
+      motivation_email: output.motivation_email || null,
       original_job_id: output.original_job_id || null,
       preference: output.preference || null,
       salary: output.salary || null,

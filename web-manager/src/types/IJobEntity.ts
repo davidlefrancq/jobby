@@ -83,6 +83,8 @@ export interface IJobEntity {
   level: string | null;
   location: string | null;
   methodologies: string[] | null;
+  motivation_letter: string | null;
+  motivation_email: string | null;
   original_job_id: string | null;
   preference: JobPreference | null;
   salary: ISalary | null;
