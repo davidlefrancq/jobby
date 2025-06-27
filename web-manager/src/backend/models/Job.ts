@@ -112,6 +112,7 @@ const JobSchema = new Schema<IJob>(
     collective_agreement: { type: String, default: null },
     company: { type: String, default: null },
     company_details: { type: CompanyDetailsSchema, default: null },
+    content: { type: String, default: null },
     contract_type: { type: String, default: null },
     date: { type: String, default: null },
     description: { type: String, default: null },

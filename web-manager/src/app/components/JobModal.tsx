@@ -22,6 +22,7 @@ import CompanyModal from "./CompanyModal";
 import { CloseButton } from "./Btn/CloseButton";
 import BtnEditor from "./Btn/BtnEditor";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
+import FieldEditorTextarea from "./FieldEditor/FieldEditorTextarea";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -187,6 +188,29 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           type: "error"
         }));
       }
+    }
+  }
+
+  const handleContentUpdate = async (value: string | null) => {
+    /** Invalid value */
+    if (value === undefined) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: "Cannot save content with undefined value.",
+        type: "error"
+      }));
+      return;
+    }
+
+    /** Update */
+    try {
+      await handleJobUpdate({ content: value });
+    } catch (error) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: String(error),
+        type: "error"
+      }));
     }
   }
 
@@ -432,6 +456,17 @@ export default function JobModal({ job, onClose }: JobModalProps) {
               job={job}
               isEditMode={isEditMode}
               saveAction={handleDescriptionUpdate}
+            />
+          </div>
+
+          {/* Content */}
+          <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
+            <span className="font-bold">Annonce  complète :</span>
+            <FieldEditorTextarea
+              initialValue={job.content || ''}
+              isEditMode={isEditMode}
+              legendValue={"Content"}
+              saveFunction={handleContentUpdate}
             />
           </div>
 

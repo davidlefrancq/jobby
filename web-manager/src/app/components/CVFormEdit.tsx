@@ -80,9 +80,21 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   };
 
   const handleAddExperience = ({ experience, initialValue }: IExperienceSaveFunctionParams) => {
+    const compareExperience = (e1: IExperience, e2: IExperience) => {
+      const value1 = JSON.stringify({ 
+          title: e1.title,
+          company: e1.company,
+       });
+      const value2 = JSON.stringify({ 
+          title: e2.title,
+          company: e2.company,
+       });
+      return value1 === value2;
+    }
+
     const filterFunction = (exp: IExperience) => {
       // Check if the experience already exists in the list
-      let isDifferent = exp.title !== experience.title;
+      let isDifferent = !compareExperience(exp, experience)
       if (initialValue) {
         // Check if the experience is different from the initial value
         // (to replace original by the new one)

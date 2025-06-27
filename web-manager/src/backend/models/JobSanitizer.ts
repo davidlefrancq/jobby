@@ -227,6 +227,12 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.content !== undefined) {
+      output.content = input.content
+        ? this.sanitizeString(input.content)
+        : null;
+    }
+
     if (input.contract_type !== undefined) {
       output.contract_type = input.contract_type
         ? this.sanitizeString(input.contract_type)
@@ -341,6 +347,7 @@ export class JobSanitizer {
       collective_agreement: output.collective_agreement || null,
       company: output.company || null,
       company_details: output.company_details || null,
+      content: output.content || null,
       contract_type: output.contract_type || null,
       date: output.date || null,
       description: output.description || null,
