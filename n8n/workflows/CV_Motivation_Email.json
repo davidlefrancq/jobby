@@ -1,0 +1,368 @@
+{
+  "name": "CV Motivation Email",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        20
+      ],
+      "id": "48f394a9-2c77-47c8-a1de-7f6048341853",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cv_motivation_email",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -160
+      ],
+      "id": "421b5038-475b-499a-9592-d60281453c2e",
+      "name": "Webhook",
+      "webhookId": "06715b3b-48dd-48c2-b9c0-ae0b354147c3"
+    },
+    {
+      "parameters": {
+        "jsCode": "return { json: { jobId: '685018bf3b1e990f3ac362b9', cvId: '685bfe441d258effddb6af79' }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        20
+      ],
+      "id": "fdbd2fb5-bd96-44b2-aaa4-baa0828d04fb",
+      "name": "Input Test"
+    },
+    {
+      "parameters": {
+        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = JSON.parse($json.body)\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        -160
+      ],
+      "id": "87ed618e-02a2-4e80-ae5e-d059b158749d",
+      "name": "Extract Inputs"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={ \"_id\": \"{{ $json.jobId }}\" }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        -220
+      ],
+      "id": "cf283e5c-6aff-4087-9756-100a1eecf869",
+      "name": "MongoDB Job",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "curriculum_vitaes",
+        "options": {},
+        "query": "={ \"_id\": \"{{ $json.cvId }}\" }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        -40
+      ],
+      "id": "d61b3499-3bec-4568-b45c-de83a116b363",
+      "name": "MongoDB CV",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        700,
+        -140
+      ],
+      "id": "a8570322-a0cd-4869-9e10-5c124d058854",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all()\nconst job = data[0]\nconst cv = data[1]\n\nif (\n  !job\n  || !job.json._id\n) throw new Error('Bad request job input.')\n\nif (\n  !cv\n  || !cv.json._id\n) throw new Error('Bad request cv input.')\n\nreturn [{ json: { job: job.json, cv: cv.json } }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -140
+      ],
+      "id": "9fe1cc1d-f569-409a-9e1f-e387505302bc",
+      "name": "Check"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert en communication écrite dans le cadre du recrutement tech.\n\nTu vas rédiger un **email d’accompagnement** destiné à accompagner une candidature au poste de \"{{ $json.job.title }}\".\nLa lettre de motivation formelle est `{{ $json.job.motivation_letter }}`.  \nLe corps du mail doit **donner envie d’ouvrir la pièce jointe **et** d’attirer l’attention dès les premières lignes**.\n\n---\n\n### 🧭 Objectifs de l’email :\n\n- Accrocher le lecteur RH dès les deux premières phrases\n- Montrer que la candidature est ciblée, pertinente, motivée\n- Mettre en avant 2 à 3 points forts majeurs (compétences, adéquation, motivation)\n- Être fluide, professionnel, humain, mais pas trop formel\n- Terminer par une phrase d’ouverture (entretien, échange, appel)\n- Être adapté à un email : 500 à 700 caractères (espaces compris) dans le corps du mail, hors formule de politesse et signature.\n\n---\n\n### 📎 Contexte de génération :\n\n- La lettre de motivation complète est déjà rédigée, et sera jointe en pièce jointe.\n- Le destinataire est probablement un recruteur\n- Le poste est **{{ $json.job.title }}** chez **{{ $json.job.company }}** ({{ $json.job.company_details.description }})\n- Le candidat, **David Lefrancq**, a 15 ans d’expérience backend, maîtrise **{{ JSON.stringify($json.cv.skills) }}** et l'entreprise recherche **{{ JSON.stringify($json.job.technologies) }}**\n- Il postule pour un **{{ $json.job.contract_type }}**, {{ $json.job.teleworking ? 'avec' : 'sans' }} télétravail\n\n---\n\n### Structure conseillée :\n- Accroche (1 phrase) — Pourquoi vous écrivez et ce qui vous attire.\n- Points forts (1 à 2 phrases) — Vos compétences les plus pertinentes.\n- Ouverture (1 phrase) — Proposition d’échange ou d’entretien.\n- Signature claire et lisible.\n\n---\n\nGénère maintenant un **email d’accompagnement court, efficace et engageant**, en français, sans recopier la lettre de motivation mais en donnant envie de la lire.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -140
+      ],
+      "id": "4ae9279b-d46c-4a44-a227-a562be606264",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "mistral-nemo:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        40
+      ],
+      "id": "49a2b286-8378-4ad6-a9d0-6dc9546e4ce5",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8wRs8JzjQgAfnmvC",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1360,
+        -140
+      ],
+      "id": "e1c844bb-4a2f-4044-b23b-24376596f763",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "=_id",
+        "fields": "=motivation_email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        -140
+      ],
+      "id": "6f100f7f-47e7-40ab-8b86-4d48b05d7035",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let job = null;\nlet output = null;\n\nfor (const item of $input.all()) {\n  if (item.json.job) job = item.json.job\n  if (item.json.output) output = item.json.output\n}\n\nconst data = {\n  _id: job ? job._id : null,\n  motivation_email: output\n}\n\nreturn { json: data }"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        -140
+      ],
+      "id": "a88c138b-5697-47f7-9780-0eee1a6966f5",
+      "name": "Prepare Update"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Input Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inputs": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Job",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Test": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Job",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Job": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB CV": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Update": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "88c0ab66-9bac-4fe5-a2dc-87b67c3b6d5b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
+  },
+  "id": "xBqPrltuFdmwGKiy",
+  "tags": []
+}
