@@ -630,13 +630,13 @@
       "parameters": {
         "operation": "insert",
         "collection": "jobs",
-        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,original_job_id,interest_indicator",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,original_job_id,interest_indicator,createdAt",
         "options": {}
       },
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1940,
+        2080,
         480
       ],
       "id": "2ffc22ea-ea89-4234-bcb2-dab28da640bc",
@@ -656,7 +656,7 @@
       "parameters": {
         "content": "## Save in database",
         "height": 460,
-        "width": 580
+        "width": 740
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -666,6 +666,19 @@
       ],
       "id": "2a00df95-467c-4c06-b204-bbc40d655ed8",
       "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.createdAt = new Date().toISOString();\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        480
+      ],
+      "id": "4aec3c37-4a49-47bf-8808-4489f267d972",
+      "name": "CreatedAt"
     }
   ],
   "pinData": {},
@@ -929,7 +942,7 @@
         [],
         [
           {
-            "node": "MongoDB",
+            "node": "CreatedAt",
             "type": "main",
             "index": 0
           }
@@ -947,13 +960,24 @@
         ],
         []
       ]
+    },
+    "CreatedAt": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "447e2fc8-2588-4d66-b05d-06e870f9c01f",
+  "versionId": "5ca109ae-3273-4908-95d3-34c3743f6176",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"

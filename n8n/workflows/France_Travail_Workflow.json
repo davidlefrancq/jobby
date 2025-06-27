@@ -438,13 +438,13 @@
       "parameters": {
         "operation": "insert",
         "collection": "jobs",
-        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,original_job_id,interest_indicator",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,technologies,methodologies,level,source,original_job_id,interest_indicator,createdAt",
         "options": {}
       },
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.1,
       "position": [
-        1620,
+        1760,
         480
       ],
       "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
@@ -612,7 +612,7 @@
       "parameters": {
         "content": "## Save in database",
         "height": 460,
-        "width": 580
+        "width": 740
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -636,6 +636,19 @@
       "id": "1576161b-8f5a-44e0-b4e6-71720bc44cd7",
       "name": "Loop Over Items",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.createdAt = new Date().toISOString();\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        480
+      ],
+      "id": "4be11f9d-af13-462b-a352-ba6913f3879e",
+      "name": "CreatedAt"
     }
   ],
   "pinData": {},
@@ -877,7 +890,7 @@
         [],
         [
           {
-            "node": "MongoDB",
+            "node": "CreatedAt",
             "type": "main",
             "index": 0
           }
@@ -894,6 +907,17 @@
           }
         ]
       ]
+    },
+    "CreatedAt": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -905,7 +929,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "1f1334f9-3908-4951-a01c-0cc9ccbb7355",
+  "versionId": "7d348d56-ef26-4c9b-81ea-665c0c00b3a9",
   "meta": {
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda",
     "templateCredsSetupCompleted": true
