@@ -1,6 +1,6 @@
 import { ICompanyDetails, IJobEntity, ISalary } from "@/types/IJobEntity";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch } from "../store";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
@@ -23,6 +23,8 @@ import { CloseButton } from "./Btn/CloseButton";
 import BtnEditor from "./Btn/BtnEditor";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 import FieldEditorTextarea from "./FieldEditor/FieldEditorTextarea";
+import MotivationLetterBtn from "./MotivationLetterBtn";
+import MotivationEmailBtn from "./MotivationEmailBtn";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -36,6 +38,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [companyDelailsSelected, setCompanyDelailsSelected] = useState<ICompanyDetails | null>(null);
+  const [cvId, setCvId] = useState<string | null>(null);
 
   const handleToggleEdit = () => {
     setIsEditMode(prev => !prev);
@@ -376,6 +379,21 @@ export default function JobModal({ job, onClose }: JobModalProps) {
     }
   }
 
+  useEffect(() => {
+    RepositoryFactory.getInstance().getCvRepository().getAll(9, 0).then(cvs => {
+      if (cvs && cvs.length > 0) {
+        setCvId(cvs[0]._id?.toString() || null);
+      } else {
+        setCvId(null);
+      }
+    }).catch(err => {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: `Failed to load CVs: ${String(err)}`,
+        type: "error"
+      }));
+    });
+  }, []);
 
   const borderStyle = isEditMode ? " border border-red-500" : " border border-white";
 
@@ -572,9 +590,26 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             </div>
           </div>
 
-          <div className="flex">
-            <div className="w-full text-center text-gray-400">
+          {/*  */}
+
+          {/* Actions */}
+          <div className="flex flex-row w-full">
+            {/* Colonne 1 */}
+            <div className="flex-1 flex items-center justify-center gap-2">
+              <MotivationLetterBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
+              <MotivationEmailBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
+            </div>
+
+            {/* Colonne 2 */}
+            <div className="flex-1 flex items-center justify-center">
               <span className="text-gray-400">{job._id ? job._id.toString() : '[N/A]'}</span>
+            </div>
+
+            {/* Colonne 3 */}
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-gray-400">
+                { cvId ? cvId : <span className="text-gray-400">[No CV available]</span> }
+              </span>
             </div>
           </div>
 

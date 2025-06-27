@@ -3,6 +3,8 @@ export const N8N_FRANCETRAVAIL_WEBHOOK = 'http://localhost:5678/webhook/9da789a5
 export const N8N_GOOGLEALERTS_WEBHOOK = 'http://localhost:5678/webhook/0486e783-1460-43ba-b5bb-54f979cb3ca7';
 export const N8N_COMPANIES_DETAILS_WEBHOOK = 'http://localhost:5678/webhook/enrich-companies-details';
 export const N8N_COMPANY_DETAILS_WEBHOOK = 'http://localhost:5678/webhook/enrich-company-details';
+export const N8N_CV_MOTIVATION_LETTER_WEBHOOK = 'http://localhost:5678/webhook/cv-motivation-letter';
+export const N8N_CV_MOTIVATION_EMAIL_WEBHOOK = 'http://localhost:5678/webhook/cv-motivation-email';
 
 export enum N8N_WORKFLOW_NAMES {
   LinkedIn = 'LinkedIn',
@@ -10,4 +12,6 @@ export enum N8N_WORKFLOW_NAMES {
   GoogleAlerts = 'GoogleAlerts',
   CompaniesDetails = 'CompaniesDetails',
   CompanyDetails = 'CompanyDetails',
+  CVMotivationLetter = 'CVMotivationLetter',
+  CVMotivationEmail = 'CVMotivationEmail',
 }

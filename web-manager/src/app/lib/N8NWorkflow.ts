@@ -5,6 +5,8 @@ import {
   N8N_GOOGLEALERTS_WEBHOOK,
   N8N_LINKEDIN_WEBHOOK,
   N8N_WORKFLOW_NAMES,
+  N8N_CV_MOTIVATION_EMAIL_WEBHOOK,
+  N8N_CV_MOTIVATION_LETTER_WEBHOOK,
 } from "@/constants/n8n-webhooks";
 
 const ERROR_MISSING_WEBHOOK = 'Missing webhook URL.';
@@ -31,6 +33,8 @@ export class N8NWorkflow {
     LinkedIn: false,
     CompaniesDetails: false,
     CompanyDetails: false,
+    CVMotivationLetter: false,
+    CVMotivationEmail: false,
   };
 
   constructor() {}
@@ -65,6 +69,14 @@ export class N8NWorkflow {
     CompanyDetails: {
       name: N8N_WORKFLOW_NAMES.CompanyDetails,
       url: N8N_COMPANY_DETAILS_WEBHOOK
+    },
+    CVMotivationLetter: {
+      name: N8N_WORKFLOW_NAMES.CVMotivationLetter,
+      url: N8N_CV_MOTIVATION_LETTER_WEBHOOK
+    },
+    CVEmailCandidature: {
+      name: N8N_WORKFLOW_NAMES.CVMotivationEmail,
+      url: N8N_CV_MOTIVATION_EMAIL_WEBHOOK
     },
   };
 
@@ -154,6 +166,34 @@ export class N8NWorkflow {
       if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
       if (error) response.error = error;
       this.started.CompanyDetails = false;
+    }
+    return response;
+  }
+
+  public startCVMotivationLetterWorkflow = async ({ jobId, cvId }: { jobId: string, cvId: string }) => {
+    const response: WorkflowResponse = { error: null };
+    if (!this.started.CVMotivationLetter) {
+      this.started.CVMotivationLetter = true;
+      const { CVMotivationLetter } = N8NWorkflow.N8N_WEBHOOKS;
+      const res = await fetch(CVMotivationLetter.url, { method: 'POST', body: JSON.stringify({ jobId, cvId }) });
+      let error: string | null = null;
+      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
+      if (error) response.error = error;
+      this.started.CVMotivationLetter = false;
+    }
+    return response;
+  }
+
+  public startCVMotivationEmailWorkflow = async ({ jobId, cvId }: { jobId: string, cvId: string }) => {
+    const response: WorkflowResponse = { error: null };
+    if (!this.started.CVMotivationEmail) {
+      this.started.CVMotivationEmail = true;
+      const { CVEmailCandidature } = N8NWorkflow.N8N_WEBHOOKS;
+      const res = await fetch(CVEmailCandidature.url, { method: 'POST', body: JSON.stringify({ jobId, cvId }) });
+      let error: string | null = null;
+      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
+      if (error) response.error = error;
+      this.started.CVMotivationEmail = false;
     }
     return response;
   }

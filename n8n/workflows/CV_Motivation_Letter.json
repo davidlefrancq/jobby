@@ -15,7 +15,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "cv_motivation_letter",
+        "path": "cv-motivation-letter",
         "responseMode": "lastNode",
         "options": {}
       },
@@ -358,7 +358,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ce554af7-1a21-42e5-a245-bb0cd50ba6ee",
+  "versionId": "79be554b-003f-40d1-8989-7277c02e4f0e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
