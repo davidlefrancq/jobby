@@ -138,7 +138,7 @@
     },
     {
       "parameters": {
-        "model": "mistral-nemo:latest",
+        "model": "mistral-small3.2:latest",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
@@ -202,6 +202,255 @@
       ],
       "id": "f46e5fbc-c82a-4636-8d60-4b5b981fa784",
       "name": "Prepare Update"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all()\nconst job = data[0]\nconst cv = data[1]\n\nif (\n  !job\n  || !job.json._id\n) throw new Error('Bad request job input.')\n\nif (\n  !cv\n  || !cv.json._id\n) throw new Error('Bad request cv input.')\n\njob.json.motivation_email = '';\njob.json.motivation_letter = '';\n\nreturn [{ json: { job: job.json, cv: cv.json } }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -720
+      ],
+      "id": "c83edfdf-8ca9-4e67-a258-be52238036b5",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant spécialisé dans la rédaction de lettres de motivation formelles. Ta tâche est de générer uniquement la section en-tête et objet de la lettre, en respectant les règles typographiques françaises et en adoptant un style sobre et professionnel.\n\n### Instructions :\n\n1. **Structure de l'en-tête :**\n   - Place les informations du candidat en haut à gauche.\n   - Place les informations de l'entreprise en haut à droite.\n   - La date et l'objet doivent être placés en dessous de l'en-tête.\n\n2. **Informations à inclure :**\n   - **Candidat :** Nom: {{ $json.cv.last_name }}, Prénom: {{ $json.cv.first_name }}, Adresse: {{ $json.cv.city }} {{ $json.cv.country }}, Email: {{ $json.cv.email }}.\n   - **Entreprise :** Nom: {{ $json.job.company }}, Adresse: {{ $json.job.company_details.locations[0].address }}.\n   - **Offre d'emploi :** Titre: {{ $json.job.title }}, Source: {{ $json.job.source }}, Lieu: {{ $json.job.location }}, Référence: {{ $json.job.original_job_id }}.\n   - **Date :** {{ new Date().toLocaleDateString() }}\n\n3. **Contraintes :**\n   - La lettre doit respecter une forme classique.\n   - Ne pas dépasser 10 lignes.\n   - Ne pas inclure d'accroche ou d'introduction.\n   - Utiliser un style sobre et professionnel.\n\n4. **Format de sortie :**\n   - La sortie doit être un objet JSON de la forme suivante :\n     ```json\n     {\n       \"header\": \"Texte complet ici\"\n     }\n     ```\n   - La sortie doit être exactement cet objet, sans texte explicatif supplémentaire ni objet englobant.\n\n### Exemple de sortie attendue :\n\n```json\n{\n  \"header\": \"Prénom Nom\\nAdresse\\nEmail\\n\\nNom de l'entreprise\\nAdresse de l'entreprise\\n\\nDate\\nObjet : Candidature pour le poste de [Titre du poste] (Référence : [Référence de l'offre])\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -720
+      ],
+      "id": "7af144d4-4cf2-4c9d-982d-33b9f0fe314b",
+      "name": "AI Agent Header"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1560,
+        -860
+      ],
+      "id": "9c7693b9-5014-4eb8-914e-da8c27e4a5f1",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Objectif :\nRédiger la partie démontrant l’adéquation technique entre le candidat et le poste.\n\n### Prompt :\n```txt\nTu es un recruteur technique expérimenté. Aide moi à rédiger le **argumentaire compétences** ma lettre de motivation pour un poste d'expert en développement logiciel.\n\n### Entrées :\n- `candidate`: \"fullname: {{ $json.cv.first_name }} {{ $json.cv.last_name }},titre : {{ $json.cv.title }}, permis de conduire: {{ $json.cv.driving_license ? 'oui' : 'non' }}\"\n- `candidate_experiences`: {{ JSON.stringify($json.cv.experiences) }}\n- `candidate_experiences`: {{ JSON.stringify($json.cv.educations) }}\n- `candidate_skills`: {{ JSON.stringify($json.cv.skills) }}\n- `job_offer`: `{{ $json.job.content }}`\n- `hook`: {{ $json.hook }}\n\n### Contraintes :\n- Met en avant 2 ou 3 points d’adéquation majeurs.\n- Utilise des formulations fluides, sans copier-coller de CV.\n- Garde un ton direct, précis, et professionnel.\n- Format : environ 500 caractères.\n- Interdication de faire des répétition avec le \"hook\".\n- Interdiction d'être vantard. Soit factuel et concentre toi sur les données que tu as uniquement.\n- Sortie attendue :\n```json\n{\n  \"skills_argument\": \"Texte ici\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        -720
+      ],
+      "id": "08e51a5a-069e-4af8-abdc-0ad7e1db4ee5",
+      "name": "AI Agent Skills"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Source :\n{{ $json.job.content }}\n\n### Objectif :\nRédiger un paragraphe d'introduction percutant pour une lettre de motivation, visant à capter l'attention et à contextualiser la candidature de manière professionnelle.\n\n### Instructions :\n\nTu es un expert en communication RH. Aide-moi à rédiger le paragraphe d'introduction de ma lettre de motivation pour un poste d'expert en développement logiciel. Ce paragraphe doit être accrocheur, professionnel et respectueux, en adéquation avec le titre de {{ $json.cv.title }}.\n\n### Entrées disponibles :\n- **Offre d'emploi :** {{ $json.job.title }}\n- **Candidat :**\n  - Nom complet : {{ $json.cv.first_name }} {{ $json.cv.last_name }}\n  - Titre : {{ $json.cv.title }}\n  - Permis de conduire : {{ $json.cv.driving_license ? 'Oui' : 'Non' }}\n- **Expériences du candidat :** {{ JSON.stringify($json.cv.experiences) }}\n- **Éducation du candidat :** {{ JSON.stringify($json.cv.educations) }}\n- **Compétences du candidat :** {{ JSON.stringify($json.cv.skills) }}\n- **En-tête :** {{ $json.header }}\n\n### Contraintes :\n- **Style :** Éviter un style scolaire. Adopter un ton professionnel avec une première phrase impactante.\n- **Structure :** Commencer par une phrase d'introduction professionnelle, par exemple : \"Je me présente, {{ $json.cv.first_name }} {{ $json.cv.last_name }}, {{ $json.cv.title }}. Je postule à votre offre d'emploi {{ $json.job.title }} publiée sur la plateforme {{ $json.job.source.match(/^https?:\\/\\/([^\\/?#]+)(?:[\\/?#]|$)/i)[1] }}.\"\n- **Contenu :** Mentionner explicitement le poste visé et la plateforme où il a été trouvé.\n- **Longueur :** Garder un format court (350 caractères maximum) mais supérieur à 100 caractères.\n- **Originalité :** Ne pas répéter le contenu du CV, mais s'en inspirer pour l'argumentaire.\n- **Réflexion :** Prendre le temps de bien réfléchir pour produire un texte de qualité.\n\n### Sortie attendue :\n```json\n{\n  \"hook\": \"Texte ici\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1740,
+        -720
+      ],
+      "id": "f3b196b8-19eb-4379-a8de-62e409b6c1e3",
+      "name": "AI Agent Hook"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2280,
+        -840
+      ],
+      "id": "d4ebc296-6c9f-4ebe-965c-d3315aee1a58",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un agent IA nommé \"motivation\". Tu dois expliquer pourquoi le candidat est sincèrement intéressé par l’entreprise et son activité.\n\nTu peux t’appuyer sur `{{ JSON.stringify($json.job) }}`, son secteur, ses produits, ou sa description.\n\nVoici le cv du postulant: `{{ JSON.stringify($json.cv) }}`\n\nAttention! Les sections suivante ont été généré et tu ne dois pas perdre la cohérence et ne pas faire doublon à ce qui à déjà été ecrit :\n- \"header\": `{{ $json.header }}`\n- \"hook\": `{{ $json.hook }}`\n- \"skills argument\": `{{ $json.skills_argument }}`\n\nTu dois ecrir \"motivation_letter_section\" en gardant la coérence avec les autres section, mais tu dois rédiger uniquement \"motivation_letter_section\".\n\n- Sortie attendue :\n```json\n{\n  \"motivation_letter_section\": \"Texte ici\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3160,
+        -720
+      ],
+      "id": "d307709a-7b71-4e04-a4e8-9af73459b817",
+      "name": "AI Agent Motivation"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"header\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1100,
+        -520
+      ],
+      "id": "c20e8ff1-f451-4691-a336-77bda0af84e8",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        -720
+      ],
+      "id": "5cff4374-53a5-4abf-a2bd-2ad5c530e459",
+      "name": "Output Parser"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"hook\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        -520
+      ],
+      "id": "663fc74d-8775-493d-bdf1-2e6c66005962",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2060,
+        -720
+      ],
+      "id": "1858a221-4cd3-4a84-8fcf-0bb7f44d66ea",
+      "name": "Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        -720
+      ],
+      "id": "126e3fbf-00ae-4f52-89d6-b1c1b70df03f",
+      "name": "Output Parser2"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"skills_argument\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2540,
+        -520
+      ],
+      "id": "8ac99d37-a56d-40e1-99f8-6bf24a2950f8",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2980,
+        -820
+      ],
+      "id": "c319bca6-38f7-41bc-99f5-96ab6ae5a9af",
+      "name": "Merge4"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"motivation_letter_section\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3220,
+        -520
+      ],
+      "id": "ecfca175-140a-45bc-ab2e-b66851d6d1d7",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3480,
+        -720
+      ],
+      "id": "ec1aca43-8584-4396-8c1a-87f1c8013b09",
+      "name": "Output Parser3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3660,
+        -820
+      ],
+      "id": "918629f7-02db-4ccb-94bb-a130c185481a",
+      "name": "Merge5"
     }
   ],
   "pinData": {},
@@ -286,7 +535,7 @@
       "main": [
         [
           {
-            "node": "Check",
+            "node": "Code",
             "type": "main",
             "index": 0
           }
@@ -314,6 +563,46 @@
         [
           {
             "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Header",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Hook",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Skills",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser3",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Motivation",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -352,13 +641,209 @@
           }
         ]
       ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Header",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Header": {
+      "main": [
+        [
+          {
+            "node": "Output Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Hook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Skills",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Hook": {
+      "main": [
+        [
+          {
+            "node": "Output Parser1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Skills": {
+      "main": [
+        [
+          {
+            "node": "Output Parser2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Header",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Hook",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Skills",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser2": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Motivation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Motivation",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Motivation": {
+      "main": [
+        [
+          {
+            "node": "Output Parser3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser3": {
+      "main": [
+        [
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "79be554b-003f-40d1-8989-7277c02e4f0e",
+  "versionId": "fe8b218e-a487-4178-9557-3a48cabf7826",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
