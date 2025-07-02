@@ -138,14 +138,14 @@
     },
     {
       "parameters": {
-        "model": "mistral-small3.2:latest",
+        "model": "mistral-small:latest",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1040,
-        40
+        1180,
+        -340
       ],
       "id": "3f09aabe-a78a-4d8c-a95c-d724216c3861",
       "name": "Ollama Chat Model",
@@ -241,8 +241,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1560,
-        -860
+        1500,
+        -840
       ],
       "id": "9c7693b9-5014-4eb8-914e-da8c27e4a5f1",
       "name": "Merge2"
@@ -250,14 +250,14 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=### Objectif :\nRédiger la partie démontrant l’adéquation technique entre le candidat et le poste.\n\n### Prompt :\n```txt\nTu es un recruteur technique expérimenté. Aide moi à rédiger le **argumentaire compétences** ma lettre de motivation pour un poste d'expert en développement logiciel.\n\n### Entrées :\n- `candidate`: \"fullname: {{ $json.cv.first_name }} {{ $json.cv.last_name }},titre : {{ $json.cv.title }}, permis de conduire: {{ $json.cv.driving_license ? 'oui' : 'non' }}\"\n- `candidate_experiences`: {{ JSON.stringify($json.cv.experiences) }}\n- `candidate_experiences`: {{ JSON.stringify($json.cv.educations) }}\n- `candidate_skills`: {{ JSON.stringify($json.cv.skills) }}\n- `job_offer`: `{{ $json.job.content }}`\n- `hook`: {{ $json.hook }}\n\n### Contraintes :\n- Met en avant 2 ou 3 points d’adéquation majeurs.\n- Utilise des formulations fluides, sans copier-coller de CV.\n- Garde un ton direct, précis, et professionnel.\n- Format : environ 500 caractères.\n- Interdication de faire des répétition avec le \"hook\".\n- Interdiction d'être vantard. Soit factuel et concentre toi sur les données que tu as uniquement.\n- Sortie attendue :\n```json\n{\n  \"skills_argument\": \"Texte ici\"\n}",
+        "text": "=### Objectif :\nRédiger la partie démontrant l’adéquation technique entre le candidat et le poste.\n\n### Prompt :\n```txt\nTu es un recruteur technique expérimenté. Aide moi à rédiger le **argumentaire compétences** ma lettre de motivation pour un poste d'expert en développement logiciel.\n\n### Entrées :\n- `candidate`: \"fullname: {{ $json.cv.first_name }} {{ $json.cv.last_name }},titre : {{ $json.cv.title }}, permis de conduire: {{ $json.cv.driving_license ? 'oui' : 'non' }}\"\n- `candidate_experiences`: {{ JSON.stringify($json.cv.experiences) }}\n- `candidate_experiences`: {{ JSON.stringify($json.cv.educations) }}\n- `candidate_skills`: {{ JSON.stringify($json.cv.skills) }}\n- `job_offer`: `{{ $json.job.content }}`\n- `hook`: {{ $json.hook }}\n\n### Contraintes :\n- Met en avant 2 ou 3 points d’adéquation majeurs.\n- Utilise des formulations fluides, sans copier-coller de CV.\n- Garde un ton direct, précis, et professionnel.\n- Format : environ 500 caractères.\n- Interdication de faire des répétition avec le \"hook\".\n- Interdiction d'être vantard. Soit factuel et concentre toi sur les données que tu as uniquement.\n- Minimum 80 caractères et maximum 250 caractères.\n- Sortie attendue :\n```json\n{\n  \"skills_argument\": \"Texte ici\"\n}",
         "hasOutputParser": true,
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        2480,
+        2300,
         -720
       ],
       "id": "08e51a5a-069e-4af8-abdc-0ad7e1db4ee5",
@@ -273,7 +273,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        1740,
+        1660,
         -720
       ],
       "id": "f3b196b8-19eb-4379-a8de-62e409b6c1e3",
@@ -288,7 +288,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2280,
+        2140,
         -840
       ],
       "id": "d4ebc296-6c9f-4ebe-965c-d3315aee1a58",
@@ -304,7 +304,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        3160,
+        2940,
         -720
       ],
       "id": "d307709a-7b71-4e04-a4e8-9af73459b817",
@@ -346,7 +346,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1800,
+        1720,
         -520
       ],
       "id": "663fc74d-8775-493d-bdf1-2e6c66005962",
@@ -360,7 +360,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2060,
+        1980,
         -720
       ],
       "id": "1858a221-4cd3-4a84-8fcf-0bb7f44d66ea",
@@ -374,7 +374,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2800,
+        2620,
         -720
       ],
       "id": "126e3fbf-00ae-4f52-89d6-b1c1b70df03f",
@@ -388,7 +388,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        2540,
+        2360,
         -520
       ],
       "id": "8ac99d37-a56d-40e1-99f8-6bf24a2950f8",
@@ -403,8 +403,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        2980,
-        -820
+        2780,
+        -840
       ],
       "id": "c319bca6-38f7-41bc-99f5-96ab6ae5a9af",
       "name": "Merge4"
@@ -417,7 +417,7 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        3220,
+        3000,
         -520
       ],
       "id": "ecfca175-140a-45bc-ab2e-b66851d6d1d7",
@@ -431,7 +431,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3480,
+        3260,
         -720
       ],
       "id": "ec1aca43-8584-4396-8c1a-87f1c8013b09",
@@ -446,11 +446,114 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3660,
-        -820
+        3420,
+        -840
       ],
       "id": "918629f7-02db-4ccb-94bb-a130c185481a",
       "name": "Merge5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Entrées :\n- `hook`: {{ $json.hook }}\n- `skills argument`: {{ $json.skills_argument }}\n- `motivation`: {{ $json.motivation_letter_section }}\n- `candidate`: {{ $json.cv.first_name }} {{ $json.cv.last_name }}\n\n### Instructions :\nTu es un expert en communication. Tu dois me proposer une conclusion pour ma la lettre de motivation de manière ouverte, avec une formule de politesse professionnelle.\n\n### Contraintes :\n- Format : 300 caractères max\n- Sortie attendue :\n```json\n{\n  \"closing\": \"Texte ici\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3580,
+        -720
+      ],
+      "id": "1bb9adc7-c9e0-4f1c-a8fc-663745c29a9f",
+      "name": "AI Agent Closing"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"closing\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3640,
+        -520
+      ],
+      "id": "241df369-273f-411f-86b3-19482e2b6ad6",
+      "name": "Structured Output Parser4"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3920,
+        -720
+      ],
+      "id": "43c1e70a-5930-4430-a987-3bc38d3995fa",
+      "name": "Output Parser4"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4100,
+        -840
+      ],
+      "id": "7cb77f3b-d631-4b48-ad95-5d3ed61c420c",
+      "name": "Merge6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert en communication. Tu reçois les 5 sections d’une lettre de motivation et ton rôle est d’assembler les sections dans l’ordre suivant :\n1. header : `{{ $json.header }}`\n2. hook : `{{ $json.hook }}`\n3. skills : `{{ $json.skills_argument }}`\n4. motivation : `{{ $json.motivation_letter_section }}`\n5. closing : `{{ $json.closing }}`\n\nTu dois respecter le ton professionnel d’une lettre de motivation en français. Ne modifie pas le fond, mais assure une bonne cohérence textuelle. Le texte final doit être prêt à l'emploi.\n\n### Sortie attendue :\n```json\n{\n  \"letter\": \"Texte complet ici, une seule string\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        4260,
+        -720
+      ],
+      "id": "94ead3b4-4888-4e4a-b7a9-6123281e4eee",
+      "name": "AI Agent Orchestrator"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"letter\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4320,
+        -520
+      ],
+      "id": "17c32dcf-3985-4cc0-a6d7-47a6240bad1e",
+      "name": "Structured Output Parser5"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4580,
+        -720
+      ],
+      "id": "2a303c57-2dd7-4684-8bda-f80df7934a2c",
+      "name": "Output Parser5"
     }
   ],
   "pinData": {},
@@ -603,6 +706,26 @@
           },
           {
             "node": "AI Agent Motivation",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Closing",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser4",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Orchestrator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser5",
             "type": "ai_languageModel",
             "index": 0
           }
@@ -837,13 +960,95 @@
           }
         ]
       ]
+    },
+    "Structured Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Closing",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge5": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Closing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Closing": {
+      "main": [
+        [
+          {
+            "node": "Output Parser4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser4": {
+      "main": [
+        [
+          {
+            "node": "Merge6",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge6": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Orchestrator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser5": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Orchestrator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Orchestrator": {
+      "main": [
+        [
+          {
+            "node": "Output Parser5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "fe8b218e-a487-4178-9557-3a48cabf7826",
+  "versionId": "abe9fd57-1c30-46c5-9866-9c6ca20ba564",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
