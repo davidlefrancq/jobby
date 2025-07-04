@@ -12,3 +12,5 @@ RUN for f in /tmp/workflows/*.json; do \
       echo "→ importing $f"; \
       n8n import:workflow --input "$f"; \
     done
+
+RUN n8n update:workflow --all --active=true
