@@ -3,6 +3,7 @@ FROM n8nio/n8n:latest AS base
 
 # Dossier local contenant tes .json
 COPY workflows /tmp/workflows
+COPY credentials /tmp/credentials
 
 # L’utilisateur « node » possède déjà les droits sur /home/node
 USER node
@@ -14,3 +15,4 @@ RUN for f in /tmp/workflows/*.json; do \
     done
 
 RUN n8n update:workflow --all --active=true
+RUN n8n import:credentials --input=/tmp/credentials/oauth-credentials.json
