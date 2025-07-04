@@ -1,7 +1,9 @@
 services:
   # n8n service for workflow automation
   n8n:
-    image: n8nio/n8n
+    # image: n8nio/n8n
+    build:
+      context: ./n8n    
     container_name: n8n
     environment:
       - N8N_HOST=localhost
