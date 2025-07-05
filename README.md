@@ -5,8 +5,8 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 ## Prérequis
 
 ### Matériel
-- Carte graphique [compatible](https://github.com/ollama/ollama/blob/main/docs/gpu.md) avec 10 Go de VRAM minimum (recomendé 24 Go).
-- 48 Go de RAM
+- Carte graphique [compatible](https://github.com/ollama/ollama/blob/main/docs/gpu.md) avec 10 Go de VRAM minimum.
+- 32 Go de RAM
 
 ### Logiciel
 - [Docker](https://www.docker.com/)

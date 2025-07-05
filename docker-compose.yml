@@ -47,7 +47,7 @@ services:
     networks:
       - ai_net
     restart: always
-    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral-small:latest && wait"]
+    entrypoint: ["/bin/bash", "-c", "ollama serve & sleep 5 && ollama pull mistral-nemo:latest && wait"]
     healthcheck:
       test: ["CMD-SHELL", "ollama list | grep -q mistral || exit 1"]
       interval: 10s
