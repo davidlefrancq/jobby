@@ -442,7 +442,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking: true si le télétravail est mentionné sinon false.\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées.\n- pour description: résumé concis de l'offre d'emploi (contexte, environnement de travail, mission).\n+ pour methodologies: liste dans un tableau JSON (`string[]`) les éléments méthodologiques de gestion et de conception comme \"Agile\", \"Waterfall\", \"POO\", etc. Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n+ pour technologies: liste dans un tableau JSON (`string[]`) les technologies mentionnées dans l’annonce (ex: \"Java\", \"React\", \"ERP\"). Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n- pour level: profil recherché (\"sénior\" ou \"confirmé\" ou \"junior\" ou null si pas d'information).\n- pour source: {{ $json.source }}\n- pour interest_indicator: \"🟢 Pertinant pour le developpemnt logiciel\" | \"🟡 Poste informatique à vérifier\" | \"🔴 Inintéressant car hors sujet\" mais tu conserves uniquement l'émoji 🟢 | 🟡 | 🔴.\n- pour title: si {{ $json.title }} est null, essaie de trouver un titre adéquat.\n- pour language: tu dois identifier de manière concise la langue utiliser dans la description de l'annonce.\n- contract_type: mets les toutes les informations que tu trouve de type CDI, CDD, Interim, freelance, temp plein, temp partiel, 35 heures, 39 heures, etc.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title }}\",\n  \"date\": \"{{ $json.date }}\",\n  \"company\": \"{{ $json.company }}\",\n  \"location\": \"{{ $json.location }}\",\n  \"teleworking\": true | false,\n  \"contract_type\": string,\n  \"language\": string,\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"level\": \"junior\" | \"confirmé\" | \"sénior\" | null,\n  \"description\": string,\n  \"technologies\": string[],\n  \"methodologies\": string[],\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": 🟢 | 🟡 | 🔴\n}",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking: true si le télétravail est mentionné sinon false.\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées.\n- pour description: résumé concis de l'offre d'emploi (contexte, environnement de travail, mission).\n+ pour methodologies: liste dans un tableau JSON (`string[]`) les éléments méthodologiques de gestion et de conception comme \"Agile\", \"Waterfall\", \"POO\", etc. Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n+ pour technologies: liste dans un tableau JSON (`string[]`) les technologies mentionnées dans l’annonce (ex: \"Java\", \"React\", \"ERP\"). Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n- pour level: \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\"\n- pour source: {{ $json.source }}\n- pour interest_indicator: \"🟢 Pertinant pour le developpemnt logiciel\" | \"🟡 Poste informatique à vérifier\" | \"🔴 Inintéressant car hors sujet\" mais tu conserves uniquement l'émoji 🟢 | 🟡 | 🔴.\n- pour title: {{ $json.title || \"\" }}\n- pour language: tu dois identifier de manière concise la langue utiliser dans la description de l'annonce.\n- contract_type: mets les toutes les informations que tu trouve de type CDI, CDD, Interim, freelance, temp plein, temp partiel, 35 heures, 39 heures, etc.\n- pour toute valeur abscente, conforme toi au type pour mettre \"\" ou [] ou false.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title || \"\" }}\",\n  \"date\": \"{{ $json.date || \"\" }}\",\n  \"company\": \"{{ $json.company || \"\" }}\",\n  \"location\": \"{{ $json.location || \"\" }}\",\n  \"teleworking\": true | false,\n  \"contract_type\": string,\n  \"language\": string,\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"level\": \"junior\" | \"confirmé\" | \"sénior\" | \"\",\n  \"description\": string,\n  \"technologies\": string[],\n  \"methodologies\": string[],\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": 🟢 | 🟡 | 🔴\n}",
         "hasOutputParser": true,
         "options": {}
       },
@@ -554,7 +554,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const response = { json: {} }\n\nif ($json.source) response.json = $json\n\nreturn response;"
+        "jsCode": "const response = { json: {} };\n\nif ($json.source) {\n  response.json = $json\n  if (response.json.title === null) response.json.title = \"\";\n  if (response.json.date === null) response.json.date = \"\";\n  if (response.json.company === null) response.json.company = \"\";\n  if (response.json.location === null) response.json.location = \"\";\n  if (response.json.description === null) response.json.description = \"\";\n}\n\nreturn response;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -585,7 +585,7 @@
       "parameters": {
         "content": "## Save in database",
         "height": 460,
-        "width": 500
+        "width": 480
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -672,14 +672,14 @@
       "typeVersion": 3.2,
       "position": [
         1280,
-        420
+        480
       ],
       "id": "e0e8260f-423b-4e61-a13e-206a6d16f0ee",
       "name": "Merge data"
     },
     {
       "parameters": {
-        "jsCode": "let job = null\nlet data = null\n\nlet target = 0\nfor (const item of $input.all()) {\n  if (target === 0) data = item.json\n  if (target === 1) job = item.json.output\n  target++\n}\n\nif (job && data) {\n  job.content = data.description\n}\n\nreturn [ { json: job } ];"
+        "jsCode": "let job = null\nlet data = null\n\nlet target = 0\nfor (const item of $input.all()) {\n  if (target === 0) data = item.json\n  if (target === 1) job = item.json.output\n  target++\n}\n\nif (job && data) {\n  job.content = data.description\n  job.source = data.source\n  if (!job.title || job.title === '') job.title = data.title || ''\n  if (!job.location || job.location === '') job.location = data.location || ''\n  if (!job.company || job.company === '') job.company = data.company || ''\n}\n\nreturn [ { json: job } ];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -738,7 +738,8 @@
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{\n  \"title\": \"string\",\n  \"date\": \"string\",\n  \"company\": \"string\",\n  \"location\": \"string\",\n  \"teleworking\": true,\n  \"contract_type\": \"string\",\n  \"language\": \"string\",\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"level\": \"junior\",\n  \"description\": \"string\",\n  \"technologies\": [\"string\"],\n  \"methodologies\": [\"string\"],\n  \"source\": \"string\",\n  \"interest_indicator\": \"🟢\"\n}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"date\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"company\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"location\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"teleworking\": {\n      \"type\": \"boolean\",\n      \"default\": false\n    },\n    \"contract_type\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"language\": {\n      \"type\": \"string\",\n      \"default\": \"french\"\n    },\n    \"salary\": {\n      \"type\": \"object\",\n      \"required\": [\"min\", \"max\", \"currency\"],\n      \"properties\": {\n        \"min\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"max\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"currency\": {\n          \"type\": \"string\",\n          \"enum\": [\"EUR\", \"GBP\", \"USD\", \"CHF\", \"\"],\n          \"default\": \"\"\n        }\n      }\n    },\n    \"level\": {\n      \"type\": \"string\",\n      \"enum\": [\"junior\", \"intermediate\", \"senior\", \"lead\", \"\"],\n      \"default\": \"\"\n    },\n    \"description\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"technologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"methodologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"source\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"interest_indicator\": {\n      \"type\": \"string\",\n      \"enum\": [\"🟢\", \"🟡\", \"🔴\"],\n      \"default\": \"🟡\"\n    }\n  }\n}\n",
         "autoFix": true
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
@@ -748,12 +749,15 @@
         700
       ],
       "id": "72cca01b-9b5e-4e6d-9bd6-e877de7ab6c7",
-      "name": "Structured Output Parser"
+      "name": "Structured Output Parser",
+      "notesInFlow": false
     },
     {
       "parameters": {
-        "model": "mistral-small:latest",
-        "options": {}
+        "model": "mistral-nemo:latest",
+        "options": {
+          "keepAlive": "1h30m"
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
@@ -1178,7 +1182,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "24175737-d0a3-4ca7-b8e9-1e89fd5a0dca",
+  "versionId": "73694770-08d9-4ffd-ac79-7dae6605326b",
   "meta": {
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
     "templateCredsSetupCompleted": true
