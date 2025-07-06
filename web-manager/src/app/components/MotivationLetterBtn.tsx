@@ -1,6 +1,10 @@
 import { useState } from "react";
 import BtnLoading from "./Btn/BtnLoading";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
+import { RepositoryFactory } from "../dal/RepositoryFactory";
+import { useAppDispatch } from "../store";
+import { updateLikedJob } from "../store/jobsReducer";
+import { addAlert } from "../store/alertsReducer";
 
 const n8nWorkflow = N8NWorkflow.getInstance();
 
@@ -9,7 +13,11 @@ interface MotivationLetterBtnProps {
   cvId: string;
 }
 
+const jobRepository = RepositoryFactory.getInstance().getJobRepository()
+
 export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtnProps) {
+  const dispatch = useAppDispatch()
+
   const [inProgress, setInProgress] = useState(false);
 
   const handleClick = async () => {
@@ -17,8 +25,21 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
     try {
       setInProgress(true);
       await n8nWorkflow.startCVMotivationLetterWorkflow({ jobId, cvId })
+      const job = await jobRepository.getById(jobId);
+      if (job) dispatch(updateLikedJob(job));
+      else {
+        dispatch(addAlert({
+          date: new Date().toISOString(),
+          message: `Job with ID ${jobId} not found after motivation letter generation.`,
+          type: 'error',
+        }));
+      }
     } catch (err) {
-      console.error("Error generating motivation letter: ", String(err));
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: `Error generating motivation letter: ${String(err)}`,
+        type: 'error',
+      }));
     } finally {
       setInProgress(false);
     }

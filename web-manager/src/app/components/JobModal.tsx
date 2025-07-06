@@ -25,6 +25,8 @@ import { N8NWorkflow } from "../lib/N8NWorkflow";
 import FieldEditorTextarea from "./FieldEditor/FieldEditorTextarea";
 import MotivationLetterBtn from "./MotivationLetterBtn";
 import MotivationEmailBtn from "./MotivationEmailBtn";
+import JobMotivationLetterPanel from "./JobMotivationLetterPanel";
+import JobMotivationEmailPanel from "./JobMotivationEmailPanel copy";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -39,6 +41,8 @@ export default function JobModal({ job, onClose }: JobModalProps) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [companyDelailsSelected, setCompanyDelailsSelected] = useState<ICompanyDetails | null>(null);
   const [cvId, setCvId] = useState<string | null>(null);
+  const [showLetterPanel, setShowLetterPanel] = useState(false);
+  const [showEmailPanel, setShowEmailPanel] = useState(false);
 
   const handleToggleEdit = () => {
     setIsEditMode(prev => !prev);
@@ -590,7 +594,35 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             </div>
           </div>
 
-          {/*  */}
+          <div className="flex flex-row w-full mt-4 mb-6 gap-3">
+            {/* Motivation Letter */}
+            {!showLetterPanel && (
+              <div className="mb-4">
+                <button
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setShowLetterPanel(true)}
+                >
+                  View/Edit Motivation Letter
+                </button>
+              </div>
+            )}
+            {showLetterPanel && <JobMotivationLetterPanel job={job} onClose={() => { setShowLetterPanel(false) }} />}
+
+            {/* Motivation Email */}
+            {!showEmailPanel && (
+              <div className="mb-4">
+                <button
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setShowEmailPanel(true)}
+                >
+                  View/Edit Motivation Email
+                </button>
+              </div>
+            )}
+            { showEmailPanel && (
+              <JobMotivationEmailPanel job={job} onClose={() => { setShowEmailPanel(false) }} />
+            )}
+          </div>
 
           {/* Actions */}
           <div className="flex flex-row w-full">
