@@ -15,3 +15,48 @@ export enum N8N_WORKFLOW_NAMES {
   CVMotivationLetter = 'CVMotivationLetter',
   CVMotivationEmail = 'CVMotivationEmail',
 }
+
+
+type N8NWebhook = {
+  name: N8N_WORKFLOW_NAMES;
+  url: string;
+};
+type N8NWebhooks = {
+  LinkedIn: N8NWebhook;
+  FranceTravail: N8NWebhook;
+  GoogleAlerts: N8NWebhook;
+  CompaniesDetails: N8NWebhook;
+  CompanyDetails: N8NWebhook;
+  CVMotivationLetter: N8NWebhook;
+  CVMotivationEmail: N8NWebhook;
+};
+export const N8N_WEBHOOKS: N8NWebhooks = {
+  LinkedIn: {
+    name: N8N_WORKFLOW_NAMES.LinkedIn,
+    url: N8N_LINKEDIN_WEBHOOK
+  },
+  FranceTravail: {
+    name: N8N_WORKFLOW_NAMES.FranceTravail,
+    url: N8N_FRANCETRAVAIL_WEBHOOK
+  },
+  GoogleAlerts: {
+    name: N8N_WORKFLOW_NAMES.GoogleAlerts,
+    url: N8N_GOOGLEALERTS_WEBHOOK
+  },
+  CompaniesDetails: {
+    name: N8N_WORKFLOW_NAMES.CompaniesDetails,
+    url: N8N_COMPANIES_DETAILS_WEBHOOK
+  },
+  CompanyDetails: {
+    name: N8N_WORKFLOW_NAMES.CompanyDetails,
+    url: N8N_COMPANY_DETAILS_WEBHOOK
+  },
+  CVMotivationLetter: {
+    name: N8N_WORKFLOW_NAMES.CVMotivationLetter,
+    url: N8N_CV_MOTIVATION_LETTER_WEBHOOK
+  },
+  CVMotivationEmail: {
+    name: N8N_WORKFLOW_NAMES.CVMotivationEmail,
+    url: N8N_CV_MOTIVATION_EMAIL_WEBHOOK
+  },
+};

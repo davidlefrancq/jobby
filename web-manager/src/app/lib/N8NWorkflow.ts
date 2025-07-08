@@ -1,12 +1,6 @@
 import {
-  N8N_COMPANIES_DETAILS_WEBHOOK,
-  N8N_COMPANY_DETAILS_WEBHOOK,
-  N8N_FRANCETRAVAIL_WEBHOOK,
-  N8N_GOOGLEALERTS_WEBHOOK,
-  N8N_LINKEDIN_WEBHOOK,
   N8N_WORKFLOW_NAMES,
-  N8N_CV_MOTIVATION_EMAIL_WEBHOOK,
-  N8N_CV_MOTIVATION_LETTER_WEBHOOK,
+  N8N_WEBHOOKS,
 } from "@/constants/n8n-webhooks";
 
 const ERROR_MISSING_WEBHOOK = 'Missing webhook URL.';
@@ -49,40 +43,9 @@ export class N8NWorkflow {
     return N8NWorkflow.instance;
   }
 
-  static N8N_WEBHOOKS = {
-    LinkedIn: {
-      name: N8N_WORKFLOW_NAMES.LinkedIn,
-      url: N8N_LINKEDIN_WEBHOOK
-    },
-    FranceTravail: {
-      name: N8N_WORKFLOW_NAMES.FranceTravail,
-      url: N8N_FRANCETRAVAIL_WEBHOOK
-    },
-    GoogleAlerts: {
-      name: N8N_WORKFLOW_NAMES.GoogleAlerts,
-      url: N8N_GOOGLEALERTS_WEBHOOK
-    },
-    CompaniesDetails: {
-      name: N8N_WORKFLOW_NAMES.CompaniesDetails,
-      url: N8N_COMPANIES_DETAILS_WEBHOOK
-    },
-    CompanyDetails: {
-      name: N8N_WORKFLOW_NAMES.CompanyDetails,
-      url: N8N_COMPANY_DETAILS_WEBHOOK
-    },
-    CVMotivationLetter: {
-      name: N8N_WORKFLOW_NAMES.CVMotivationLetter,
-      url: N8N_CV_MOTIVATION_LETTER_WEBHOOK
-    },
-    CVEmailCandidature: {
-      name: N8N_WORKFLOW_NAMES.CVMotivationEmail,
-      url: N8N_CV_MOTIVATION_EMAIL_WEBHOOK
-    },
-  };
-
   static getN8NWorkflowName(url: string): N8N_WORKFLOW_NAMES | null {
     const makeUrlToNameMapper = () => {
-      return Object.values(N8NWorkflow.N8N_WEBHOOKS).reduce((map, { name, url }) => {
+      return Object.values(N8N_WEBHOOKS).reduce((map, { name, url }) => {
         map[url] = name;
         return map;
       }, {} as Record<string, N8N_WORKFLOW_NAMES>);
@@ -112,8 +75,8 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.FranceTravail) {
       this.started.FranceTravail = true;
-      const { FranceTravail } = N8NWorkflow.N8N_WEBHOOKS;
-      const { error } = await this.runWorkflow(FranceTravail.url);
+      const { url } = N8N_WEBHOOKS.FranceTravail;
+      const { error } = await this.runWorkflow(url);
       if (error) response.error = error;
       this.started.FranceTravail = false;
     }
@@ -124,8 +87,8 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.GoogleAlerts) {
       this.started.GoogleAlerts = true;
-      const { GoogleAlerts } = N8NWorkflow.N8N_WEBHOOKS;
-      const { error } = await this.runWorkflow(GoogleAlerts.url);
+      const { url } = N8N_WEBHOOKS.GoogleAlerts;
+      const { error } = await this.runWorkflow(url);
       if (error) response.error = error;
       this.started.GoogleAlerts = false;
     }
@@ -136,8 +99,8 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.LinkedIn) {
       this.started.LinkedIn = true;
-      const { LinkedIn } = N8NWorkflow.N8N_WEBHOOKS;
-      const { error } = await this.runWorkflow(LinkedIn.url);
+      const { url } = N8N_WEBHOOKS.LinkedIn;
+      const { error } = await this.runWorkflow(url);
       if (error) response.error = error;
       this.started.LinkedIn = false;
     }
@@ -148,8 +111,8 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.CompaniesDetails) {
       this.started.CompaniesDetails = true;
-      const { CompaniesDetails } = N8NWorkflow.N8N_WEBHOOKS;
-      const { error } = await this.runWorkflow(CompaniesDetails.url);
+      const { url } = N8N_WEBHOOKS.CompaniesDetails;
+      const { error } = await this.runWorkflow(url);
       if (error) response.error = error;
       this.started.CompaniesDetails = false;
     }
@@ -160,8 +123,14 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.CompanyDetails) {
       this.started.CompanyDetails = true;
-      const { CompanyDetails } = N8NWorkflow.N8N_WEBHOOKS;
-      const res = await fetch(CompanyDetails.url, { method: 'POST', body: JSON.stringify({ _id }) });
+      const { url } = N8N_WEBHOOKS.CompanyDetails;
+      const res = await fetch(
+        url,
+        {
+          method: 'POST',
+          body: JSON.stringify({ _id })
+        }
+      );
       let error: string | null = null;
       if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
       if (error) response.error = error;
@@ -174,8 +143,14 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.CVMotivationLetter) {
       this.started.CVMotivationLetter = true;
-      const { CVMotivationLetter } = N8NWorkflow.N8N_WEBHOOKS;
-      const res = await fetch(CVMotivationLetter.url, { method: 'POST', body: JSON.stringify({ jobId, cvId }) });
+      const { url } = N8N_WEBHOOKS.CVMotivationLetter;
+      const res = await fetch(
+        url,
+        {
+          method: 'POST',
+          body: JSON.stringify({ jobId, cvId })
+        }
+      );
       let error: string | null = null;
       if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
       if (error) response.error = error;
@@ -188,8 +163,14 @@ export class N8NWorkflow {
     const response: WorkflowResponse = { error: null };
     if (!this.started.CVMotivationEmail) {
       this.started.CVMotivationEmail = true;
-      const { CVEmailCandidature } = N8NWorkflow.N8N_WEBHOOKS;
-      const res = await fetch(CVEmailCandidature.url, { method: 'POST', body: JSON.stringify({ jobId, cvId }) });
+      const { url } = N8N_WEBHOOKS.CVMotivationEmail;
+      const res = await fetch(
+        url,
+        {
+          method: 'POST',
+          body: JSON.stringify({ jobId, cvId })
+        }
+      );
       let error: string | null = null;
       if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
       if (error) response.error = error;

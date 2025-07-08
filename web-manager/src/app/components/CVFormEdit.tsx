@@ -227,6 +227,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
       <div className="flex">
         <div className="flex-1">
           <h3 className="text-lg font-bold mb-2">CV Editor</h3>
+          <p className="text-gray-400">{cv?._id?.toString()}</p>
         </div>
         <div className="flex-2">
           <button type="button" onClick={onClose} className="px-4 py-2 bg-red-500 text-white rounded w-[110px]">
@@ -534,7 +535,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               
               {/* Interests */}
               <div className="mt-2 shadow-md rounded-md p-2">
-                <p><span className="text-md font-semibold">Centres d'intérêt:</span></p>
+                <p><span className="text-md font-semibold">{`Centres d'intérêt:`}</span></p>
                 {interests.length > 0 && <p className="text-sm">
                   {interests.map((interest, index) => (
                     <span key={index} className="inline-block bg-gray-200 text-gray-800 rounded-full px-2 py-1 text-xs mr-1 mb-1">
