@@ -15,7 +15,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "cv_motivation_email",
+        "path": "cv-motivation-email",
         "responseMode": "lastNode",
         "options": {}
       },
@@ -44,7 +44,8 @@
     },
     {
       "parameters": {
-        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = JSON.parse($json.body)\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = typeof $json.body === \"string\" ? JSON.parse($json.body) : $json.body\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -354,14 +355,14 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "88c0ab66-9bac-4fe5-a2dc-87b67c3b6d5b",
+  "versionId": "8e6376f9-1031-41ce-b417-2f1c8761bd73",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"
   },
   "id": "xBqPrltuFdmwGKiy",
   "tags": []
