@@ -1,5 +1,5 @@
 import { IJobEntity } from "@/types/IJobEntity";
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 
 interface JobMotivationLetterPanelProps {
   job: IJobEntity;
@@ -41,7 +41,7 @@ export default function JobMotivationLetterPanel({ job, onClose }: JobMotivation
         </button>
         <button
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={() => handleSave}
+          onClick={handleSave}
         >
           Save
         </button>
