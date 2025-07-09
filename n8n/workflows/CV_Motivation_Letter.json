@@ -44,7 +44,8 @@
     },
     {
       "parameters": {
-        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = JSON.parse($json.body)\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = typeof $json.body === \"string\" ? JSON.parse($json.body) : $json.body\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1113,7 +1114,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "62d7b921-b56f-4960-8882-0b4f2941cf19",
+  "versionId": "f4f6132f-a7bb-431c-b631-489987da1553",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"
