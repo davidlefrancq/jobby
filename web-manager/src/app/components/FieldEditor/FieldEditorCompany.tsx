@@ -26,7 +26,6 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
   };
 
   const handleSirenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("SIREN change:", e.target.value);
     try {
       if (!e.target.value) {
         setInputSiren(null);
@@ -38,7 +37,6 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
         // Check integer value
         if (/^\d+$/.test(sirenValue)) {
           const value = parseInt(sirenValue);
-          console.log("Parsed SIREN value:", value);
           if (isNaN(value)) {
             console.error("SIREN is not a number:", e.target.value);
             setError("SIREN must be a number");

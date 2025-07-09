@@ -108,8 +108,6 @@ export default class CVController {
    * Updates an existing cv document.
    */
   public static async update(req: NextApiRequest, res: NextApiResponse) {
-    console.log('update');
-
     // Check if the request is a PUT request
     if (req.method !== 'PUT') {
       res.setHeader('Allow', ['PUT']);
@@ -125,9 +123,7 @@ export default class CVController {
         return res.status(400).json({ error: 'CV ID must be a string' });
       }
 
-      console.log('id', id);
       const data: Partial<ICvEntity> = req.body;
-      console.log('data', data);
       const updated = await CvService.getInstance({ dbUri }).updateCv(id, data);
       return res.status(200).json(updated);
     } catch (error) {
