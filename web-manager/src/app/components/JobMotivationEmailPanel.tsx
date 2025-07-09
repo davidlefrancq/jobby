@@ -17,8 +17,7 @@ export default function JobMotivationEmailPanel({ job, onClose }: JobMotivationE
   }
 
   const handleClose = () => {
-    // Close the panel, you might want to reset the state or perform other actions
-    console.log("Closing motivation email panel");
+    // Call the onClose function if provided
     if (typeof onClose === 'function') onClose()
   }
 
