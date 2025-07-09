@@ -26,7 +26,7 @@ import FieldEditorTextarea from "./FieldEditor/FieldEditorTextarea";
 import MotivationLetterBtn from "./MotivationLetterBtn";
 import MotivationEmailBtn from "./MotivationEmailBtn";
 import JobMotivationLetterPanel from "./JobMotivationLetterPanel";
-import JobMotivationEmailPanel from "./JobMotivationEmailPanel copy";
+import JobMotivationEmailPanel from "./JobMotivationEmailPanel";
 
 interface JobModalProps {
   job: IJobEntity;
