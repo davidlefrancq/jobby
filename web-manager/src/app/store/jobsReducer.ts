@@ -7,7 +7,7 @@ const REQUEST_RESULT_LIMIT = process.env.NEXT_PUBLIC_REQUEST_RESULT_LIMIT ? pars
 interface JobsState {
   unratedJobs: IJobEntity[]
   unratedCounter: number
-  uratedLimit: number
+  unratedLimit: number
   unratedSkip: number
   likedJobs: IJobEntity[]
   likedCounter: number
@@ -23,7 +23,7 @@ interface JobsState {
 const initialState: JobsState = {
   unratedJobs: [],
   unratedCounter: 0,
-  uratedLimit: REQUEST_RESULT_LIMIT,
+  unratedLimit: REQUEST_RESULT_LIMIT,
   unratedSkip: 0,
   likedJobs: [],
   likedCounter: 0,
@@ -45,7 +45,7 @@ const jobsSlice = createSlice({
       state.unratedCounter = Math.round(action.payload)
     },
     setUnratedLimit(state, action: PayloadAction<number>) {
-      state.uratedLimit = Math.round(action.payload)
+      state.unratedLimit = Math.round(action.payload)
     },
     setUnratedSkip(state, action: PayloadAction<number>) {
       state.unratedSkip = Math.round(action.payload)
