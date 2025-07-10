@@ -18,11 +18,9 @@ export default function JobMotivationLetterPanel({ job, onClose }: JobMotivation
   const [error, setError] = useState<string | null>(null);
 
   const handleSave = async () => {
-    console.log({ job, motivationLetter });
     if (job._id && motivationLetter !== null) {
       try {
         const updatedJob = await jobRepository.update(job._id.toString(), { motivation_letter: motivationLetter });
-        console.log('Response from update:', updatedJob);
         if (!updatedJob) setError('Failed to update the job motivation email.');
         else {
           dispatch(updateLikedJob(updatedJob));
