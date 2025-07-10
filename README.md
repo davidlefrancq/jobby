@@ -29,7 +29,7 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 
 ## Initialisation
 
-1) Renommer `.env.local` en `.env` et définir les différentes valeurs. Ce sont des veleurs arbitraires. Mettez ce que vous voulez, mais ne les communiquez à personne.
+1) Renommer `.env.local` en `.env` et définir les différentes valeurs. Ce sont des valeurs arbitraires. Mettez ce que vous voulez, mais ne les communiquez à personne.
 2) Lancer la commande : `npm run n8n`
 3) Ouvrir http://localhost:5678/ et suivre les instructions jusuqu'au tableau de bord.
 4) Ouvrir un terminal : `docker exec -it n8n /bin/sh`
