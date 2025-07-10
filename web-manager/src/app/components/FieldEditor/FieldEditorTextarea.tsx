@@ -44,11 +44,6 @@ export default function FieldEditorTextarea({ className, initialValue, legendVal
     setInputValue(e.target.value);
   };
 
-  // Save when input value changes
-  useEffect(() => {
-    if (typeof saveFunction === 'function' && inputValue) saveFunction(inputValue)
-  }, [inputValue]);
-
   // Reset input value when initialValue changes
   useEffect(() => {
     setInputValue(initialValue || null);
