@@ -121,6 +121,8 @@ const JobSchema = new Schema<IJob>(
     language: { type: String, default: null },
     location: { type: String, default: null },
     methodologies: { type: [String], required: true },
+    motivation_letter: { type: String, default: null },
+    motivation_email: { type: String, default: null },
     preference: { type: String, default: null },
     salary: { type: SalarySchema, default: null },
     source: { type: String, default: null },
