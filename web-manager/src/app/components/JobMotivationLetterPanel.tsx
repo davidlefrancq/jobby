@@ -1,5 +1,10 @@
 import { IJobEntity } from "@/types/IJobEntity";
-import { MouseEvent, useState } from "react";
+import { useState } from "react";
+import { RepositoryFactory } from "../dal/RepositoryFactory";
+import { useAppDispatch } from "../store";
+import { updateLikedJob } from "../store/jobsReducer";
+
+const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
 interface JobMotivationLetterPanelProps {
   job: IJobEntity;
@@ -7,13 +12,26 @@ interface JobMotivationLetterPanelProps {
 }
 
 export default function JobMotivationLetterPanel({ job, onClose }: JobMotivationLetterPanelProps) {
-  const [motivationLetter, setMotivationLetter] = useState<string | null>(job.motivation_letter || '');
+  const dispatch = useAppDispatch();
 
-  const handleSave = (e: MouseEvent) => {
-    // Here you would typically send the updated motivation letter to your backend
-    // For now, we just log it to the console
-    e.preventDefault();
-    console.log("Saving motivation letter:", motivationLetter);
+  const [motivationLetter, setMotivationLetter] = useState<string | null>(job.motivation_letter || '');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSave = async () => {
+    console.log({ job, motivationLetter });
+    if (job._id && motivationLetter !== null) {
+      try {
+        const updatedJob = await jobRepository.update(job._id.toString(), { motivation_letter: motivationLetter });
+        console.log('Response from update:', updatedJob);
+        if (!updatedJob) setError('Failed to update the job motivation email.');
+        else {
+          dispatch(updateLikedJob(updatedJob));
+          handleClose();
+        }
+      } catch (err) {
+        setError(`Error updating job motivation email: ${String(err)}`);
+      }
+    }
   }
 
   const handleClose = () => {
@@ -44,6 +62,18 @@ export default function JobMotivationLetterPanel({ job, onClose }: JobMotivation
         >
           Save
         </button>
+        {error && (
+          <div className="mt-2 text-red-500">
+            <strong>Error:</strong>
+            {error}
+            <button
+              className="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              onClick={() => setError(null)}
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
