@@ -80,9 +80,21 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   };
 
   const handleAddExperience = ({ experience, initialValue }: IExperienceSaveFunctionParams) => {
+    const compareExperience = (e1: IExperience, e2: IExperience) => {
+      const value1 = JSON.stringify({ 
+          title: e1.title,
+          company: e1.company,
+       });
+      const value2 = JSON.stringify({ 
+          title: e2.title,
+          company: e2.company,
+       });
+      return value1 === value2;
+    }
+
     const filterFunction = (exp: IExperience) => {
       // Check if the experience already exists in the list
-      let isDifferent = exp.title !== experience.title;
+      let isDifferent = !compareExperience(exp, experience)
       if (initialValue) {
         // Check if the experience is different from the initial value
         // (to replace original by the new one)
@@ -215,6 +227,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
       <div className="flex">
         <div className="flex-1">
           <h3 className="text-lg font-bold mb-2">CV Editor</h3>
+          <p className="text-gray-400">{cv?._id?.toString()}</p>
         </div>
         <div className="flex-2">
           <button type="button" onClick={onClose} className="px-4 py-2 bg-red-500 text-white rounded w-[110px]">
@@ -522,7 +535,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               
               {/* Interests */}
               <div className="mt-2 shadow-md rounded-md p-2">
-                <p><span className="text-md font-semibold">Centres d'intérêt:</span></p>
+                <p><span className="text-md font-semibold">{`Centres d'intérêt:`}</span></p>
                 {interests.length > 0 && <p className="text-sm">
                   {interests.map((interest, index) => (
                     <span key={index} className="inline-block bg-gray-200 text-gray-800 rounded-full px-2 py-1 text-xs mr-1 mb-1">

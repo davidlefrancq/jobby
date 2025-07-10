@@ -1,0 +1,1124 @@
+{
+  "name": "CV Motivation Letter",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        20
+      ],
+      "id": "96239171-e437-4796-9dd3-10ba2ef5d13c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cv-motivation-letter",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -160
+      ],
+      "id": "9778431a-9b00-47b3-93ee-00af8df22779",
+      "name": "Webhook",
+      "webhookId": "c8cd2dca-0003-4069-9e18-36f0485d1b7c"
+    },
+    {
+      "parameters": {
+        "jsCode": "return { json: { jobId: '68699c33381df7f61fef1fd3', cvId: '686a75006dfae4d19b093860' }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        20
+      ],
+      "id": "13e50e83-ee93-4e37-bb3d-fc8645def717",
+      "name": "Input Test"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = typeof $json.body === \"string\" ? JSON.parse($json.body) : $json.body\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        -160
+      ],
+      "id": "aff69bc2-04ab-4a3a-b994-2ee0fb2aa8d7",
+      "name": "Extract Inputs"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={ \"_id\": \"{{ $json.jobId }}\" }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        -220
+      ],
+      "id": "1b029be0-31a9-44ca-9402-fc87d4cccbf8",
+      "name": "MongoDB Job",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "curriculum_vitaes",
+        "options": {},
+        "query": "={ \"_id\": \"{{ $json.cvId }}\" }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        500,
+        -40
+      ],
+      "id": "10c8cf5c-9a38-45cf-9695-769dfdbf3fba",
+      "name": "MongoDB CV",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        700,
+        -140
+      ],
+      "id": "61b43839-a57a-48a9-a3b5-d47101947552",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": "mistral-small:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        460
+      ],
+      "id": "3f09aabe-a78a-4d8c-a95c-d724216c3861",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8wRs8JzjQgAfnmvC",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "=_id",
+        "fields": "=motivation_letter",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        6180,
+        -140
+      ],
+      "id": "182d0a5a-d870-4b51-9718-a5d8a6851978",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant spécialisé dans la rédaction de lettres de motivation formelles. Ta tâche est de générer uniquement la section en-tête et objet de la lettre, en respectant les règles typographiques françaises et en adoptant un style sobre et professionnel.\n\n### Instructions :\n\n1. **Structure de l'en-tête :**\n   - Place les informations du candidat en haut à gauche.\n   - Place les informations de l'entreprise en haut à droite.\n   - La date et l'objet doivent être placés en dessous de l'en-tête.\n\n2. **Informations à inclure :**\n   - **Candidat :** Nom: {{ $json.cv.last_name }}, Prénom: {{ $json.cv.first_name }}, Adresse: {{ $json.cv.city }} {{ $json.cv.country }}, Email: {{ $json.cv.email }}.\n   - **Entreprise :** Nom: {{ $json.job.company }}, Adresse: {{ $json.job.company_details.locations[0].address }}.\n   - **Offre d'emploi :** Titre: {{ $json.job.title }}, Source: {{ $json.job.source }}, Lieu: {{ $json.job.location }}, Référence: {{ $json.job.original_job_id }}.\n   - **Date :** {{ new Date().toLocaleDateString() }}\n\n3. **Contraintes :**\n   - La lettre doit respecter une forme classique.\n   - Ne pas dépasser 10 lignes.\n   - Ne pas inclure d'accroche ou d'introduction.\n   - Utiliser un style sobre et professionnel.\n\n4. **Format de sortie :**\n   - La sortie doit être un objet JSON de la forme suivante :\n     ```json\n     {\n       \"header\": \"Texte complet ici\"\n     }\n     ```\n   - La sortie doit être exactement cet objet, sans texte explicatif supplémentaire ni objet englobant.\n\n### Exemple de sortie attendue :\n\n```json\n{\n  \"header\": \"Prénom Nom\\nAdresse\\nEmail\\n\\nNom de l'entreprise\\nAdresse de l'entreprise\\n\\nDate\\nObjet : Candidature pour le poste de [Titre du poste] (Référence : [Référence de l'offre])\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        -140
+      ],
+      "id": "7af144d4-4cf2-4c9d-982d-33b9f0fe314b",
+      "name": "AI Agent Header"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1580,
+        -260
+      ],
+      "id": "9c7693b9-5014-4eb8-914e-da8c27e4a5f1",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Objectif :\nRédiger la partie démontrant l’adéquation technique entre le candidat et le poste.\n\n### Prompt :\n```txt\nTu es un recruteur technique expérimenté. Aide moi à rédiger le **argumentaire compétences** ma lettre de motivation pour un poste d'expert en développement logiciel.\n\n### Entrées :\n- `candidate`: \"fullname: {{ $json.cv.first_name }} {{ $json.cv.last_name }},titre : {{ $json.cv.title }}, permis de conduire: {{ $json.cv.driving_license ? 'oui' : 'non' }}\"\n- `candidate_experiences`: {{ JSON.stringify($json.cv.experiences) }}\n- `candidate_experiences`: {{ JSON.stringify($json.cv.educations) }}\n- `candidate_skills`: {{ JSON.stringify($json.cv.skills) }}\n- `job_offer`: `{{ $json.job.content }}`\n- `hook`: {{ $json.hook }}\n\n### Contraintes :\n- Met en avant 2 ou 3 points d’adéquation majeurs.\n- Utilise des formulations fluides, sans copier-coller de CV.\n- Garde un ton direct, précis, et professionnel.\n- Format : environ 500 caractères.\n- Interdication de faire des répétition avec le \"hook\".\n- Interdiction d'être vantard. Soit factuel et concentre toi sur les données que tu as uniquement.\n- Minimum 80 caractères et maximum 250 caractères.\n- Sortie attendue :\n```json\n{\n  \"skills_argument\": \"Texte ici\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2740,
+        -140
+      ],
+      "id": "08e51a5a-069e-4af8-abdc-0ad7e1db4ee5",
+      "name": "AI Agent Skills"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Source :\n{{ $json.job.content }}\n\n### Objectif :\nRédiger un paragraphe d'introduction percutant pour une lettre de motivation, visant à capter l'attention et à contextualiser la candidature de manière professionnelle.\n\n### Instructions :\n\nTu es un expert en communication RH. Aide-moi à rédiger le paragraphe d'introduction de ma lettre de motivation pour un poste d'expert en développement logiciel. Ce paragraphe doit être accrocheur, professionnel et respectueux, en adéquation avec le titre de {{ $json.cv.title }}.\n\n### Entrées disponibles :\n- **Offre d'emploi :** {{ $json.job.title }}\n- **Candidat :**\n  - Nom complet : {{ $json.cv.first_name }} {{ $json.cv.last_name }}\n  - Titre : {{ $json.cv.title }}\n  - Permis de conduire : {{ $json.cv.driving_license ? 'Oui' : 'Non' }}\n- **Expériences du candidat :** {{ JSON.stringify($json.cv.experiences) }}\n- **Éducation du candidat :** {{ JSON.stringify($json.cv.educations) }}\n- **Compétences du candidat :** {{ JSON.stringify($json.cv.skills) }}\n- **En-tête :** {{ $json.header }}\n\n### Contraintes :\n- **Style :** Éviter un style scolaire. Adopter un ton professionnel avec une première phrase impactante.\n- **Structure :** Commencer par une phrase d'introduction professionnelle, par exemple : \"Je me présente, {{ $json.cv.first_name }} {{ $json.cv.last_name }}, {{ $json.cv.title }}. Je postule à votre offre d'emploi {{ $json.job.title }} publiée sur la plateforme {{ $json.job.source.match(/^https?:\\/\\/([^\\/?#]+)(?:[\\/?#]|$)/i)[1] }}.\"\n- **Contenu :** Mentionner explicitement le poste visé et la plateforme où il a été trouvé.\n- **Longueur :** Garder un format court (350 caractères maximum) mais supérieur à 100 caractères.\n- **Originalité :** Ne pas répéter le contenu du CV, mais s'en inspirer pour l'argumentaire.\n- **Réflexion :** Prendre le temps de bien réfléchir pour produire un texte de qualité.\n\n### Sortie attendue :\n```json\n{\n  \"hook\": \"Texte ici\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        -140
+      ],
+      "id": "f3b196b8-19eb-4379-a8de-62e409b6c1e3",
+      "name": "AI Agent Hook"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2360,
+        -260
+      ],
+      "id": "d4ebc296-6c9f-4ebe-965c-d3315aee1a58",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un agent IA nommé \"motivation\". Tu dois expliquer pourquoi le candidat est sincèrement intéressé par l’entreprise et son activité.\n\nTu peux t’appuyer sur `{{ JSON.stringify($json.job) }}`, son secteur, ses produits, ou sa description.\n\nVoici le cv du postulant: `{{ JSON.stringify($json.cv) }}`\n\nAttention! Les sections suivante ont été généré et tu ne dois pas perdre la cohérence et ne pas faire doublon à ce qui à déjà été ecrit :\n- \"header\": `{{ $json.header }}`\n- \"hook\": `{{ $json.hook }}`\n- \"skills argument\": `{{ $json.skills_argument }}`\n\nTu dois ecrir \"motivation_letter_section\" en gardant la coérence avec les autres section, mais tu dois rédiger uniquement \"motivation_letter_section\".\n\n- Sortie attendue :\n```json\n{\n  \"motivation_letter_section\": \"Texte ici\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        3560,
+        -140
+      ],
+      "id": "d307709a-7b71-4e04-a4e8-9af73459b817",
+      "name": "AI Agent Motivation"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"header\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1160,
+        60
+      ],
+      "id": "c20e8ff1-f451-4691-a336-77bda0af84e8",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        -140
+      ],
+      "id": "5cff4374-53a5-4abf-a2bd-2ad5c530e459",
+      "name": "Output Parser"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"hook\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1940,
+        60
+      ],
+      "id": "663fc74d-8775-493d-bdf1-2e6c66005962",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        -140
+      ],
+      "id": "1858a221-4cd3-4a84-8fcf-0bb7f44d66ea",
+      "name": "Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3040,
+        -140
+      ],
+      "id": "126e3fbf-00ae-4f52-89d6-b1c1b70df03f",
+      "name": "Output Parser2"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"skills_argument\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2800,
+        60
+      ],
+      "id": "8ac99d37-a56d-40e1-99f8-6bf24a2950f8",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3220,
+        -260
+      ],
+      "id": "c319bca6-38f7-41bc-99f5-96ab6ae5a9af",
+      "name": "Merge4"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"motivation_letter_section\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3620,
+        60
+      ],
+      "id": "ecfca175-140a-45bc-ab2e-b66851d6d1d7",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3860,
+        -140
+      ],
+      "id": "ec1aca43-8584-4396-8c1a-87f1c8013b09",
+      "name": "Output Parser3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4040,
+        -260
+      ],
+      "id": "918629f7-02db-4ccb-94bb-a130c185481a",
+      "name": "Merge5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Entrées :\n- `hook`: {{ $json.hook }}\n- `skills argument`: {{ $json.skills_argument }}\n- `motivation`: {{ $json.motivation_letter_section }}\n- `candidate`: {{ $json.cv.first_name }} {{ $json.cv.last_name }}\n\n### Instructions :\nTu es un expert en communication. Tu dois me proposer une conclusion pour ma la lettre de motivation de manière ouverte, avec une formule de politesse professionnelle.\n\n### Contraintes :\n- Format : 300 caractères max\n- Sortie attendue :\n```json\n{\n  \"closing\": \"Texte ici\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        4380,
+        -140
+      ],
+      "id": "1bb9adc7-c9e0-4f1c-a8fc-663745c29a9f",
+      "name": "AI Agent Closing"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"closing\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4440,
+        60
+      ],
+      "id": "241df369-273f-411f-86b3-19482e2b6ad6",
+      "name": "Structured Output Parser4"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4680,
+        -140
+      ],
+      "id": "43c1e70a-5930-4430-a987-3bc38d3995fa",
+      "name": "Output Parser4"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4860,
+        -260
+      ],
+      "id": "7cb77f3b-d631-4b48-ad95-5d3ed61c420c",
+      "name": "Merge6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un expert en communication. Tu reçois les 5 sections d’une lettre de motivation et ton rôle est d’assembler les sections dans l’ordre suivant :\n1. header : `{{ $json.header }}`\n2. hook : `{{ $json.hook }}`\n3. skills : `{{ $json.skills_argument }}`\n4. motivation : `{{ $json.motivation_letter_section }}`\n5. closing : `{{ $json.closing }}`\n\nTu dois respecter le ton professionnel d’une lettre de motivation en français. Ne modifie pas le fond, mais assure une bonne cohérence textuelle. Le texte final doit être prêt à l'emploi.\n\n### Sortie attendue :\n```json\n{\n  \"letter\": \"Texte complet ici, une seule string\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        5180,
+        -140
+      ],
+      "id": "94ead3b4-4888-4e4a-b7a9-6123281e4eee",
+      "name": "AI Agent Orchestrator"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"letter\": \"string\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        5240,
+        60
+      ],
+      "id": "17c32dcf-3985-4cc0-a6d7-47a6240bad1e",
+      "name": "Structured Output Parser5"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if ($json.output) return { json: $json.output };\nreturn { json: $json };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5480,
+        -140
+      ],
+      "id": "2a303c57-2dd7-4684-8bda-f80df7934a2c",
+      "name": "Output Parser5"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        5660,
+        -260
+      ],
+      "id": "ca7d70fd-4ab9-4ae4-b423-26288b8b70c2",
+      "name": "Merge7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first()\nlet job = item.json.job;\nlet letter = item.json.letter;\n\nconst data = {\n  _id: job ? job._id : null,\n  motivation_letter: letter\n}\n\nreturn { json: data }"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5840,
+        -140
+      ],
+      "id": "4849ebeb-61dc-4919-8c7b-7a0ff17104b3",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "content": "## Letter Orchestrator",
+        "height": 620,
+        "width": 960
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5080,
+        -380
+      ],
+      "id": "960a9499-3062-43d3-9b10-c8e4eb6e2770",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Letter Closing Geneator",
+        "height": 620,
+        "width": 780
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4280,
+        -380
+      ],
+      "id": "6459f1c8-4caa-4456-8f03-4d156fc3aff6",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Letter Motivation Geneator",
+        "height": 620,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3460,
+        -380
+      ],
+      "id": "3c919cd0-e72c-4ece-bb31-43ba2044bdbe",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Letter Skills Geneator",
+        "height": 620,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        -380
+      ],
+      "id": "9e5eed2d-bdb7-4544-89f8-bd87a14f0a1f",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Letter Skills Geneator",
+        "height": 620,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1820,
+        -380
+      ],
+      "id": "cc070937-3d7b-4e00-942a-f2c8dd7085ab",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all()\nconst job = data[0]\nconst cv = data[1]\n\nif (\n  !job\n  || !job.json._id\n) throw new Error('Bad request job input.')\n\nif (\n  !cv\n  || !cv.json._id\n) throw new Error('Bad request cv input.')\n\njob.json.motivation_email = '';\njob.json.motivation_letter = '';\n\nreturn [{ json: { job: job.json, cv: cv.json } }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        -140
+      ],
+      "id": "c83edfdf-8ca9-4e67-a258-be52238036b5",
+      "name": "Check"
+    },
+    {
+      "parameters": {
+        "content": "## Letter Skills Geneator",
+        "height": 620,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        -380
+      ],
+      "id": "f02d8994-d42d-4cff-b2a4-a051415ef1cc",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Save in DB",
+        "height": 620,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6060,
+        -380
+      ],
+      "id": "5f6fad0c-b5cd-4f8b-8ff7-2ee82bf0f48b",
+      "name": "Sticky Note6"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Input Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inputs": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Job",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Test": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Job",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MongoDB CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Job": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB CV": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Header",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Hook",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Skills",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser3",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Motivation",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Closing",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser4",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent Orchestrator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Header": {
+      "main": [
+        [
+          {
+            "node": "Output Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Hook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Skills",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Hook": {
+      "main": [
+        [
+          {
+            "node": "Output Parser1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Skills": {
+      "main": [
+        [
+          {
+            "node": "Output Parser2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Header",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Hook",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Skills",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser2": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Motivation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Motivation",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Motivation": {
+      "main": [
+        [
+          {
+            "node": "Output Parser3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser3": {
+      "main": [
+        [
+          {
+            "node": "Merge5",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Closing",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge5": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Closing",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Closing": {
+      "main": [
+        [
+          {
+            "node": "Output Parser4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser4": {
+      "main": [
+        [
+          {
+            "node": "Merge6",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge6": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Orchestrator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser5": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Orchestrator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Orchestrator": {
+      "main": [
+        [
+          {
+            "node": "Output Parser5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser5": {
+      "main": [
+        [
+          {
+            "node": "Merge7",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge7": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Header",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f4f6132f-a7bb-431c-b631-489987da1553",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"
+  },
+  "id": "jjpNmPn4CWPMoEeu",
+  "tags": []
+}

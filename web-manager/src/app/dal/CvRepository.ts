@@ -120,16 +120,18 @@ export class CvRepository {
     return updatedCv;
   }
 
-  public async remove(id: string): Promise<void> {
+  public async remove(id: string): Promise<boolean> {
+    let isRemoved: boolean = false;
     try {
       const headers = this.getHeaders();
       const url = `/api/cvs/${id}`;
       const res = await fetch(url, { method: 'DELETE', headers });
       if (!res.ok) {
         throw new Error(`${res.status}: ${res.statusText}`);
-      }
+      } else isRemoved = true;
     } catch (err) {
       throw new Error(String(err));
     }
+    return isRemoved;
   }
 }

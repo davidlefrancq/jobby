@@ -103,6 +103,19 @@ describe('JobRepository CRUD operations', () => {
     expect(found!.source).toBe(sample.source);
   });
 
+  it('should update content string in a job document', async () => {
+    const content = 'This is a test content for the job.';
+    const created = await jobRepository.create(sample);
+    const updated = await jobRepository.update(created._id.toString(), { content });
+    expect(updated).not.toBeNull();
+    expect(updated!.content).toBe(content);
+
+    // Verify that the content is updated in the database
+    const found = await jobRepository.getById(created._id.toString());
+    expect(found).not.toBeNull();
+    expect(found!.content).toBe(content);
+  });
+
   it('should count unrated jobs', async () => {
     await jobRepository.create(sample);
     const count = await jobRepository.countUnratedJobs();

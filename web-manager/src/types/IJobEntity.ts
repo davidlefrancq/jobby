@@ -75,6 +75,7 @@ export interface IJobEntity {
   collective_agreement: string | null;
   company: string | null;
   company_details: ICompanyDetails | null;
+  content: string | null;
   contract_type: string | null;
   date: string | null;
   description: string | null;
@@ -83,6 +84,8 @@ export interface IJobEntity {
   level: string | null;
   location: string | null;
   methodologies: string[] | null;
+  motivation_letter: string | null;
+  motivation_email: string | null;
   original_job_id: string | null;
   preference: JobPreference | null;
   salary: ISalary | null;

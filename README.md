@@ -4,6 +4,11 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 
 ## Prérequis
 
+### Matériel
+- Carte graphique [compatible](https://github.com/ollama/ollama/blob/main/docs/gpu.md) avec 10 Go de VRAM minimum.
+- 32 Go de RAM
+
+### Logiciel
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Node.js](https://nodejs.org/) (pour exécuter les scripts `npm`)
@@ -24,11 +29,11 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 
 ## Initialisation
 
-1) lancer la commande `npm run n8n`
-2) ouvrir http://localhost:5678/ et suivre les instructions jusuqu'au tableau de bord
-3) ouvrir un terminal `docker exec -it n8n /bin/sh`
-4) lancer la commande `sh /workflows/init-workflows.sh`
-5) ouvrir les différent workflow http://localhost:5678/ et mettre à jours les credentials
+1) Renommer `.env.local` en `.env` et définir les différentes valeurs. Ce sont des valeurs arbitraires. Mettez ce que vous voulez, mais ne les communiquez à personne.
+2) Lancer la commande : `npm run n8n`
+3) Ouvrir http://localhost:5678/ et suivre les instructions jusuqu'au tableau de bord.
+4) Ouvrir un terminal : `docker exec -it n8n /bin/sh`
+5) Ouvrir les différents workflows http://localhost:5678/ et mettre à jour les credentials
 
 ## Agent IA local avec Ollama
 

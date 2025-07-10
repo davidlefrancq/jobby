@@ -2,10 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { IJobEntity } from '@/types/IJobEntity'
 import { JobQueueEnum } from '@/constants/JobQueueEnum'
 
+const REQUEST_RESULT_LIMIT = process.env.NEXT_PUBLIC_REQUEST_RESULT_LIMIT ? parseInt(process.env.NEXT_PUBLIC_REQUEST_RESULT_LIMIT) : 25
+
 interface JobsState {
   unratedJobs: IJobEntity[]
   unratedCounter: number
-  uratedLimit: number
+  unratedLimit: number
   unratedSkip: number
   likedJobs: IJobEntity[]
   likedCounter: number
@@ -21,15 +23,15 @@ interface JobsState {
 const initialState: JobsState = {
   unratedJobs: [],
   unratedCounter: 0,
-  uratedLimit: 9,
+  unratedLimit: REQUEST_RESULT_LIMIT,
   unratedSkip: 0,
   likedJobs: [],
   likedCounter: 0,
-  likedLimit: 9,
+  likedLimit: REQUEST_RESULT_LIMIT,
   likedSkip: 0,
   dislikedJobs: [],
   dislikedCounter: 0,
-  dislikedLimit: 9,
+  dislikedLimit: REQUEST_RESULT_LIMIT,
   dislikedSkip: 0,
   jobQueueSelected: JobQueueEnum.Unrated,
 }
@@ -43,7 +45,7 @@ const jobsSlice = createSlice({
       state.unratedCounter = Math.round(action.payload)
     },
     setUnratedLimit(state, action: PayloadAction<number>) {
-      state.uratedLimit = Math.round(action.payload)
+      state.unratedLimit = Math.round(action.payload)
     },
     setUnratedSkip(state, action: PayloadAction<number>) {
       state.unratedSkip = Math.round(action.payload)

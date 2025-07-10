@@ -227,6 +227,12 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.content !== undefined) {
+      output.content = input.content
+        ? this.sanitizeString(input.content)
+        : null;
+    }
+
     if (input.contract_type !== undefined) {
       output.contract_type = input.contract_type
         ? this.sanitizeString(input.contract_type)
@@ -272,6 +278,18 @@ export class JobSanitizer {
     if (input.methodologies !== undefined) {
       output.methodologies = Array.isArray(input.methodologies)
         ? this.sanitizeStringArray(input.methodologies)
+        : null;
+    }
+
+    if (input.motivation_letter !== undefined) {
+      output.motivation_letter = input.motivation_letter
+        ? this.sanitizeString(input.motivation_letter)
+        : null;
+    }
+
+    if (input.motivation_email !== undefined) {
+      output.motivation_email = input.motivation_email
+        ? this.sanitizeString(input.motivation_email)
         : null;
     }
 
@@ -329,6 +347,7 @@ export class JobSanitizer {
       collective_agreement: output.collective_agreement || null,
       company: output.company || null,
       company_details: output.company_details || null,
+      content: output.content || null,
       contract_type: output.contract_type || null,
       date: output.date || null,
       description: output.description || null,
@@ -337,6 +356,8 @@ export class JobSanitizer {
       level: output.level || null,
       location: output.location || null,
       methodologies: output.methodologies || null,
+      motivation_letter: output.motivation_letter || null,
+      motivation_email: output.motivation_email || null,
       original_job_id: output.original_job_id || null,
       preference: output.preference || null,
       salary: output.salary || null,

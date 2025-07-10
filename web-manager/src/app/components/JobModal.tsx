@@ -1,6 +1,6 @@
 import { ICompanyDetails, IJobEntity, ISalary } from "@/types/IJobEntity";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch } from "../store";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
@@ -22,6 +22,11 @@ import CompanyModal from "./CompanyModal";
 import { CloseButton } from "./Btn/CloseButton";
 import BtnEditor from "./Btn/BtnEditor";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
+import FieldEditorTextarea from "./FieldEditor/FieldEditorTextarea";
+import MotivationLetterBtn from "./MotivationLetterBtn";
+import MotivationEmailBtn from "./MotivationEmailBtn";
+import JobMotivationLetterPanel from "./JobMotivationLetterPanel";
+import JobMotivationEmailPanel from "./JobMotivationEmailPanel";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -35,6 +40,9 @@ export default function JobModal({ job, onClose }: JobModalProps) {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [companyDelailsSelected, setCompanyDelailsSelected] = useState<ICompanyDetails | null>(null);
+  const [cvId, setCvId] = useState<string | null>(null);
+  const [showLetterPanel, setShowLetterPanel] = useState(false);
+  const [showEmailPanel, setShowEmailPanel] = useState(false);
 
   const handleToggleEdit = () => {
     setIsEditMode(prev => !prev);
@@ -187,6 +195,29 @@ export default function JobModal({ job, onClose }: JobModalProps) {
           type: "error"
         }));
       }
+    }
+  }
+
+  const handleContentUpdate = async (value: string | null) => {
+    /** Invalid value */
+    if (value === undefined) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: "Cannot save content with undefined value.",
+        type: "error"
+      }));
+      return;
+    }
+
+    /** Update */
+    try {
+      await handleJobUpdate({ content: value });
+    } catch (error) {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: String(error),
+        type: "error"
+      }));
     }
   }
 
@@ -352,6 +383,21 @@ export default function JobModal({ job, onClose }: JobModalProps) {
     }
   }
 
+  useEffect(() => {
+    RepositoryFactory.getInstance().getCvRepository().getAll(9, 0).then(cvs => {
+      if (cvs && cvs.length > 0) {
+        setCvId(cvs[0]._id?.toString() || null);
+      } else {
+        setCvId(null);
+      }
+    }).catch(err => {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: `Failed to load CVs: ${String(err)}`,
+        type: "error"
+      }));
+    });
+  }, []);
 
   const borderStyle = isEditMode ? " border border-red-500" : " border border-white";
 
@@ -432,6 +478,17 @@ export default function JobModal({ job, onClose }: JobModalProps) {
               job={job}
               isEditMode={isEditMode}
               saveAction={handleDescriptionUpdate}
+            />
+          </div>
+
+          {/* Content */}
+          <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
+            <span className="font-bold">Annonce  complète :</span>
+            <FieldEditorTextarea
+              initialValue={job.content || ''}
+              isEditMode={isEditMode}
+              legendValue={"Content"}
+              saveFunction={handleContentUpdate}
             />
           </div>
 
@@ -537,9 +594,54 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             </div>
           </div>
 
-          <div className="flex">
-            <div className="w-full text-center text-gray-400">
+          <div className="flex flex-row w-full mt-4 mb-6 gap-3">
+            {/* Motivation Letter */}
+            {!showLetterPanel && (
+              <div className="mb-4">
+                <button
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setShowLetterPanel(true)}
+                >
+                  View/Edit Motivation Letter
+                </button>
+              </div>
+            )}
+            {showLetterPanel && <JobMotivationLetterPanel job={job} onClose={() => { setShowLetterPanel(false) }} />}
+
+            {/* Motivation Email */}
+            {!showEmailPanel && (
+              <div className="mb-4">
+                <button
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  onClick={() => setShowEmailPanel(true)}
+                >
+                  View/Edit Motivation Email
+                </button>
+              </div>
+            )}
+            { showEmailPanel && (
+              <JobMotivationEmailPanel job={job} onClose={() => { setShowEmailPanel(false) }} />
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-row w-full">
+            {/* Colonne 1 */}
+            <div className="flex-1 flex items-center justify-center gap-2">
+              <MotivationLetterBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
+              <MotivationEmailBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
+            </div>
+
+            {/* Colonne 2 */}
+            <div className="flex-1 flex items-center justify-center">
               <span className="text-gray-400">{job._id ? job._id.toString() : '[N/A]'}</span>
+            </div>
+
+            {/* Colonne 3 */}
+            <div className="flex-1 flex items-center justify-center">
+              <span className="text-gray-400">
+                { cvId ? cvId : <span className="text-gray-400">[No CV available]</span> }
+              </span>
             </div>
           </div>
 
