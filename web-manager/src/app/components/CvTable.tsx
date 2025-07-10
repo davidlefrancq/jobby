@@ -107,7 +107,7 @@ export default function CvTable({ cvs }: CvTableProps) {
                   <button
                     className="text-gray-500 hover:text-red-600 transition group cursor-pointer caret-transparent"
                     onClick={(e) => { e.stopPropagation(); handleRemove(cv); }}
-                    title="Like"
+                    title="Remove"
                   >
                     <div className="w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-red-400">
                       <span className="text-xs mb-0.5 group-hover:text-red-600">
