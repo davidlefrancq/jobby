@@ -59,7 +59,12 @@ export class N8NWorkflow {
     let errMsg: string | null = null;
     
     try {
-      const res = await fetch(url, { method: 'GET' });
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
       if (!res.ok) errMsg = `Error ${res.status}: ${res.statusText}`;  
     } catch (err) {
       const workflowName = N8NWorkflow.getN8NWorkflowName(url);
