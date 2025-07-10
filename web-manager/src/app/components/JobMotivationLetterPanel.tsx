@@ -21,13 +21,13 @@ export default function JobMotivationLetterPanel({ job, onClose }: JobMotivation
     if (job._id && motivationLetter !== null) {
       try {
         const updatedJob = await jobRepository.update(job._id.toString(), { motivation_letter: motivationLetter });
-        if (!updatedJob) setError('Failed to update the job motivation email.');
+        if (!updatedJob) setError('Failed to update the job motivation letter.');
         else {
           dispatch(updateLikedJob(updatedJob));
           handleClose();
         }
       } catch (err) {
-        setError(`Error updating job motivation email: ${String(err)}`);
+        setError(`Error updating job motivation letter: ${String(err)}`);
       }
     }
   }
