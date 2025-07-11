@@ -1,5 +1,5 @@
 {
-  "name": "Company Workflow",
+  "name": "Company Details Workflow",
   "nodes": [
     {
       "parameters": {
@@ -194,7 +194,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "if (!$json.query || !$json.query._id || $json.query._id.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { _id: $json.query._id }};"
+        "jsCode": "let id = null;\n\nif ($json.query && $json.query._id && $json.query._id.length > 0) {\n  id = $json.query._id;\n}\n\nif (!id) {\n  if ($json.body && $json.body.length > 0) {\n    const data = JSON.parse($json.body);\n    if (data && data._id && data._id.length > 0) {\n      id = data._id;\n    }\n  }\n}\n\nif (!id || id.length <= 0) {\n  throw new Error('Bad input.');\n}\n\nreturn { json: { _id: id }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -352,14 +352,14 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "d37d66c4-b130-4c41-ad55-85cf495bbd50",
+  "versionId": "91040478-6964-4724-bd05-258ca5da590c",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "19c6579963f41f7ac923da5748a73a55febeb833fee63b0958a6ffeafde86fda"
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"
   },
   "id": "A9KoQaXUVTIlSJan",
   "tags": []
