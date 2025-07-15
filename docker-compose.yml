@@ -13,7 +13,7 @@ services:
       - N8N_RUNNERS_ENABLED=true
       - VUE_APP_URL_BASE_API=http://localhost:5678
       - NODE_FUNCTION_ALLOW_BUILTIN=*
-      - NODE_FUNCTION_ALLOW_EXTERNAL=htmlparser2,domutils
+      - NODE_FUNCTION_ALLOW_EXTERNAL=htmlparser2,domutils,sanitize-html
     ports:
       - 5678:5678
     volumes:
