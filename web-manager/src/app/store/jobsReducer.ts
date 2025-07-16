@@ -18,6 +18,7 @@ interface JobsState {
   dislikedLimit: number
   dislikedSkip: number
   jobQueueSelected: JobQueueEnum
+  jobSelected: IJobEntity | null
 }
 
 const initialState: JobsState = {
@@ -34,6 +35,7 @@ const initialState: JobsState = {
   dislikedLimit: REQUEST_RESULT_LIMIT,
   dislikedSkip: 0,
   jobQueueSelected: JobQueueEnum.Unrated,
+  jobSelected: null,
 }
 
 const jobsSlice = createSlice({
@@ -128,6 +130,9 @@ const jobsSlice = createSlice({
     setJobQueueSelected(state, action: PayloadAction<JobQueueEnum>) {
       state.jobQueueSelected = action.payload
     },
+    setJobSelected(state, action: PayloadAction<IJobEntity | null>) {
+      state.jobSelected = action.payload;
+    }
   },
 })
 
@@ -160,6 +165,9 @@ export const {
 
   // Job Queue Selector Action
   setJobQueueSelected,
+
+  // Job Selected Action
+  setJobSelected,
 } = jobsSlice.actions
 
 export const jobsReducer = jobsSlice.reducer

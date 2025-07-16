@@ -9,15 +9,15 @@ import { JOB_DISLIKED, JOB_LIKED } from "@/types/IJobEntity";
 
 const n8nWorkflow = N8NWorkflow.getInstance();
 
-interface MotivationLetterBtnProps {
+interface MotivationEmailDraftBtnProps {
   jobId: string;
   cvId: string;
 }
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository()
 
-export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtnProps) {
-  const dispatch = useAppDispatch();
+export default function MotivationEmailDraftBtn({ jobId, cvId }: MotivationEmailDraftBtnProps) {
+  const dispatch = useAppDispatch()
 
   const [inProgress, setInProgress] = useState(false);
 
@@ -25,7 +25,7 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
     if (inProgress) return; // Prevent multiple clicks and wait for the current process to finish
     try {
       setInProgress(true);
-      await n8nWorkflow.startCVMotivationLetterWorkflow({ jobId, cvId })
+      await n8nWorkflow.startCVMotivationEmailDraftWorkflow({ jobId, cvId })
       const job = await jobRepository.getById(jobId);
       if (job) {
         switch (job.preference) {
@@ -40,7 +40,7 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
           default:
             dispatch(addAlert({
               date: new Date().toISOString(),
-              message: `Job with ID ${jobId} has an unknown interest indicator after motivation letter generation.`,
+              message: `Job with ID ${jobId} has an unknown interest indicator after draft motivation email generation.`,
               type: 'warning',
             }));
             break;
@@ -49,14 +49,14 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
       else {
         dispatch(addAlert({
           date: new Date().toISOString(),
-          message: `Job with ID ${jobId} not found after motivation letter generation.`,
+          message: `Job with ID ${jobId} not found after draft motivation email generation.`,
           type: 'error',
         }));
       }
     } catch (err) {
       dispatch(addAlert({
         date: new Date().toISOString(),
-        message: `Error generating motivation letter: ${String(err)}`,
+        message: `Error generating draft motivation email: ${String(err)}`,
         type: 'error',
       }));
     } finally {
@@ -66,7 +66,7 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
 
   return (
     <BtnLoading
-      title={'Letter'}
+      title={'Draft Email'}
       width="100px"
       loading={inProgress}
       onClick={handleClick} />

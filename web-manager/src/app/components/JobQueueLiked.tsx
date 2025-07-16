@@ -6,7 +6,7 @@ import JobTable from "./JobTable";
 import { JobQueueEnum } from "@/constants/JobQueueEnum";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useEffect, useRef, useState } from "react";
-import { setLikedJobs, setLikedSkip, setLikedCounter } from "../store/jobsReducer";
+import { setLikedJobs, setLikedSkip, setLikedCounter, setJobSelected } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
@@ -18,12 +18,11 @@ let firstLoad = true;
 
 export default function JobQueueLiked() {
   const dispatch = useAppDispatch()
-  const { likedJobs, jobQueueSelected, likedCounter, likedLimit: limit, likedSkip: skip } = useAppSelector(state => state.jobsReducer)
+  const { likedJobs, jobQueueSelected, likedCounter, likedLimit: limit, likedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [jobSelected, setJobSelected] = useState<IJobEntity | null>(null);
 
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
@@ -102,7 +101,7 @@ export default function JobQueueLiked() {
       {/* Liked Counter */}
       <DisplayBanner value={`${likedJobs.length}/${likedCounter} liked`} />
 
-      <JobTable jobs={likedJobs} onView={(job: IJobEntity) => setJobSelected(job)} />
+      <JobTable jobs={likedJobs} onView={(job: IJobEntity) => dispatch(setJobSelected(job))} />
 
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
@@ -110,7 +109,7 @@ export default function JobQueueLiked() {
         {isFetching && hasMore && "Loading..."}
       </div>
 
-      { jobSelected ? <JobModal job={jobSelected} onClose={() => setJobSelected(null)} /> : null }
+      { jobSelected ? <JobModal onClose={() => dispatch(setJobSelected(null))} /> : null }
     </div>
   );
 }

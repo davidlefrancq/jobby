@@ -31,7 +31,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return { json: { jobId: '685018bf3b1e990f3ac362b9', cvId: '685bfe441d258effddb6af79' }};"
+        "jsCode": "return { json: { jobId: '68699c33381df7f61fef1fd3', cvId: '686a75006dfae4d19b093860' }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -65,8 +65,8 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        500,
-        -220
+        460,
+        -160
       ],
       "id": "cf283e5c-6aff-4087-9756-100a1eecf869",
       "name": "MongoDB Job",
@@ -86,8 +86,8 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        500,
-        -40
+        460,
+        20
       ],
       "id": "d61b3499-3bec-4568-b45c-de83a116b363",
       "name": "MongoDB CV",
@@ -103,8 +103,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        700,
-        -140
+        680,
+        -80
       ],
       "id": "a8570322-a0cd-4869-9e10-5c124d058854",
       "name": "Merge"
@@ -116,8 +116,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        880,
-        -140
+        840,
+        -80
       ],
       "id": "9fe1cc1d-f569-409a-9e1f-e387505302bc",
       "name": "Check"
@@ -125,28 +125,29 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Tu es un expert en communication écrite dans le cadre du recrutement tech.\n\nTu vas rédiger un **email d’accompagnement** destiné à accompagner une candidature au poste de \"{{ $json.job.title }}\".\nLa lettre de motivation formelle est `{{ $json.job.motivation_letter }}`.  \nLe corps du mail doit **donner envie d’ouvrir la pièce jointe **et** d’attirer l’attention dès les premières lignes**.\n\n---\n\n### 🧭 Objectifs de l’email :\n\n- Accrocher le lecteur RH dès les deux premières phrases\n- Montrer que la candidature est ciblée, pertinente, motivée\n- Mettre en avant 2 à 3 points forts majeurs (compétences, adéquation, motivation)\n- Être fluide, professionnel, humain, mais pas trop formel\n- Terminer par une phrase d’ouverture (entretien, échange, appel)\n- Être adapté à un email : 500 à 700 caractères (espaces compris) dans le corps du mail, hors formule de politesse et signature.\n\n---\n\n### 📎 Contexte de génération :\n\n- La lettre de motivation complète est déjà rédigée, et sera jointe en pièce jointe.\n- Le destinataire est probablement un recruteur\n- Le poste est **{{ $json.job.title }}** chez **{{ $json.job.company }}** ({{ $json.job.company_details.description }})\n- Le candidat, **David Lefrancq**, a 15 ans d’expérience backend, maîtrise **{{ JSON.stringify($json.cv.skills) }}** et l'entreprise recherche **{{ JSON.stringify($json.job.technologies) }}**\n- Il postule pour un **{{ $json.job.contract_type }}**, {{ $json.job.teleworking ? 'avec' : 'sans' }} télétravail\n\n---\n\n### Structure conseillée :\n- Accroche (1 phrase) — Pourquoi vous écrivez et ce qui vous attire.\n- Points forts (1 à 2 phrases) — Vos compétences les plus pertinentes.\n- Ouverture (1 phrase) — Proposition d’échange ou d’entretien.\n- Signature claire et lisible.\n\n---\n\nGénère maintenant un **email d’accompagnement court, efficace et engageant**, en français, sans recopier la lettre de motivation mais en donnant envie de la lire.\n",
+        "text": "=Tu es un expert en communication écrite. Dans le cadre du recrutement tech:\n\n- Tu vas rédiger un **email d’accompagnement** destiné à accompagner une candidature au poste de \"{{ $json.job.title }}\". La lettre de motivation formelle est `{{ $json.job.motivation_letter }}`. Le corps du mail doit **donner envie d’ouvrir la pièce jointe **et** d’attirer l’attention dès les premières lignes**.\n\n---\n\n### 🧭 Objectifs de l’email :\n\n- Accrocher le lecteur RH dès les deux premières phrases\n- Montrer que la candidature est ciblée, pertinente, motivée\n- Mettre en avant 2 à 3 points forts majeurs (compétences, adéquation, motivation)\n- Être fluide, professionnel, humain, mais pas trop formel\n- Terminer par une phrase d’ouverture (entretien, échange, appel)\n- Être adapté à un email : 500 à 700 caractères (espaces compris) dans le corps du mail, hors formule de politesse et signature.\n\n---\n\n### 📎 Contexte de génération :\n\n- La lettre de motivation complète est déjà rédigée, et sera jointe en pièce jointe.\n- Le destinataire est probablement un recruteur\n- Le poste est **{{ $json.job.title }}** chez **{{ $json.job.company }}** ({{ $json.job.company_details.description }})\n- Le candidat, **David Lefrancq**, a 15 ans d’expérience backend, maîtrise **{{ JSON.stringify($json.cv.skills) }}** et l'entreprise recherche **{{ JSON.stringify($json.job.technologies) }}**\n- Il postule pour un **{{ $json.job.contract_type }}**, {{ $json.job.teleworking ? 'avec' : 'sans' }} télétravail\n\n---\n\n### Structure conseillée :\n- Accroche (1 phrase) — Pourquoi vous écrivez et ce qui vous attire.\n- Points forts (1 à 2 phrases) — Vos compétences les plus pertinentes.\n- Ouverture (1 phrase) — Proposition d’échange ou d’entretien.\n- Signature claire et lisible.\n\n---\n\nGénère maintenant un **email d’accompagnement court, efficace, professionnel et engageant**, en français, sans recopier la lettre de motivation mais en donnant envie de la lire. Evites les formulations populaires et utilises les formules de politesses d'usage dans un mail de candidature à une offre d'emploi. Tu le mettra dans body de ta réponse JSON. Puis génère l'objet du mail de manière pertinante avec l'offre d'emploi et tu le mettra dans subject de ta réponse JSON.\n\n### Résultat attendu\nUne réponse au format JSON de type : `\n{\n  \"subject\": \"string\",\n  \"body\": \"string\",\n}\n`\n",
+        "hasOutputParser": true,
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        1040,
-        -140
+        1000,
+        -80
       ],
       "id": "4ae9279b-d46c-4a44-a227-a562be606264",
       "name": "AI Agent"
     },
     {
       "parameters": {
-        "model": "mistral-nemo:latest",
+        "model": "mistral-small:latest",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1040,
-        40
+        1000,
+        320
       ],
       "id": "49a2b286-8378-4ad6-a9d0-6dc9546e4ce5",
       "name": "Ollama Chat Model",
@@ -162,8 +163,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1360,
-        -140
+        1300,
+        -80
       ],
       "id": "e1c844bb-4a2f-4044-b23b-24376596f763",
       "name": "Merge1"
@@ -173,14 +174,14 @@
         "operation": "findOneAndUpdate",
         "collection": "jobs",
         "updateKey": "=_id",
-        "fields": "=motivation_email",
+        "fields": "=motivation_email, motivation_email_subject, motivation_email_to",
         "options": {}
       },
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        1680,
-        -140
+        1620,
+        -80
       ],
       "id": "6f100f7f-47e7-40ab-8b86-4d48b05d7035",
       "name": "MongoDB",
@@ -193,16 +194,31 @@
     },
     {
       "parameters": {
-        "jsCode": "let job = null;\nlet output = null;\n\nfor (const item of $input.all()) {\n  if (item.json.job) job = item.json.job\n  if (item.json.output) output = item.json.output\n}\n\nconst data = {\n  _id: job ? job._id : null,\n  motivation_email: output\n}\n\nreturn { json: data }"
+        "jsCode": "let job = null;\nlet output = null;\n\nfor (const item of $input.all()) {\n  if (item.json.job) job = item.json.job\n  if (item.json.output) output = item.json.output\n}\n\nconst data = {\n  _id: job ? job._id : null,\n  motivation_email: output && output.body ? output.body : '',\n  motivation_email_subject: output && output.subject ? output.subject : ''\n}\n\nreturn { json: data }"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1520,
-        -140
+        1460,
+        -80
       ],
       "id": "a88c138b-5697-47f7-9780-0eee1a6966f5",
       "name": "Prepare Update"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\"\n    },\n    \"body\": {\n      \"type\": \"string\"\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1080,
+        140
+      ],
+      "id": "f8ab2189-345c-4d6c-aab8-ee85471b7194",
+      "name": "Structured Output Parser"
     }
   ],
   "pinData": {},
@@ -317,6 +333,11 @@
             "node": "AI Agent",
             "type": "ai_languageModel",
             "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
           }
         ]
       ]
@@ -353,13 +374,24 @@
           }
         ]
       ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8e6376f9-1031-41ce-b417-2f1c8761bd73",
+  "versionId": "0d588b70-fd42-4bbb-ac5f-b565daf373a6",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"

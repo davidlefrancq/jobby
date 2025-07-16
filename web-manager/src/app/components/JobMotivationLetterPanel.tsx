@@ -1,8 +1,8 @@
-import { IJobEntity } from "@/types/IJobEntity";
+import { IJobEntity, JOB_DISLIKED, JOB_LIKED } from "@/types/IJobEntity";
 import { useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch } from "../store";
-import { updateLikedJob } from "../store/jobsReducer";
+import { updateLikedJob, updateDislikedJob, setJobSelected } from "../store/jobsReducer";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -23,7 +23,18 @@ export default function JobMotivationLetterPanel({ job, onClose }: JobMotivation
         const updatedJob = await jobRepository.update(job._id.toString(), { motivation_letter: motivationLetter });
         if (!updatedJob) setError('Failed to update the job motivation letter.');
         else {
-          dispatch(updateLikedJob(updatedJob));
+          dispatch(setJobSelected(updatedJob));
+          switch (job.preference) {
+            case JOB_LIKED:
+              dispatch(updateLikedJob(updatedJob));
+              break;
+            case JOB_DISLIKED:
+              dispatch(updateDislikedJob(updatedJob));
+              break;
+            default:
+              setError(`Unknown job preference: ${job.preference}`);
+              return;
+          }
           handleClose();
         }
       } catch (err) {

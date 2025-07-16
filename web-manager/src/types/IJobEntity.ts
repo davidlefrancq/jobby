@@ -1,5 +1,7 @@
 import { Types } from "mongoose";
 
+export const JOB_LIKED = 'like';
+export const JOB_DISLIKED = 'dislike';
 export type JobPreference = 'like' | 'dislike' | null;
 
 export interface ISalary {
@@ -86,6 +88,9 @@ export interface IJobEntity {
   methodologies: string[] | null;
   motivation_letter: string | null;
   motivation_email: string | null;
+  motivation_email_subject: string | null;
+  motivation_email_to: string | null;
+  motivation_email_draft_url: string | null;
   original_job_id: string | null;
   preference: JobPreference | null;
   salary: ISalary | null;

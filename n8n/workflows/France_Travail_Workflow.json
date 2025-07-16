@@ -136,11 +136,10 @@
     {
       "parameters": {
         "operation": "getAll",
-        "limit": 25,
         "simple": false,
         "filters": {
-          "q": "=after: {{ new Date(Date.now() - 17 * 864e5).toISOString().slice(0, 10).replace(/-/g, '/') }}",
-          "sender": "service-candidat@francetravail.fr"
+          "q": "=after: {{ new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10).replace(/-/g, '/') }}",
+          "sender": "@francetravail.fr"
         },
         "options": {}
       },
@@ -269,11 +268,10 @@
                   {
                     "id": "e4ffe735-ec03-4878-9038-0afb9ce35603",
                     "leftValue": "={{ $json.from.value[0].address }}",
-                    "rightValue": "service-candidat@francetravail.fr",
+                    "rightValue": "@francetravail.fr",
                     "operator": {
                       "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
+                      "operation": "endsWith"
                     }
                   }
                 ],
@@ -319,6 +317,393 @@
       ],
       "id": "c2186dba-e598-4a7f-8580-5b2f3f08f2ef",
       "name": "Switch from Sender"
+    },
+    {
+      "parameters": {
+        "content": "## Not Job Labeled",
+        "height": 400,
+        "width": 200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        380
+      ],
+      "id": "440afd2c-4d1a-422e-833a-5427eddff21b",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Pole Emploi Email Processing",
+        "height": 500,
+        "width": 2860
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        380
+      ],
+      "id": "850ccd7e-64ca-4d6c-87e9-dd5bf326ca1e",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,content,technologies,methodologies,level,source,original_job_id,interest_indicator,createdAt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        3140,
+        480
+      ],
+      "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking: true si le télétravail est mentionné sinon false.\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées.\n- pour description: résumé concis de l'offre d'emploi (contexte, environnement de travail, mission).\n+ pour methodologies: liste dans un tableau JSON (`string[]`) les éléments méthodologiques de gestion et de conception comme \"Agile\", \"Waterfall\", \"POO\", etc. Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n+ pour technologies: liste dans un tableau JSON (`string[]`) les technologies mentionnées dans l’annonce (ex: \"Java\", \"React\", \"ERP\"). Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n- pour level: \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\"\n- pour source: {{ $json.source }}\n- pour interest_indicator: \"🟢 Pertinant pour le developpemnt logiciel\" | \"🟡 Poste informatique à vérifier\" | \"🔴 Inintéressant car hors sujet\" mais tu conserves uniquement l'émoji 🟢 | 🟡 | 🔴.\n- pour title: {{ $json.title || \"\" }}\n- pour language: tu dois identifier de manière concise la langue utiliser dans la description de l'annonce.\n- contract_type: mets les toutes les informations que tu trouve de type CDI, CDD, Interim, freelance, temp plein, temp partiel, 35 heures, 39 heures, etc.\n- pour toute valeur abscente, conforme toi au type pour mettre \"\" ou [] ou false.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title || \"\" }}\",\n  \"date\": \"{{ $json.date || \"\" }}\",\n  \"company\": \"{{ $json.company || \"\" }}\",\n  \"location\": \"{{ $json.location || \"\" }}\",\n  \"teleworking\": true | false,\n  \"contract_type\": string,\n  \"language\": string,\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"level\": \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\",\n  \"description\": string,\n  \"technologies\": string[],\n  \"methodologies\": string[],\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": 🟢 | 🟡 | 🔴\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1760,
+        480
+      ],
+      "id": "e3854a63-e5a8-429c-afe7-4a55614332df",
+      "name": "AI Agent  for Pole Emploi",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "path": "9da789a5-4890-461c-b6a1-19286c0b2102",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2500,
+        480
+      ],
+      "id": "fee557c1-ec65-4fb6-9bd9-30ab22b033a1",
+      "name": "Webhook",
+      "webhookId": "9da789a5-4890-461c-b6a1-19286c0b2102"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a93d0718-5d47-479a-a300-5889d1896359",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2600,
+        480
+      ],
+      "id": "d18f0e8e-cc57-4695-a4a9-591bdacc0eef",
+      "name": "If source not empty"
+    },
+    {
+      "parameters": {
+        "jsCode": "const outputs = [];\n\nfor (const item of $input.all()) {\n  const html = item.json.html || '';\n  const ids = [...html.matchAll(/https:\\/\\/candidat\\.(francetravail|pole-emploi)\\.fr\\/offres\\/recherche\\/detail\\/([\\w\\d]+)\\?[^\"]*/g)]\n  .map(match => match[2]);\n\n  for (const id of ids) {\n    if (id) outputs.push({\n      id,\n      link: `https://candidat.francetravail.fr/offres/recherche/detail/${id}`\n    })\n  }\n}\n\nreturn outputs;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        480
+      ],
+      "id": "9b369882-4e47-4130-ac7a-2473c4dcc26f",
+      "name": "FT Job Splitter"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        480
+      ],
+      "id": "c6a8e096-6bd6-4bad-8d4d-5973329affec",
+      "name": "Job Page Request",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function getTitle(html) {\n  const m = html.match(/<span\\s+itemprop=\"title\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDate(html) {\n  const m = html.match(\n    /(?:Actualisé|Publié) le\\s+(\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+\\d{4})/i\n  );\n  return m && m[1] ? m[1] : null;\n}\n\nfunction toIsoDate(frDate) {\n  if (!frDate) return null;\n  // ex. \"07 mai 2025\"\n  const parts = frDate.split(' ');\n  const j = parts[0].padStart(2,'0');\n  const moisMap = {\n    janvier: '01', février: '02', mars: '03', avril: '04',\n    mai: '05', juin: '06', juillet: '07', août: '08',\n    septembre: '09', octobre: '10', novembre: '11', décembre: '12'\n  };\n  const m = moisMap[parts[1].toLowerCase()];\n  const a = parts[2];\n  return m ? `${a}-${m}-${j}` : null;\n}\n\nfunction getCompany(html) {\n  // 1) Schéma Organization\n  let m = html.match(\n    /<span\\s+itemtype=\"http:\\/\\/schema\\.org\\/Organization\"[\\s\\S]*?<span[^>]*itemprop=\"name\"[^>]*content=\"([^\"]+)\"/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  // 2) Section Employeur\n  m = html.match(\n    /<h2 class=\"t5 subtitle\">\\s*Employeur\\s*<\\/h2>[\\s\\S]*?<h3 class=\"t4 title\">\\s*([^<]+)\\s*<\\/h3>/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  return null;\n}\n\nfunction getLocation(html) {\n  const m = html.match(/<span\\s+class=\"location\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDescription(html) {\n  const m = html.match(\n    /<div\\s+itemprop=\"description\"[^>]*>([\\s\\S]*?)<\\/div>/\n  );\n  return m\n    ? m[1].replace(/<[^>]+>/g, '').trim()\n    : null;\n}\n\nfunction getJobId(html) {\n  const m = html.match(/Offre n°\\s*<span[^>]*>([A-Za-z0-9]+)<\\/span>/);\n  return m ? m[1] : null;\n}\n\nconst response = { json: {} }\nif ($json.data) {\n  const html = $json.data;\n  const title = getTitle(html)\n  const date = toIsoDate(getDate(html));\n  const company = getCompany(html);\n  const location = getLocation(html);\n  const description = getDescription(html);\n  const jobId = getJobId(html);\n  const source = jobId ? `https://candidat.francetravail.fr/offres/recherche/detail/${jobId}` : null;\n  response.json = { title, date, company, location, description, source };\n}\n\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        480
+      ],
+      "id": "b653cd0c-2cec-4007-94fe-efa98331bbf3",
+      "name": "Job Data Extractor",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const response = { json: {} };\n\nif ($json.source) {\n  response.json = $json\n  if (response.json.title === null) response.json.title = \"\";\n  if (response.json.date === null) response.json.date = \"\";\n  if (response.json.company === null) response.json.company = \"\";\n  if (response.json.location === null) response.json.location = \"\";\n  if (response.json.description === null) response.json.description = \"\";\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        480
+      ],
+      "id": "8d9cf289-3947-48e2-bbe6-73053a346077",
+      "name": "Job Checking",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Save in database",
+        "height": 500,
+        "width": 600
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2760,
+        380
+      ],
+      "id": "0620735e-7bab-4308-9626-93aff92d782d",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.createdAt = new Date().toISOString();\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2980,
+        480
+      ],
+      "id": "4be11f9d-af13-462b-a352-ba6913f3879e",
+      "name": "CreatedAt"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -60,
+        480
+      ],
+      "id": "5a924f79-5368-4eb9-b01a-c943dc5c3016",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2380388e-48fe-42df-bc3e-b34073f38226",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "08056162-5ccd-4818-bfce-7780586bf06d",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        480
+      ],
+      "id": "ef49cdea-2f86-454f-8a6a-9330a4e2924f",
+      "name": "If data"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2080,
+        480
+      ],
+      "id": "e0e8260f-423b-4e61-a13e-206a6d16f0ee",
+      "name": "Merge data"
+    },
+    {
+      "parameters": {
+        "jsCode": "let job = null\nlet data = null\n\nlet target = 0\nfor (const item of $input.all()) {\n  if (target === 0) data = item.json\n  if (target === 1) job = item.json.output\n  target++\n}\n\nif (job && data) {\n  job.content = data.description\n  job.source = data.source\n  if (!job.title || job.title === '') job.title = data.title || ''\n  if (!job.location || job.location === '') job.location = data.location || ''\n  if (!job.company || job.company === '') job.company = data.company || ''\n}\n\nreturn [ { json: job } ];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        480
+      ],
+      "id": "efa9b81a-0810-4d2c-b4c4-bda518876837",
+      "name": "Prepare data",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8902a81e-e8ec-4ab6-8c7d-62f711b37064",
+              "leftValue": "$json.source",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b863205e-a016-49b5-b363-9fa6cea1cb1b",
+              "leftValue": "$json.source",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        480
+      ],
+      "id": "19a87fb6-ce08-4bca-bafc-b26047a6ebd1",
+      "name": "If source",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"date\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"company\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"location\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"teleworking\": {\n      \"type\": \"boolean\",\n      \"default\": false\n    },\n    \"contract_type\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"language\": {\n      \"type\": \"string\",\n      \"default\": \"french\"\n    },\n    \"salary\": {\n      \"type\": \"object\",\n      \"required\": [\"min\", \"max\", \"currency\"],\n      \"properties\": {\n        \"min\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"max\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"currency\": {\n          \"type\": \"string\",\n          \"enum\": [\"EUR\", \"GBP\", \"USD\", \"CHF\", \"\"],\n          \"default\": \"\"\n        }\n      }\n    },\n    \"level\": {\n      \"type\": \"string\",\n      \"enum\": [\"junior\", \"intermediate\", \"senior\", \"lead\", \"\"],\n      \"default\": \"\"\n    },\n    \"description\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"technologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"methodologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"source\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"interest_indicator\": {\n      \"type\": \"string\",\n      \"enum\": [\"🟢\", \"🟡\", \"🔴\"],\n      \"default\": \"🟡\"\n    }\n  }\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1880,
+        700
+      ],
+      "id": "72cca01b-9b5e-4e6d-9bd6-e877de7ab6c7",
+      "name": "Structured Output Parser",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": "mistral-small:latest",
+        "options": {
+          "keepAlive": "10m"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        860
+      ],
+      "id": "7a755cad-11a4-498a-8976-89eaf2587847",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8wRs8JzjQgAfnmvC",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const sanitizeHtml = require('sanitize-html');\n\nfor (const item of $input.all()) {\n  // title\n  item.json.title = item.json.title ? sanitizeHtml(item.json.title) : '';\n  // date\n  item.json.date = item.json.date ? sanitizeHtml(item.json.date) : '';\n  // company\n  item.json.company = item.json.company ? sanitizeHtml(item.json.company) : '';\n  // location\n  item.json.location = item.json.location ? sanitizeHtml(item.json.location) : '';\n  // teleworking\n  item.json.teleworking = item.json.teleworking === true ? true : false;\n  // contract_type\n  item.json.contract_type = item.json.contract_type ? sanitizeHtml(item.json.contract_type) : '';\n  // language\n  item.json.language = item.json.language ? sanitizeHtml(item.json.language) : '';\n  // salary\n  if (item.json.salary) {\n    item.json.salary.currency = item.json.salary.currency ? sanitizeHtml(item.json.salary.currency) : '';\n    item.json.salary.min = item.json.salary.min ? parseFloat(item.json.salary.min) : 0;\n    item.json.salary.max = item.json.salary.max ? parseFloat(item.json.salary.max) : 0;\n  }\n  // description\n  item.json.description = item.json.description ? sanitizeHtml(item.json.description) : '';\n  // content\n  item.json.content = item.json.content ? sanitizeHtml(item.json.content) : '';\n  // technologies\n  if (item.json.technologies &&  item.json.technologies.length > 0) {\n    const sanitizedTechnologies = [];\n    for (const tech of item.json.technologies) {\n      const sanitizedTech = sanitizeHtml(tech);\n      sanitizedTechnologies.push(sanitizedTech);\n    }\n    item.json.technologies = sanitizedTechnologies;\n  }\n  // methodologies\n  if (item.json.methodologies &&  item.json.methodologies.length > 0) {\n    const sanitizedMethodologies = [];\n    for (const methodology of item.json.methodologies) {\n      const sanitizedMethodology = sanitizeHtml(methodology);\n      sanitizedMethodologies.push(sanitizedMethodology);\n    }\n    item.json.methodologies = sanitizedMethodologies;\n  }\n  // level\n  item.json.level = item.json.level ? sanitizeHtml(item.json.level) : '';\n  // interest_indicator\n  item.json.interest_indicator = item.json.interest_indicator ? sanitizeHtml(item.json.interest_indicator) : '';\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2820,
+        480
+      ],
+      "id": "fb1ce586-f5ff-4e0f-96b4-fe4521355f19",
+      "name": "Sanitize"
     },
     {
       "parameters": {
@@ -387,50 +772,18 @@
     },
     {
       "parameters": {
-        "content": "## Not Job Labeled",
-        "height": 400,
-        "width": 200
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -880,
-        380
-      ],
-      "id": "440afd2c-4d1a-422e-833a-5427eddff21b",
-      "name": "Sticky Note5"
-    },
-    {
-      "parameters": {
-        "content": "## Pole Emploi Email Processing",
-        "height": 500,
-        "width": 2280
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -300,
-        380
-      ],
-      "id": "850ccd7e-64ca-4d6c-87e9-dd5bf326ca1e",
-      "name": "Sticky Note6"
-    },
-    {
-      "parameters": {
-        "operation": "insert",
         "collection": "jobs",
-        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,content,technologies,methodologies,level,source,original_job_id,interest_indicator,createdAt",
-        "options": {}
+        "options": {},
+        "query": "={\"original_job_id\": \"{{ $json.id }}\"}"
       },
       "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.1,
+      "typeVersion": 1.2,
       "position": [
-        2240,
+        140,
         480
       ],
-      "id": "fc9e796f-a62a-4ef9-ac14-2b996e60ec19",
-      "name": "MongoDB",
-      "alwaysOutputData": true,
+      "id": "eff7c0eb-fc1a-491e-80f2-8ff051b2e825",
+      "name": "MongoDB1",
       "credentials": {
         "mongoDb": {
           "id": "EkVdtE5MEWwZdbTY",
@@ -440,131 +793,64 @@
       "onError": "continueErrorOutput"
     },
     {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n{{ JSON.stringify($json, null, 2) }}\n\nRetour attendu :\n- uniquement un objet JSON\n- teleworking: true si le télétravail est mentionné sinon false.\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées.\n- pour description: résumé concis de l'offre d'emploi (contexte, environnement de travail, mission).\n+ pour methodologies: liste dans un tableau JSON (`string[]`) les éléments méthodologiques de gestion et de conception comme \"Agile\", \"Waterfall\", \"POO\", etc. Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n+ pour technologies: liste dans un tableau JSON (`string[]`) les technologies mentionnées dans l’annonce (ex: \"Java\", \"React\", \"ERP\"). Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n- pour level: \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\"\n- pour source: {{ $json.source }}\n- pour interest_indicator: \"🟢 Pertinant pour le developpemnt logiciel\" | \"🟡 Poste informatique à vérifier\" | \"🔴 Inintéressant car hors sujet\" mais tu conserves uniquement l'émoji 🟢 | 🟡 | 🔴.\n- pour title: {{ $json.title || \"\" }}\n- pour language: tu dois identifier de manière concise la langue utiliser dans la description de l'annonce.\n- contract_type: mets les toutes les informations que tu trouve de type CDI, CDD, Interim, freelance, temp plein, temp partiel, 35 heures, 39 heures, etc.\n- pour toute valeur abscente, conforme toi au type pour mettre \"\" ou [] ou false.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"title\": \"{{ $json.title || \"\" }}\",\n  \"date\": \"{{ $json.date || \"\" }}\",\n  \"company\": \"{{ $json.company || \"\" }}\",\n  \"location\": \"{{ $json.location || \"\" }}\",\n  \"teleworking\": true | false,\n  \"contract_type\": string,\n  \"language\": string,\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"level\": \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\",\n  \"description\": string,\n  \"technologies\": string[],\n  \"methodologies\": string[],\n  \"source\": \"{{ $json.source }}\",\n  \"interest_indicator\": 🟢 | 🟡 | 🔴\n}",
-        "hasOutputParser": true,
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.9,
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
       "position": [
-        960,
+        460,
         480
       ],
-      "id": "e3854a63-e5a8-429c-afe7-4a55614332df",
-      "name": "AI Agent  for Pole Emploi",
+      "id": "665de82d-0378-4028-8aad-177eb30247eb",
+      "name": "Merge1",
       "onError": "continueErrorOutput"
     },
     {
       "parameters": {
-        "path": "9da789a5-4890-461c-b6a1-19286c0b2102",
-        "responseMode": "lastNode",
-        "responseData": "noData",
-        "options": {}
+        "content": "## Check if already exists in DB",
+        "height": 420,
+        "width": 780,
+        "color": 3
       },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
       "position": [
-        -2500,
-        480
+        120,
+        420
       ],
-      "id": "fee557c1-ec65-4fb6-9bd9-30ab22b033a1",
-      "name": "Webhook",
-      "webhookId": "9da789a5-4890-461c-b6a1-19286c0b2102"
+      "id": "7a561de5-421f-4cff-8a7c-6a159514bfd8",
+      "name": "Sticky Note8"
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "a93d0718-5d47-479a-a300-5889d1896359",
-              "leftValue": "={{ $json.source }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
+        "content": "## Get data from source url",
+        "height": 420,
+        "width": 780,
+        "color": 4
       },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
       "position": [
-        1760,
-        480
+        940,
+        420
       ],
-      "id": "d18f0e8e-cc57-4695-a4a9-591bdacc0eef",
-      "name": "If source not empty"
+      "id": "664b5973-7cf7-42ce-813d-a6d88f32294d",
+      "name": "Sticky Note9"
     },
     {
       "parameters": {
-        "jsCode": "const outputs = [];\n\nfor (const item of $input.all()) {\n  const html = item.json.html || '';\n  const links = [...html.matchAll(/https:\\/\\/candidat\\.francetravail\\.fr\\/offres\\/recherche\\/detail\\/([\\w\\d]+)\\?[^\"]*/g)];\n\n  for (const match of links) {\n    const ref = match[1];\n    if (ref) outputs.push({\n      link: `https://candidat.francetravail.fr/offres/recherche/detail/${ref}`\n    })\n  }\n}\n\nreturn outputs;\n"
+        "content": "## Data processing",
+        "height": 420,
+        "width": 780,
+        "color": 6
       },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
       "position": [
-        -220,
-        480
+        1740,
+        420
       ],
-      "id": "9b369882-4e47-4130-ac7a-2473c4dcc26f",
-      "name": "FT Job Splitter"
-    },
-    {
-      "parameters": {
-        "url": "={{ $json.link }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        160,
-        480
-      ],
-      "id": "c6a8e096-6bd6-4bad-8d4d-5973329affec",
-      "name": "Job Page Request",
-      "alwaysOutputData": true,
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "function getTitle(html) {\n  const m = html.match(/<span\\s+itemprop=\"title\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDate(html) {\n  const m = html.match(\n    /(?:Actualisé|Publié) le\\s+(\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+\\d{4})/i\n  );\n  return m && m[1] ? m[1] : null;\n}\n\nfunction toIsoDate(frDate) {\n  if (!frDate) return null;\n  // ex. \"07 mai 2025\"\n  const parts = frDate.split(' ');\n  const j = parts[0].padStart(2,'0');\n  const moisMap = {\n    janvier: '01', février: '02', mars: '03', avril: '04',\n    mai: '05', juin: '06', juillet: '07', août: '08',\n    septembre: '09', octobre: '10', novembre: '11', décembre: '12'\n  };\n  const m = moisMap[parts[1].toLowerCase()];\n  const a = parts[2];\n  return m ? `${a}-${m}-${j}` : null;\n}\n\nfunction getCompany(html) {\n  // 1) Schéma Organization\n  let m = html.match(\n    /<span\\s+itemtype=\"http:\\/\\/schema\\.org\\/Organization\"[\\s\\S]*?<span[^>]*itemprop=\"name\"[^>]*content=\"([^\"]+)\"/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  // 2) Section Employeur\n  m = html.match(\n    /<h2 class=\"t5 subtitle\">\\s*Employeur\\s*<\\/h2>[\\s\\S]*?<h3 class=\"t4 title\">\\s*([^<]+)\\s*<\\/h3>/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  return null;\n}\n\nfunction getLocation(html) {\n  const m = html.match(/<span\\s+class=\"location\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDescription(html) {\n  const m = html.match(\n    /<div\\s+itemprop=\"description\"[^>]*>([\\s\\S]*?)<\\/div>/\n  );\n  return m\n    ? m[1].replace(/<[^>]+>/g, '').trim()\n    : null;\n}\n\nfunction getJobId(html) {\n  const m = html.match(/Offre n°\\s*<span[^>]*>([A-Za-z0-9]+)<\\/span>/);\n  return m ? m[1] : null;\n}\n\nconst response = { json: {} }\nif ($json.data) {\n  const html = $json.data;\n  const title = getTitle(html)\n  const date = toIsoDate(getDate(html));\n  const company = getCompany(html);\n  const location = getLocation(html);\n  const description = getDescription(html);\n  const jobId = getJobId(html);\n  const source = jobId ? `https://candidat.francetravail.fr/offres/recherche/detail/${jobId}` : null;\n  response.json = { title, date, company, location, description, source };\n}\n\n\nreturn response;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        480,
-        480
-      ],
-      "id": "b653cd0c-2cec-4007-94fe-efa98331bbf3",
-      "name": "Job Data Extractor",
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "const response = { json: {} };\n\nif ($json.source) {\n  response.json = $json\n  if (response.json.title === null) response.json.title = \"\";\n  if (response.json.date === null) response.json.date = \"\";\n  if (response.json.company === null) response.json.company = \"\";\n  if (response.json.location === null) response.json.location = \"\";\n  if (response.json.description === null) response.json.description = \"\";\n}\n\nreturn response;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        640,
-        480
-      ],
-      "id": "8d9cf289-3947-48e2-bbe6-73053a346077",
-      "name": "Job Checking",
-      "onError": "continueErrorOutput"
+      "id": "0d95aa5a-9477-48bc-ad79-ec0ffc6d787a",
+      "name": "Sticky Note10"
     },
     {
       "parameters": {
@@ -574,7 +860,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1600,
+        2400,
         480
       ],
       "id": "95157ee5-69a7-4a2f-bda3-81349346adaf",
@@ -583,112 +869,30 @@
     },
     {
       "parameters": {
-        "content": "## Save in database",
-        "height": 500,
-        "width": 480
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        2000,
-        380
-      ],
-      "id": "0620735e-7bab-4308-9626-93aff92d782d",
-      "name": "Sticky Note7"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.createdAt = new Date().toISOString();\n}\n\nreturn $input.all();"
+        "jsCode": "let isExist = false;\n\nconst data = $input.all();\nif (data && data.length > 0) isExist = true;\n\nreturn { json: { isExist } };"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2080,
+        300,
         480
       ],
-      "id": "4be11f9d-af13-462b-a352-ba6913f3879e",
-      "name": "CreatedAt"
+      "id": "35e72e74-b09d-4aad-b66d-a297584cb2eb",
+      "name": "isExist",
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        -40,
-        480
-      ],
-      "id": "5a924f79-5368-4eb9-b01a-c943dc5c3016",
-      "name": "Loop Over Items"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "2380388e-48fe-42df-bc3e-b34073f38226",
-              "leftValue": "={{ $json.data }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "exists",
-                "singleValue": true
-              }
-            },
-            {
-              "id": "08056162-5ccd-4818-bfce-7780586bf06d",
-              "leftValue": "={{ $json.data }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        320,
-        480
-      ],
-      "id": "ef49cdea-2f86-454f-8a6a-9330a4e2924f",
-      "name": "If data"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
-      "position": [
-        1280,
-        480
-      ],
-      "id": "e0e8260f-423b-4e61-a13e-206a6d16f0ee",
-      "name": "Merge data"
-    },
-    {
-      "parameters": {
-        "jsCode": "let job = null\nlet data = null\n\nlet target = 0\nfor (const item of $input.all()) {\n  if (target === 0) data = item.json\n  if (target === 1) job = item.json.output\n  target++\n}\n\nif (job && data) {\n  job.content = data.description\n  job.source = data.source\n  if (!job.title || job.title === '') job.title = data.title || ''\n  if (!job.location || job.location === '') job.location = data.location || ''\n  if (!job.company || job.company === '') job.company = data.company || ''\n}\n\nreturn [ { json: job } ];"
+        "jsCode": "const data = $input.all();\nlet isExist = false;\nlet link = null;\n\nif (data.length == 2) {\n  isExist = data[0].json.isExist;\n  link = !isExist ? data[1].json.link : null;\n}\n\nelse if (data.length == 1) {\n  if (data[0]?.json?.link) {\n    link = data[0].json.link;\n  }\n}\n\nreturn { json: { link } };"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1440,
+        620,
         480
       ],
-      "id": "efa9b81a-0810-4d2c-b4c4-bda518876837",
-      "name": "Prepare data",
+      "id": "cdde435e-c647-45e3-b602-feea89b6b75a",
+      "name": "New Job Link",
       "onError": "continueErrorOutput"
     },
     {
@@ -702,8 +906,8 @@
           },
           "conditions": [
             {
-              "id": "8902a81e-e8ec-4ab6-8c7d-62f711b37064",
-              "leftValue": "$json.source",
+              "id": "06f6c782-b3ef-4be5-9365-3662bc0e75dc",
+              "leftValue": "={{ $json.link }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -712,8 +916,8 @@
               }
             },
             {
-              "id": "b863205e-a016-49b5-b363-9fa6cea1cb1b",
-              "leftValue": "$json.source",
+              "id": "1c8fb761-0b91-4a5d-b0b3-3169ae05e5e5",
+              "leftValue": "={{ $json.link }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -729,50 +933,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        800,
+        780,
         480
       ],
-      "id": "19a87fb6-ce08-4bca-bafc-b26047a6ebd1",
-      "name": "If source",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "schemaType": "manual",
-        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"date\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"company\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"location\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"teleworking\": {\n      \"type\": \"boolean\",\n      \"default\": false\n    },\n    \"contract_type\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"language\": {\n      \"type\": \"string\",\n      \"default\": \"french\"\n    },\n    \"salary\": {\n      \"type\": \"object\",\n      \"required\": [\"min\", \"max\", \"currency\"],\n      \"properties\": {\n        \"min\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"max\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"currency\": {\n          \"type\": \"string\",\n          \"enum\": [\"EUR\", \"GBP\", \"USD\", \"CHF\", \"\"],\n          \"default\": \"\"\n        }\n      }\n    },\n    \"level\": {\n      \"type\": \"string\",\n      \"enum\": [\"junior\", \"intermediate\", \"senior\", \"lead\", \"\"],\n      \"default\": \"\"\n    },\n    \"description\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"technologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"methodologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"source\": {\n      \"type\": \"string\",\n      \"default\": \"\"\n    },\n    \"interest_indicator\": {\n      \"type\": \"string\",\n      \"enum\": [\"🟢\", \"🟡\", \"🔴\"],\n      \"default\": \"🟡\"\n    }\n  }\n}\n",
-        "autoFix": true
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        1080,
-        700
-      ],
-      "id": "72cca01b-9b5e-4e6d-9bd6-e877de7ab6c7",
-      "name": "Structured Output Parser",
-      "notesInFlow": false
-    },
-    {
-      "parameters": {
-        "model": "mistral-nemo:latest",
-        "options": {
-          "keepAlive": "10m"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
-      "typeVersion": 1,
-      "position": [
-        1040,
-        860
-      ],
-      "id": "7a755cad-11a4-498a-8976-89eaf2587847",
-      "name": "Ollama Chat Model",
-      "credentials": {
-        "ollamaApi": {
-          "id": "8wRs8JzjQgAfnmvC",
-          "name": "Ollama account"
-        }
-      }
+      "id": "49ca820f-9166-4337-9ba1-8eaa20de174f",
+      "name": "If link"
     }
   ],
   "pinData": {},
@@ -880,28 +1045,17 @@
         [],
         [
           {
-            "node": "FT Job Splitter",
+            "node": "Set Label to Emploi/Pole-Emploi",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Set Label to Emploi/Pole-Emploi",
+            "node": "FT Job Splitter",
             "type": "main",
             "index": 0
           }
         ],
         []
-      ]
-    },
-    "if not labeled": {
-      "main": [
-        [
-          {
-            "node": "Switch from Sender",
-            "type": "main",
-            "index": 0
-          }
-        ]
       ]
     },
     "AI Agent  for Pole Emploi": {
@@ -937,7 +1091,7 @@
       "main": [
         [
           {
-            "node": "CreatedAt",
+            "node": "Sanitize",
             "type": "main",
             "index": 0
           }
@@ -1016,24 +1170,6 @@
         ]
       ]
     },
-    "Job ID Extractor": {
-      "main": [
-        [
-          {
-            "node": "If source not empty",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Loop Over Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "MongoDB": {
       "main": [
         [
@@ -1068,9 +1204,14 @@
         [],
         [
           {
-            "node": "Job Page Request",
+            "node": "MongoDB1",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
           }
         ]
       ]
@@ -1171,6 +1312,136 @@
           }
         ]
       ]
+    },
+    "Sanitize": {
+      "main": [
+        [
+          {
+            "node": "CreatedAt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if not labeled": {
+      "main": [
+        [
+          {
+            "node": "Switch from Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB1": {
+      "main": [
+        [
+          {
+            "node": "isExist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "New Job Link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job ID Extractor": {
+      "main": [
+        [
+          {
+            "node": "If source not empty",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isExist": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Job Link": {
+      "main": [
+        [
+          {
+            "node": "If link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If link": {
+      "main": [
+        [
+          {
+            "node": "Job Page Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -1182,7 +1453,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "3ef9aae1-b950-4157-b6ad-0164a15c537a",
+  "versionId": "144eb70e-9710-47e3-95b1-37210690ba5e",
   "meta": {
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
     "templateCredsSetupCompleted": true
