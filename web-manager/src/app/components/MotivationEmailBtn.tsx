@@ -2,7 +2,7 @@ import { useState } from "react";
 import BtnLoading from "./Btn/BtnLoading";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { useAppDispatch } from "../store";
-import { updateLikedJob, updateDislikedJob } from "../store/jobsReducer";
+import { updateLikedJob, updateDislikedJob, setJobSelected } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { JOB_DISLIKED, JOB_LIKED } from "@/types/IJobEntity";
@@ -29,12 +29,14 @@ export default function MotivationEmailBtn({ jobId, cvId }: MotivationEmailBtnPr
       await n8nWorkflow.startCVMotivationEmailWorkflow({ jobId, cvId })
       const job = await jobRepository.getById(jobId);
       if (job) {
-        switch (job.interest_indicator) {
+        switch (job.preference) {
           case JOB_LIKED:
             dispatch(updateLikedJob(job));
+            dispatch(setJobSelected(job));
             break;
           case JOB_DISLIKED:
-            dispatch(updateDislikedJob(job)); // Reset to neutral
+            dispatch(updateDislikedJob(job));
+            dispatch(setJobSelected(job));
             break;
           default:
             dispatch(addAlert({

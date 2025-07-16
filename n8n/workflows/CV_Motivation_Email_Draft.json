@@ -6,7 +6,7 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        40,
+        120,
         120
       ],
       "id": "42ae6c30-0d5a-4c12-a102-62e347ef2cf4",
@@ -22,7 +22,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        40,
+        120,
         -60
       ],
       "id": "21fa9bde-e21d-426e-9da1-5598479423ea",
@@ -37,7 +37,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        220,
+        300,
         -60
       ],
       "id": "fa20e5d3-6a60-431b-9af2-e094b8b74f1d",
@@ -45,12 +45,12 @@
     },
     {
       "parameters": {
-        "jsCode": "return { json: { jobId: '68699c33381df7f61fef1fd3', cvId: '686a75006dfae4d19b093860' }};"
+        "jsCode": "return { json: { jobId: '686fa8e9e6833ded737e874e', cvId: '686a75006dfae4d19b093860' }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        220,
+        300,
         120
       ],
       "id": "1367765e-1bbd-4a09-8961-876919f2281d",
@@ -80,8 +80,8 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        680,
-        20
+        720,
+        40
       ],
       "id": "e39abe66-5877-4975-be7b-b37e806134e4",
       "name": "Create file from text",
@@ -94,6 +94,46 @@
     },
     {
       "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "motivation_letter_file"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        880,
+        40
+      ],
+      "id": "e50a5c41-96b4-4f8c-bd23-f5ebe2f7aa91",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "BeC7oN90DDIIXPt9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all();\nlet mail = null;\nlet job = null;\n\n// Mail data\nif (data[0] && data[0].json.id) {\n  mail = data[0].json\n}\nif (data[1] && data[1].json.id) {\n  mail = data[1].json\n}\n\n// Job data\nif (data[0] && data[0].json._id) {\n  job = data[0].json\n}\nif (data[1] && data[1].json._id) {\n  job = data[1].json\n}\n\nif (!mail) throw new Error('Fail to get mail data.')\nif (!job) throw new Error('Fail to get job data.')\n\nreturn { json: { _id: job._id, motivation_email_draft_url: `https://mail.google.com/mail/#inbox?compose=${mail.message.id}` } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        40
+      ],
+      "id": "ba5515b5-82a4-4db7-82f3-3d730cf1c0c5",
+      "name": "Job update data"
+    },
+    {
+      "parameters": {
         "collection": "jobs",
         "options": {},
         "query": "={ \"_id\": \"{{ $json.jobId }}\" }"
@@ -101,11 +141,11 @@
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        520,
-        20
+        480,
+        -60
       ],
       "id": "9c625d01-9449-481b-8544-700fb2c89615",
-      "name": "MongoDB",
+      "name": "Get Job",
       "credentials": {
         "mongoDb": {
           "id": "EkVdtE5MEWwZdbTY",
@@ -114,28 +154,19 @@
       }
     },
     {
-      "parameters": {},
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        860,
-        -60
+        1040,
+        -40
       ],
-      "id": "e8511e95-cb03-4c6b-ae99-6bbe26cd1827",
-      "name": "Merge1"
-    },
-    {
-      "parameters": {
-        "jsCode": "const data = $input.all();\nlet job = null;\nlet motivation_letter_id = null\n\nif (data[0].json._id) job = data[0].json\nif (data[1].json._id) job = data[1].json\nif (data[0].json.id) motivation_letter_id = data[0].json.id\nif (data[1].json.id) motivation_letter_id = data[1].json.id\n\nif (job && motivation_letter_id) job.motivation_letter_id = motivation_letter_id\n\nreturn { json: job || {} };"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1020,
-        -60
-      ],
-      "id": "3f5ec0c3-0967-4531-9b2f-5431ddd57e53",
-      "name": "Code"
+      "id": "f197960e-9ec4-4c56-8820-53a2067bde3a",
+      "name": "Merge data"
     },
     {
       "parameters": {
@@ -157,11 +188,11 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1360,
-        20
+        1200,
+        40
       ],
       "id": "9ea4e8f8-0c34-4134-b3f9-7206c75db323",
-      "name": "Create a draft",
+      "name": "Create a draft email",
       "webhookId": "7c026d9d-b229-41ad-b5d0-d1581c61c2c9",
       "credentials": {
         "gmailOAuth2": {
@@ -171,46 +202,83 @@
       }
     },
     {
-      "parameters": {
-        "operation": "download",
-        "fileId": {
-          "__rl": true,
-          "value": "={{ $json.id }}",
-          "mode": "id"
-        },
-        "options": {
-          "binaryPropertyName": "motivation_letter_file"
-        }
-      },
-      "type": "n8n-nodes-base.googleDrive",
-      "typeVersion": 3,
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
       "position": [
-        860,
-        120
+        1360,
+        -40
       ],
-      "id": "e50a5c41-96b4-4f8c-bd23-f5ebe2f7aa91",
-      "name": "Download file",
+      "id": "986cf7fd-24a3-459b-b0e7-526bef93377d",
+      "name": "Merge final data"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "_id",
+        "fields": "motivation_email_draft_url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        40
+      ],
+      "id": "10631f9c-c45e-423a-b576-a81c5028ac94",
+      "name": "Save Draft Email URL",
       "credentials": {
-        "googleDriveOAuth2Api": {
-          "id": "BeC7oN90DDIIXPt9",
-          "name": "Google Drive account"
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
         }
       }
     },
     {
       "parameters": {
-        "mode": "combine",
-        "combineBy": "combineAll",
-        "options": {}
+        "content": "## Letter File",
+        "height": 400,
+        "width": 300
       },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
       "position": [
-        1200,
-        20
+        700,
+        -120
       ],
-      "id": "f197960e-9ec4-4c56-8820-53a2067bde3a",
-      "name": "Merge2"
+      "id": "769c03b6-74d5-4a82-b299-debb605abec5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Draft Email",
+        "height": 400,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        -120
+      ],
+      "id": "fae682e0-83eb-4139-ad01-ad92a2b06a18",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Save Link",
+        "height": 400,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        -120
+      ],
+      "id": "4c6a6a85-e10e-4692-b093-a7384a0771cc",
+      "name": "Sticky Note2"
     }
   ],
   "pinData": {},
@@ -241,7 +309,7 @@
       "main": [
         [
           {
-            "node": "MongoDB",
+            "node": "Get Job",
             "type": "main",
             "index": 0
           }
@@ -252,23 +320,7 @@
       "main": [
         [
           {
-            "node": "MongoDB",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "MongoDB": {
-      "main": [
-        [
-          {
-            "node": "Create file from text",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge1",
+            "node": "Get Job",
             "type": "main",
             "index": 0
           }
@@ -279,34 +331,7 @@
       "main": [
         [
           {
-            "node": "Merge1",
-            "type": "main",
-            "index": 1
-          },
-          {
             "node": "Download file",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Merge1": {
-      "main": [
-        [
-          {
-            "node": "Code",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code": {
-      "main": [
-        [
-          {
-            "node": "Merge2",
             "type": "main",
             "index": 0
           }
@@ -317,23 +342,72 @@
       "main": [
         [
           {
-            "node": "Merge2",
+            "node": "Merge data",
             "type": "main",
             "index": 1
           }
         ]
       ]
     },
-    "Create a draft": {
-      "main": [
-        []
-      ]
-    },
-    "Merge2": {
+    "Job update data": {
       "main": [
         [
           {
-            "node": "Create a draft",
+            "node": "Save Draft Email URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job": {
+      "main": [
+        [
+          {
+            "node": "Create file from text",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge final data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge data": {
+      "main": [
+        [
+          {
+            "node": "Create a draft email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft email": {
+      "main": [
+        [
+          {
+            "node": "Merge final data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge final data": {
+      "main": [
+        [
+          {
+            "node": "Job update data",
             "type": "main",
             "index": 0
           }
@@ -345,7 +419,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "5739c017-6113-47da-8130-5eabef185b65",
+  "versionId": "b88eaae2-b8f0-4d4e-825c-fa9165323917",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"

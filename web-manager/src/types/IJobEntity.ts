@@ -90,6 +90,7 @@ export interface IJobEntity {
   motivation_email: string | null;
   motivation_email_subject: string | null;
   motivation_email_to: string | null;
+  motivation_email_draft_url: string | null;
   original_job_id: string | null;
   preference: JobPreference | null;
   salary: ISalary | null;

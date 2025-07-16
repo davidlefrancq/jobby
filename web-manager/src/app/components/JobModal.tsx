@@ -2,7 +2,7 @@ import { ICompanyDetails, IJobEntity, ISalary } from "@/types/IJobEntity";
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
-import { useAppDispatch } from "../store";
+import { useAppDispatch, useAppSelector } from "../store";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { addNotification } from "../store/notificationsReducer";
@@ -30,14 +30,15 @@ import JobMotivationEmailPanel from "./JobMotivationEmailPanel";
 import MotivationEmailDraftBtn from "./MotivationEmailDraftBtn";
 
 interface JobModalProps {
-  job: IJobEntity;
   onClose: () => void;
 }
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
-export default function JobModal({ job, onClose }: JobModalProps) {
-  const dispatch = useAppDispatch()
+export default function JobModal({ onClose }: JobModalProps) {
+  const dispatch = useAppDispatch();
+  const { jobSelected } = useAppSelector(state => state.jobsReducer);
+
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [companyDelailsSelected, setCompanyDelailsSelected] = useState<ICompanyDetails | null>(null);
@@ -59,7 +60,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
 
   const handleJobUpdate = async (values: Partial<IJobEntity>) => {
     // Check if job is valid
-    if (!job || !job._id) {
+    if (!jobSelected || !jobSelected._id) {
       dispatch(addAlert({
         date: new Date().toISOString(),
         message: "Job entity is not valid.",
@@ -69,7 +70,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
     }
 
     try {
-      const jobUpdated = await jobRepository.update(job._id.toString(), values);
+      const jobUpdated = await jobRepository.update(jobSelected._id.toString(), values);
       if (jobUpdated && jobUpdated._id) {
         if (jobUpdated.preference === 'dislike') dispatch(updateDislikedJob(jobUpdated));
         else if (jobUpdated.preference === 'like') dispatch(updateLikedJob(jobUpdated));
@@ -403,261 +404,277 @@ export default function JobModal({ job, onClose }: JobModalProps) {
   const borderStyle = isEditMode ? " border border-red-500" : " border border-white";
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className={"fixed inset-0 z-50 flex items-center justify-center bg-black/50"}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
+    <>
+      {jobSelected && <AnimatePresence>
         <motion.div
-          className={"relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]" + borderStyle}
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.95, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className={"fixed inset-0 z-50 flex items-center justify-center bg-black/50"}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          {/* Button Bar */}
-          <div className={"absolute top-4 right-4 flex items-center gap-3"}>
-            {/* Edit Mode Button */}
-            <BtnEditor onClick={handleToggleEdit} className="text-gray-500 hover:text-black" isEditMode={isEditMode} autoPositionning={false} />
-            
-            {/* Close Button */}
-            <CloseButton onClick={onClose} className="text-gray-500 hover:text-black" autoPositionning={false} />
-          </div>
-
-          {/* Title */}
-          <h2 className="text-xl font-semibold mb-2 text-gray-800">
-            <FieldEditorString
-              initialValue={job.title}
-              isEditMode={isEditMode}
-              legendValue={"Title"}
-              saveFunction={handleTitleUpdate}
-            />
-          </h2>
-          <div className="flex text-sm text-gray-500 mb-4">
-            {/* Company */}
-            <span
-              className={`py-2.5 mr-1 ${!isEditMode && job.company_details?.siren ? 'cursor-pointer caret-transparent hover:ps-2 hover:pe-2 hover:rounded-xl hover:shadow-xl hover:text-white hover:bg-blue-600 focus:ring-4 focus:ring-blue-300' : ''}`}
-              onClick={!isEditMode ? () => handleCompanyDetailsSelect(job.company_details) : undefined}
-            >
-              <FieldEditorCompany
-                job={job}
-                isEditMode={isEditMode}
-                saveFunction={handleJobUpdate}
-              />
-            </span>
-            
-            <span className="py-2.5 mr-1"> • </span>
-            
-            {/* Contract Type */}
-            <span className="py-2.5 mr-1">
-              <FieldEditorString
-                initialValue={job.contract_type}
-                isEditMode={isEditMode}
-                legendValue={"Contract type"}
-                saveFunction={handleContractTypeUpdate}
-              />
-            </span>
-            
-            <span className="py-2.5 mr-1"> • </span>
-            
-            {/* Location */}
-            <span className="py-2.5 mr-1">
-              <FieldEditorString
-                initialValue={job.location}
-                isEditMode={isEditMode}
-                legendValue={"Location"}
-                saveFunction={handleLocationUpdate}
-              />
-            </span>
-          </div>
-
-          {/* Description */}
-          <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
-            <FieldEditorDescription
-              job={job}
-              isEditMode={isEditMode}
-              saveAction={handleDescriptionUpdate}
-            />
-          </div>
-
-          {/* Content */}
-          <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
-            <span className="font-bold">Annonce  complète :</span>
-            <FieldEditorTextarea
-              initialValue={job.content || ''}
-              isEditMode={isEditMode}
-              legendValue={"Content"}
-              saveFunction={handleContentUpdate}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 text-sm text-gray-600">
-            <div className="pr-2">
-              {/* Technologies */}
-              <div className="">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
-                  Technologies :
-                </span>
-                <FieldEditorStringArray
-                  items={job.technologies}
-                  isEditMode={isEditMode}
-                  saveFunction={handleTechnologiesUpdate}
-                />
-              </div>
+          <motion.div
+            className={"relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]" + borderStyle}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            {/* Button Bar */}
+            <div className={"absolute top-4 right-4 flex items-center gap-3"}>
+              {/* Edit Mode Button */}
+              <BtnEditor onClick={handleToggleEdit} className="text-gray-500 hover:text-black" isEditMode={isEditMode} autoPositionning={false} />
               
-              {/* Methodologies */}
-              <div className="">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
-                  Méthodologies :
-                </span>
-                <FieldEditorStringArray
-                  items={job.methodologies}
-                  isEditMode={isEditMode}
-                  saveFunction={handleMethodologiesUpdate}
-                />
-              </div>
-              
-              {/* Teleworking */}
-              <div className="flex items-center">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
-                  Télétravail :
-                </span>
-                <FieldEditorTeleworking
-                  job={job}
-                  isEditMode={isEditMode}
-                  saveFunction={handleTeleworkingUpdate}
-                />
-              </div>
+              {/* Close Button */}
+              <CloseButton onClick={onClose} className="text-gray-500 hover:text-black" autoPositionning={false} />
+            </div>
 
-              {/* Language */}
-              <div className="flex items-center">
-                <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
-                  Langue :
-                </span>
+            {/* Title */}
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">
+              <FieldEditorString
+                initialValue={jobSelected.title}
+                isEditMode={isEditMode}
+                legendValue={"Title"}
+                saveFunction={handleTitleUpdate}
+              />
+            </h2>
+            <div className="flex text-sm text-gray-500 mb-4">
+              {/* Company */}
+              <span
+                className={`py-2.5 mr-1 ${!isEditMode && jobSelected.company_details?.siren ? 'cursor-pointer caret-transparent hover:ps-2 hover:pe-2 hover:rounded-xl hover:shadow-xl hover:text-white hover:bg-blue-600 focus:ring-4 focus:ring-blue-300' : ''}`}
+                onClick={!isEditMode ? () => handleCompanyDetailsSelect(jobSelected.company_details) : undefined}
+              >
+                <FieldEditorCompany
+                  job={jobSelected}
+                  isEditMode={isEditMode}
+                  saveFunction={handleJobUpdate}
+                />
+              </span>
+              
+              <span className="py-2.5 mr-1"> • </span>
+              
+              {/* Contract Type */}
+              <span className="py-2.5 mr-1">
                 <FieldEditorString
-                  initialValue={job.language}
+                  initialValue={jobSelected.contract_type}
                   isEditMode={isEditMode}
-                  saveFunction={handleLanguageUpdate}
+                  legendValue={"Contract type"}
+                  saveFunction={handleContractTypeUpdate}
                 />
-              </div>
-            </div>
-            <div>
-              {/* Level */}
-              <div className="flex items-center">
-                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
-                  Niveau :
-                </span>
-                <FieldEditorLevel
-                  job={job}
+              </span>
+              
+              <span className="py-2.5 mr-1"> • </span>
+              
+              {/* Location */}
+              <span className="py-2.5 mr-1">
+                <FieldEditorString
+                  initialValue={jobSelected.location}
                   isEditMode={isEditMode}
-                  saveFunction={handleLevelUpdate}
+                  legendValue={"Location"}
+                  saveFunction={handleLocationUpdate}
                 />
-              </div>
-
-              {/* Salary */}
-              <div className="py-2.5">
-                <span className="min-w-15 mt-0 mb-auto mr-1 font-bold">
-                  Salaire :
-                </span>
-                <FieldEditorSalary
-                  job={job}
-                  isEditMode={isEditMode}
-                  saveFunction={handleSalaryUpdate}
-                />
-              </div>
-
-              {/* Interest Indicator */}
-              <div className="flex items-center">
-                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
-                  Intérêt :
-                </span>
-                <FieldEditorInterestIndicator
-                  job={job}
-                  isEditMode={isEditMode}
-                  saveFunction={handleInterestIndicatorUpdate}
-                />
-              </div>
-
-              {/* Source */}
-              <div className="flex items-center">
-                <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Source :</strong></span>
-                {job.source 
-                  ? <Link href={job.source} target="_blank" className="text-blue-500 hover:underline">
-                      {job.source && new URL(job.source).hostname || job.source}
-                    </Link>
-                  : <span className="text-gray-400">
-                      {'[N/A]'}
-                    </span>}
-                {job.original_job_id ? <span className="ms-1">{`- Ref: ${job.original_job_id}`}</span> : ''}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-row w-full mt-4 mb-6 gap-3">
-            {/* Motivation Letter */}
-            {!showLetterPanel && (
-              <div className="mb-4">
-                <button
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  onClick={() => setShowLetterPanel(true)}
-                >
-                  View/Edit Motivation Letter
-                </button>
-              </div>
-            )}
-            {showLetterPanel && <JobMotivationLetterPanel job={job} onClose={() => { setShowLetterPanel(false) }} />}
-
-            {/* Motivation Email */}
-            {!showEmailPanel && (
-              <div className="mb-4">
-                <button
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  onClick={() => setShowEmailPanel(true)}
-                >
-                  View/Edit Motivation Email
-                </button>
-              </div>
-            )}
-            { showEmailPanel && (
-              <JobMotivationEmailPanel job={job} onClose={() => { setShowEmailPanel(false) }} />
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex flex-row w-full">
-            {/* Colonne 1 */}
-            <div className="flex-1 flex items-center justify-center gap-2">
-              <MotivationLetterBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
-              <MotivationEmailBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
-              <MotivationEmailDraftBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
-            </div>
-
-            {/* Colonne 2 */}
-            <div className="flex-1 flex items-center justify-center">
-              <span className="text-gray-400">{job._id ? job._id.toString() : '[N/A]'}</span>
-            </div>
-
-            {/* Colonne 3 */}
-            <div className="flex-1 flex items-center justify-center">
-              <span className="text-gray-400">
-                { cvId ? cvId : <span className="text-gray-400">[No CV available]</span> }
               </span>
             </div>
-          </div>
 
-          <div className="absolute bottom-4 right-4 flex items-center gap-3">
-            <BtnRemove job={job} onRemove={() => onClose()} />
-            {job.preference === 'dislike' && <BtnLike job={job} onClose={() => onClose()} />}
-            {job.preference === 'like' && <BtnDislike job={job} onClose={() => onClose()} />}
-          </div>
+            {/* Description */}
+            <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
+              <FieldEditorDescription
+                job={jobSelected}
+                isEditMode={isEditMode}
+                saveAction={handleDescriptionUpdate}
+              />
+            </div>
 
-          {companyDelailsSelected && (
-            <CompanyModal data={companyDelailsSelected} onClose={handleCompanyDetailsClose} />
-          )}
+            {/* Content */}
+            <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
+              <span className="font-bold">Annonce  complète :</span>
+              <FieldEditorTextarea
+                initialValue={jobSelected.content || ''}
+                isEditMode={isEditMode}
+                legendValue={"Content"}
+                saveFunction={handleContentUpdate}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 text-sm text-gray-600">
+              <div className="pr-2">
+                {/* Technologies */}
+                <div className="">
+                  <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                    Technologies :
+                  </span>
+                  <FieldEditorStringArray
+                    items={jobSelected.technologies}
+                    isEditMode={isEditMode}
+                    saveFunction={handleTechnologiesUpdate}
+                  />
+                </div>
+                
+                {/* Methodologies */}
+                <div className="">
+                  <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                    Méthodologies :
+                  </span>
+                  <FieldEditorStringArray
+                    items={jobSelected.methodologies}
+                    isEditMode={isEditMode}
+                    saveFunction={handleMethodologiesUpdate}
+                  />
+                </div>
+                
+                {/* Teleworking */}
+                <div className="flex items-center">
+                  <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                    Télétravail :
+                  </span>
+                  <FieldEditorTeleworking
+                    job={jobSelected}
+                    isEditMode={isEditMode}
+                    saveFunction={handleTeleworkingUpdate}
+                  />
+                </div>
+
+                {/* Language */}
+                <div className="flex items-center">
+                  <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                    Langue :
+                  </span>
+                  <FieldEditorString
+                    initialValue={jobSelected.language}
+                    isEditMode={isEditMode}
+                    saveFunction={handleLanguageUpdate}
+                  />
+                </div>
+              </div>
+              <div>
+                {/* Level */}
+                <div className="flex items-center">
+                  <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                    Niveau :
+                  </span>
+                  <FieldEditorLevel
+                    job={jobSelected}
+                    isEditMode={isEditMode}
+                    saveFunction={handleLevelUpdate}
+                  />
+                </div>
+
+                {/* Salary */}
+                <div className="py-2.5">
+                  <span className="min-w-15 mt-0 mb-auto mr-1 font-bold">
+                    Salaire :
+                  </span>
+                  <FieldEditorSalary
+                    job={jobSelected}
+                    isEditMode={isEditMode}
+                    saveFunction={handleSalaryUpdate}
+                  />
+                </div>
+
+                {/* Interest Indicator */}
+                <div className="flex items-center">
+                  <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1 font-bold">
+                    Intérêt :
+                  </span>
+                  <FieldEditorInterestIndicator
+                    job={jobSelected}
+                    isEditMode={isEditMode}
+                    saveFunction={handleInterestIndicatorUpdate}
+                  />
+                </div>
+
+                {/* Source */}
+                <div className="flex items-center">
+                  <span className="min-w-15 mt-0 mb-auto py-2.5 mr-1"><strong>Source :</strong></span>
+                  {jobSelected.source 
+                    ? <Link href={jobSelected.source} target="_blank" className="text-blue-500 hover:underline">
+                        {jobSelected.source && new URL(jobSelected.source).hostname || jobSelected.source}
+                      </Link>
+                    : <span className="text-gray-400">
+                        {'[N/A]'}
+                      </span>}
+                  {jobSelected.original_job_id ? <span className="ms-1">{`- Ref: ${jobSelected.original_job_id}`}</span> : ''}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-row w-full mt-4 mb-6 gap-3">
+              {/* Motivation Letter */}
+              {!showLetterPanel && (
+                <div className="mb-4">
+                  <button
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => setShowLetterPanel(true)}
+                  >
+                    View/Edit Motivation Letter
+                  </button>
+                </div>
+              )}
+              {showLetterPanel && <JobMotivationLetterPanel job={jobSelected} onClose={() => { setShowLetterPanel(false) }} />}
+
+              {/* Motivation Email */}
+              {!showEmailPanel && (
+                <div className="mb-4">
+                  <button
+                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => setShowEmailPanel(true)}
+                  >
+                    View/Edit Motivation Email
+                  </button>
+                </div>
+              )}
+              { showEmailPanel && (
+                <JobMotivationEmailPanel job={jobSelected} onClose={() => { setShowEmailPanel(false) }} />
+              )}
+
+              
+              {jobSelected.motivation_email_draft_url ? (
+                <div>
+                  <button
+                    className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    onClick={() => window.open(jobSelected.motivation_email_draft_url || '', '_blank')}
+                    title="Open Draft Email"
+                  >
+                    Open Draft Email
+                  </button>
+                </div>
+              ) : null}
+
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-row w-full">
+              {/* Colonne 1 */}
+              <div className="flex-1 flex items-center justify-center gap-2">
+                <MotivationLetterBtn jobId={jobSelected._id?.toString() || ''} cvId={cvId || ''} />
+                <MotivationEmailBtn jobId={jobSelected._id?.toString() || ''} cvId={cvId || ''} />
+                <MotivationEmailDraftBtn jobId={jobSelected._id?.toString() || ''} cvId={cvId || ''} />
+              </div>
+
+              {/* Colonne 2 */}
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-gray-400">{jobSelected._id ? jobSelected._id.toString() : '[N/A]'}</span>
+              </div>
+
+              {/* Colonne 3 */}
+              <div className="flex-1 flex items-center justify-center">
+                <span className="text-gray-400">
+                  { cvId ? cvId : <span className="text-gray-400">[No CV available]</span> }
+                </span>
+              </div>
+            </div>
+
+            <div className="absolute bottom-4 right-4 flex items-center gap-3">
+              <BtnRemove job={jobSelected} onRemove={() => onClose()} />
+              {jobSelected.preference === 'dislike' && <BtnLike job={jobSelected} onClose={() => onClose()} />}
+              {jobSelected.preference === 'like' && <BtnDislike job={jobSelected} onClose={() => onClose()} />}
+            </div>
+
+            {companyDelailsSelected && (
+              <CompanyModal data={companyDelailsSelected} onClose={handleCompanyDetailsClose} />
+            )}
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>}
+    </>
   );
 }

@@ -3,7 +3,7 @@ import BtnLoading from "./Btn/BtnLoading";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch } from "../store";
-import { updateLikedJob, updateDislikedJob } from "../store/jobsReducer";
+import { updateLikedJob, updateDislikedJob, setJobSelected } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { JOB_DISLIKED, JOB_LIKED } from "@/types/IJobEntity";
 
@@ -28,12 +28,14 @@ export default function MotivationEmailDraftBtn({ jobId, cvId }: MotivationEmail
       await n8nWorkflow.startCVMotivationEmailDraftWorkflow({ jobId, cvId })
       const job = await jobRepository.getById(jobId);
       if (job) {
-        switch (job.interest_indicator) {
+        switch (job.preference) {
           case JOB_LIKED:
             dispatch(updateLikedJob(job));
+            dispatch(setJobSelected(job));
             break;
           case JOB_DISLIKED:
-            dispatch(updateDislikedJob(job)); // Reset to neutral
+            dispatch(updateDislikedJob(job));
+            dispatch(setJobSelected(job));
             break;
           default:
             dispatch(addAlert({

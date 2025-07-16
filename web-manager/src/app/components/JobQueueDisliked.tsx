@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../store";
 import { JobQueueEnum } from "@/constants/JobQueueEnum";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useEffect, useRef, useState } from "react";
-import { setDislikedJobs, setDislikedSkip, setDislikedCounter } from "../store/jobsReducer";
+import { setDislikedJobs, setDislikedSkip, setDislikedCounter, setJobSelected } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
@@ -18,12 +18,11 @@ let firstLoad = true;
 
 export default function JobQueueDisliked() {
   const dispatch = useAppDispatch()
-  const { dislikedJobs, jobQueueSelected, dislikedCounter, dislikedLimit: limit, dislikedSkip: skip } = useAppSelector(state => state.jobsReducer)
+  const { dislikedJobs, jobQueueSelected, dislikedCounter, dislikedLimit: limit, dislikedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [jobSelected, setJobSelected] = useState<IJobEntity | null>(null);
 
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
@@ -101,7 +100,7 @@ export default function JobQueueDisliked() {
       {/* Disliked Counter */}
       <DisplayBanner value={`${dislikedJobs.length}/${dislikedCounter} disliked`} />
 
-      <JobTable jobs={dislikedJobs} onView={(job: IJobEntity) => setJobSelected(job)} />
+      <JobTable jobs={dislikedJobs} onView={(job: IJobEntity) => dispatch(setJobSelected(job))} />
 
       <div ref={loaderRef} className="h-10"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
@@ -109,7 +108,7 @@ export default function JobQueueDisliked() {
         {isFetching && hasMore && "Loading..."}
       </div>
 
-      { jobSelected ? <JobModal job={jobSelected} onClose={() => setJobSelected(null)} /> : null }
+      { jobSelected ? <JobModal onClose={() => dispatch(setJobSelected(null))} /> : null }
     </div>
   );
 }
