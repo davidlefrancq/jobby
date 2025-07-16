@@ -1,0 +1,355 @@
+{
+  "name": "CV Motivation Email Draft",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        120
+      ],
+      "id": "42ae6c30-0d5a-4c12-a102-62e347ef2cf4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cv-motivation-email-draft",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -60
+      ],
+      "id": "21fa9bde-e21d-426e-9da1-5598479423ea",
+      "name": "Webhook",
+      "webhookId": "458dacd2-a22d-4010-99de-6279c8dec415"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!$json.body || $json.body.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nconst data = typeof $json.body === \"string\" ? JSON.parse($json.body) : $json.body\n\n// Check jobId\nif (!data || !data.jobId || data.jobId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\n// Check cvId\nif (!data || !data.cvId || data.cvId.length <= 0) {\n  throw new Error('Bad input.')\n}\n\nreturn { json: { jobId: data.jobId, cvId: data.cvId }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        -60
+      ],
+      "id": "fa20e5d3-6a60-431b-9af2-e094b8b74f1d",
+      "name": "Extract Inputs"
+    },
+    {
+      "parameters": {
+        "jsCode": "return { json: { jobId: '68699c33381df7f61fef1fd3', cvId: '686a75006dfae4d19b093860' }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        120
+      ],
+      "id": "1367765e-1bbd-4a09-8961-876919f2281d",
+      "name": "Input Test"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.motivation_letter }}",
+        "name": "={{ $json._id }}-{{ new Date().toISOString() }}-Motivation-Letter.txt",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1WSVvTUCKVBT7V_KxPJxKqYVG17Jp-gaQ",
+          "mode": "list",
+          "cachedResultName": "Jobby",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1WSVvTUCKVBT7V_KxPJxKqYVG17Jp-gaQ"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        680,
+        20
+      ],
+      "id": "e39abe66-5877-4975-be7b-b37e806134e4",
+      "name": "Create file from text",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "BeC7oN90DDIIXPt9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={ \"_id\": \"{{ $json.jobId }}\" }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        20
+      ],
+      "id": "9c625d01-9449-481b-8544-700fb2c89615",
+      "name": "MongoDB",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        860,
+        -60
+      ],
+      "id": "e8511e95-cb03-4c6b-ae99-6bbe26cd1827",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all();\nlet job = null;\nlet motivation_letter_id = null\n\nif (data[0].json._id) job = data[0].json\nif (data[1].json._id) job = data[1].json\nif (data[0].json.id) motivation_letter_id = data[0].json.id\nif (data[1].json.id) motivation_letter_id = data[1].json.id\n\nif (job && motivation_letter_id) job.motivation_letter_id = motivation_letter_id\n\nreturn { json: job || {} };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -60
+      ],
+      "id": "3f5ec0c3-0967-4531-9b2f-5431ddd57e53",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.motivation_email_subject || '' }}",
+        "emailType": "html",
+        "message": "={{ $json.motivation_email || '' }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "motivation_letter_file"
+              }
+            ]
+          },
+          "sendTo": "={{ $json.motivation_email_to || '' }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1360,
+        20
+      ],
+      "id": "9ea4e8f8-0c34-4134-b3f9-7206c75db323",
+      "name": "Create a draft",
+      "webhookId": "7c026d9d-b229-41ad-b5d0-d1581c61c2c9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "d7Qw3dVitA4B96FP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "motivation_letter_file"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        860,
+        120
+      ],
+      "id": "e50a5c41-96b4-4f8c-bd23-f5ebe2f7aa91",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "BeC7oN90DDIIXPt9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1200,
+        20
+      ],
+      "id": "f197960e-9ec4-4c56-8820-53a2067bde3a",
+      "name": "Merge2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Input Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Inputs": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Test": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Create file from text",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create file from text": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        []
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5739c017-6113-47da-8130-5eabef185b65",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"
+  },
+  "id": "D5YJUyAhCY7AY7xQ",
+  "tags": []
+}

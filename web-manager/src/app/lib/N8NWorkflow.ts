@@ -29,6 +29,7 @@ export class N8NWorkflow {
     CompanyDetails: false,
     CVMotivationLetter: false,
     CVMotivationEmail: false,
+    CVMotivationEmailDraft: false,
   };
 
   constructor() {}
@@ -180,6 +181,26 @@ export class N8NWorkflow {
       if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
       if (error) response.error = error;
       this.started.CVMotivationEmail = false;
+    }
+    return response;
+  }
+
+  public startCVMotivationEmailDraftWorkflow = async ({ jobId, cvId }: { jobId: string, cvId: string }) => {
+    const response: WorkflowResponse = { error: null };
+    if (!this.started.CVMotivationEmailDraft) {
+      this.started.CVMotivationEmailDraft = true;
+      const { url } = N8N_WEBHOOKS.CVMotivationEmailDraft;
+      const res = await fetch(
+        url,
+        {
+          method: 'POST',
+          body: JSON.stringify({ jobId, cvId })
+        }
+      );
+      let error: string | null = null;
+      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
+      if (error) response.error = error;
+      this.started.CVMotivationEmailDraft = false;
     }
     return response;
   }

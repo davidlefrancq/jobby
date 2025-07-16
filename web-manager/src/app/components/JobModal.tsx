@@ -27,6 +27,7 @@ import MotivationLetterBtn from "./MotivationLetterBtn";
 import MotivationEmailBtn from "./MotivationEmailBtn";
 import JobMotivationLetterPanel from "./JobMotivationLetterPanel";
 import JobMotivationEmailPanel from "./JobMotivationEmailPanel";
+import MotivationEmailDraftBtn from "./MotivationEmailDraftBtn";
 
 interface JobModalProps {
   job: IJobEntity;
@@ -630,6 +631,7 @@ export default function JobModal({ job, onClose }: JobModalProps) {
             <div className="flex-1 flex items-center justify-center gap-2">
               <MotivationLetterBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
               <MotivationEmailBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
+              <MotivationEmailDraftBtn jobId={job._id?.toString() || ''} cvId={cvId || ''} />
             </div>
 
             {/* Colonne 2 */}

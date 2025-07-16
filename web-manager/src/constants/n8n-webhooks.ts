@@ -5,6 +5,7 @@ export const N8N_COMPANIES_DETAILS_WEBHOOK = 'http://localhost:5678/webhook/enri
 export const N8N_COMPANY_DETAILS_WEBHOOK = 'http://localhost:5678/webhook/enrich-company-details';
 export const N8N_CV_MOTIVATION_LETTER_WEBHOOK = 'http://localhost:5678/webhook/cv-motivation-letter';
 export const N8N_CV_MOTIVATION_EMAIL_WEBHOOK = 'http://localhost:5678/webhook/cv-motivation-email';
+export const N8N_CV_MOTIVATION_EMAIL_DRAFT_WEBHOOK = 'http://localhost:5678/webhook/cv-motivation-email-draft';
 
 export enum N8N_WORKFLOW_NAMES {
   LinkedIn = 'LinkedIn',
@@ -14,6 +15,7 @@ export enum N8N_WORKFLOW_NAMES {
   CompanyDetails = 'CompanyDetails',
   CVMotivationLetter = 'CVMotivationLetter',
   CVMotivationEmail = 'CVMotivationEmail',
+  CVMotivationEmailDraft = 'CVMotivationEmailDraft',
 }
 
 
@@ -29,6 +31,7 @@ type N8NWebhooks = {
   CompanyDetails: N8NWebhook;
   CVMotivationLetter: N8NWebhook;
   CVMotivationEmail: N8NWebhook;
+  CVMotivationEmailDraft: N8NWebhook;
 };
 export const N8N_WEBHOOKS: N8NWebhooks = {
   LinkedIn: {
@@ -59,4 +62,8 @@ export const N8N_WEBHOOKS: N8NWebhooks = {
     name: N8N_WORKFLOW_NAMES.CVMotivationEmail,
     url: N8N_CV_MOTIVATION_EMAIL_WEBHOOK
   },
+  CVMotivationEmailDraft: {
+    name: N8N_WORKFLOW_NAMES.CVMotivationEmailDraft,
+    url: N8N_CV_MOTIVATION_EMAIL_DRAFT_WEBHOOK
+  }
 };

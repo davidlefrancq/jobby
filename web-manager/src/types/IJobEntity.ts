@@ -1,5 +1,7 @@
 import { Types } from "mongoose";
 
+export const JOB_LIKED = 'like';
+export const JOB_DISLIKED = 'dislike';
 export type JobPreference = 'like' | 'dislike' | null;
 
 export interface ISalary {

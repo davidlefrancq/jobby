@@ -3,8 +3,9 @@ import BtnLoading from "./Btn/BtnLoading";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch } from "../store";
-import { updateLikedJob } from "../store/jobsReducer";
+import { updateLikedJob, updateDislikedJob } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
+import { JOB_DISLIKED, JOB_LIKED } from "@/types/IJobEntity";
 
 const n8nWorkflow = N8NWorkflow.getInstance();
 
@@ -26,7 +27,23 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
       setInProgress(true);
       await n8nWorkflow.startCVMotivationLetterWorkflow({ jobId, cvId })
       const job = await jobRepository.getById(jobId);
-      if (job) dispatch(updateLikedJob(job));
+      if (job) {
+        switch (job.interest_indicator) {
+          case JOB_LIKED:
+            dispatch(updateLikedJob(job));
+            break;
+          case JOB_DISLIKED:
+            dispatch(updateDislikedJob(job));
+            break;
+          default:
+            dispatch(addAlert({
+              date: new Date().toISOString(),
+              message: `Job with ID ${jobId} has an unknown interest indicator after motivation letter generation.`,
+              type: 'warning',
+            }));
+            break;
+        }
+      }
       else {
         dispatch(addAlert({
           date: new Date().toISOString(),
