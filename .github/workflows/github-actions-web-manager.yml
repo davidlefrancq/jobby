@@ -1,6 +1,9 @@
 name: GitHub Actions Tests
 run-name: ${{ github.actor }}
-on: [push]
+on:
+  pull_request:
+    branches:
+      - main
 jobs:
   Web-Manager-Tests:
     name: Web Manager tests
