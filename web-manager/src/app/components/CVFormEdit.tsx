@@ -48,37 +48,6 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = 6;
 
-  const handleResset = () => {
-    if (!cv) {
-      setTitle('');
-      setFirstName('');
-      setLastName('');
-      setCity('');
-      setCountry('');
-      setEmail('');
-      setLinkedin('');
-      setGithub('');
-      setWebsite('');
-      setDrivingLicense(false);
-      setSkills([]);
-      setInterests([]);
-    }
-    else {
-      setTitle(cv.title);
-      setFirstName(cv.first_name);
-      setLastName(cv.last_name);
-      setCity(cv.city || '');
-      setCountry(cv.country || '');
-      setEmail(cv.email || '');
-      setLinkedin(cv.linkedin || '');
-      setGithub(cv.github || '');
-      setWebsite(cv.website || '');
-      setDrivingLicense(cv.driving_license || false);
-      setSkills(cv.skills || []);
-      setInterests(cv.interests || []);
-    }
-  };
-
   const handleAddExperience = ({ experience, initialValue }: IExperienceSaveFunctionParams) => {
     const compareExperience = (e1: IExperience, e2: IExperience) => {
       const value1 = JSON.stringify({ 
