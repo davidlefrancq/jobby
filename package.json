@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "npm run n8n",
+    "stop": "npm run n8n:stop",
     "n8n": "docker-compose up -d",
     "n8n:build": "docker-compose build",
     "n8n:rebuild": "docker-compose build --no-cache",
