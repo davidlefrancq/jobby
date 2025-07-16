@@ -609,7 +609,9 @@ export default function JobModal({ onClose }: JobModalProps) {
                   </button>
                 </div>
               )}
-              {showLetterPanel && <JobMotivationLetterPanel job={jobSelected} onClose={() => { setShowLetterPanel(false) }} />}
+              {showLetterPanel && (
+                <JobMotivationLetterPanel job={jobSelected} onClose={() => { setShowLetterPanel(false) }} />
+              )}
 
               {/* Motivation Email */}
               {!showEmailPanel && (
