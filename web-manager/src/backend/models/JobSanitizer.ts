@@ -293,7 +293,7 @@ export class JobSanitizer {
 
     if (input.date !== undefined && typeof input.date === 'string') {
       let date: string | null = null;
-      if (input.date && typeof input.date === 'string') {
+      if (input.date) {
         date = this.sanitizeString(input.date);
         // If the date is invalid, set it to null
         const d = new Date(date);
