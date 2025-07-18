@@ -135,7 +135,7 @@ export default function CVPanel() {
       {(showNewForm || selectedCv) && (
         <CVFormEdit cv={selectedCv} onClose={() => {
           setShowNewForm(false)
-          dispatch(setSelectedCvId(undefined));
+          dispatch(setSelectedCvId(null));
         }} />
       )}
 

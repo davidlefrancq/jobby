@@ -80,6 +80,7 @@ export interface IJobEntity {
   company_details: ICompanyDetails | null;
   content: string | null;
   contract_type: string | null;
+  cv_id: string | null;
   date: string | null;
   description: string | null;
   interest_indicator: string | null;

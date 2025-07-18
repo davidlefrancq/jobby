@@ -10,8 +10,8 @@ import { JOB_DISLIKED, JOB_LIKED } from "@/types/IJobEntity";
 const n8nWorkflow = N8NWorkflow.getInstance();
 
 interface MotivationLetterBtnProps {
-  jobId: string;
-  cvId: string;
+  jobId: string | null;
+  cvId: string | null;
 }
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository()
@@ -22,7 +22,7 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
   const [inProgress, setInProgress] = useState(false);
 
   const handleClick = async () => {
-    if (inProgress) return; // Prevent multiple clicks and wait for the current process to finish
+    if (inProgress || !jobId || !cvId ) return; // Prevent multiple clicks and wait for the current process to finish
     try {
       setInProgress(true);
       await n8nWorkflow.startCVMotivationLetterWorkflow({ jobId, cvId })
@@ -69,6 +69,8 @@ export default function MotivationLetterBtn({ jobId, cvId }: MotivationLetterBtn
       title={'Letter'}
       width="100px"
       loading={inProgress}
-      onClick={handleClick} />
+      onClick={handleClick}
+      isDisabled={inProgress || !jobId || !cvId}
+    />
   );
 }

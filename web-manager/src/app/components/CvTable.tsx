@@ -93,13 +93,13 @@ export default function CvTable({ cvs }: CvTableProps) {
         <tbody className="divide-y divide-gray-200">
           {sortedCvs.map((cv, key) => (
             <tr key={key} className="hover:bg-gray-50">
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={() => dispatch(setSelectedCvId(cv._id?.toString()))} style={{ cursor: 'pointer' }}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={() => dispatch(setSelectedCvId(cv._id?.toString() || null))} style={{ cursor: 'pointer' }}>
                 {cv.createdAt ? new Date(cv.createdAt).toLocaleDateString() : 'N/A'}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={() => dispatch(setSelectedCvId(cv._id?.toString()))} style={{ cursor: 'pointer' }}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={() => dispatch(setSelectedCvId(cv._id?.toString() || null))} style={{ cursor: 'pointer' }}>
                 {<TruncatedText text={cv.title || ''} length={72} />}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={() => dispatch(setSelectedCvId(cv._id?.toString()))} style={{ cursor: 'pointer' }}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800" onClick={() => dispatch(setSelectedCvId(cv._id?.toString() || null))} style={{ cursor: 'pointer' }}>
                 <TruncatedText text={cv.city || ''} length={20} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">

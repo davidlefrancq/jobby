@@ -260,40 +260,45 @@ export class JobSanitizer {
   public static partialSanitize(input: Partial<IJob>): Partial<IJob> {
     const output: Partial<IJob> = {};
 
-    if (input.collective_agreement !== undefined && typeof input.collective_agreement === 'string') {
-      output.collective_agreement =
-        input.collective_agreement !== null
-          ? this.sanitizeString(input.collective_agreement)
-          : null;
+    if (input.collective_agreement !== undefined) {
+      output.collective_agreement = (input.collective_agreement && typeof input.collective_agreement === 'string')
+        ? this.sanitizeString(input.collective_agreement)
+        : null;
     }
 
-    if (input.company !== undefined && typeof input.company === 'string') {
-      output.company = input.company
+    if (input.company !== undefined) {
+      output.company = (input.company && typeof input.company === 'string')
         ? this.sanitizeString(input.company)
         : null;
     }
 
-    if (input.company_details !== undefined && typeof input.company_details === 'object') {
-      output.company_details = input.company_details
+    if (input.company_details !== undefined) {
+      output.company_details = (input.company_details && typeof input.company_details === 'object')
         ? this.sanitizeCompanyDetails(input.company_details)
         : null;
     }
 
-    if (input.content !== undefined && typeof input.content === 'string') {
-      output.content = input.content
+    if (input.content !== undefined) {
+      output.content = (input.content && typeof input.content === 'string')
         ? this.sanitizeString(input.content)
         : null;
     }
 
-    if (input.contract_type !== undefined && typeof input.contract_type === 'string') {
-      output.contract_type = input.contract_type
+    if (input.contract_type !== undefined) {
+      output.contract_type = (input.contract_type && typeof input.contract_type === 'string')
         ? this.sanitizeString(input.contract_type)
         : null;
     }
 
-    if (input.date !== undefined && typeof input.date === 'string') {
+    if (input.cv_id !== undefined) {
+      output.cv_id = (input.cv_id && typeof input.cv_id === 'string')
+        ? input.cv_id
+        : null;
+    }
+
+    if (input.date !== undefined) {
       let date: string | null = null;
-      if (input.date) {
+      if (input.date && typeof input.date === 'string') {
         date = this.sanitizeString(input.date);
         // If the date is invalid, set it to null
         const d = new Date(date);
@@ -302,84 +307,88 @@ export class JobSanitizer {
       output.date = date;
     }
 
-    if (input.description !== undefined && typeof input.description === 'string') {
-      output.description = input.description
+    if (input.description !== undefined) {
+      output.description = (input.description && typeof input.description === 'string')
         ? this.sanitizeString(input.description)
         : null;
     }
 
-    if (input.interest_indicator !== undefined && typeof input.interest_indicator === 'string') {
-      output.interest_indicator = input.interest_indicator
+    if (input.interest_indicator !== undefined) {
+      output.interest_indicator = (input.interest_indicator && typeof input.interest_indicator === 'string')
         ? this.sanitizeString(input.interest_indicator)
         : undefined;
     }
 
-    if (input.language !== undefined && typeof input.language === 'string') {
-      output.language = input.language
+    if (input.language !== undefined) {
+      output.language = (input.language && typeof input.language === 'string')
         ? this.sanitizeString(input.language)
         : null;
     }
 
-    if (input.level !== undefined && typeof input.level === 'string') {
-      output.level = input.level
+    if (input.level !== undefined) {
+      output.level = (input.level && typeof input.level === 'string')
         ? this.sanitizeString(input.level)
         : null;
     }
 
-    if (input.location !== undefined && typeof input.location === 'string') {
-      output.location = input.location
+    if (input.location !== undefined) {
+      output.location = (input.location && typeof input.location === 'string')
         ? this.sanitizeString(input.location)
         : null;
     }
 
-    if (input.methodologies !== undefined && Array.isArray(input.methodologies)) {
+    if (input.methodologies !== undefined) {
       output.methodologies = Array.isArray(input.methodologies)
         ? this.sanitizeStringArray(input.methodologies)
         : null;
     }
 
-    if (input.motivation_letter !== undefined && typeof input.motivation_letter === 'string') {
-      output.motivation_letter = input.motivation_letter
+    if (input.motivation_letter !== undefined) {
+      output.motivation_letter = (input.motivation_letter && typeof input.motivation_letter === 'string')
         ? this.sanitizeString(input.motivation_letter)
         : null;
     }
 
-    if (input.motivation_email !== undefined && typeof input.motivation_email === 'string') {
-      output.motivation_email = input.motivation_email
+    if (input.motivation_email !== undefined) {
+      output.motivation_email = (input.motivation_email && typeof input.motivation_email === 'string')
         ? this.sanitizeString(input.motivation_email)
         : null;
     }
 
-    if (input.original_job_id !== undefined && typeof input.original_job_id === 'string') {
-      output.original_job_id = input.original_job_id
+    if (input.original_job_id !== undefined) {
+      output.original_job_id = (input.original_job_id && typeof input.original_job_id === 'string')
         ? this.sanitizeString(input.original_job_id)
         : null;
     }
 
-    if (input.preference !== undefined && typeof input.preference === 'string') {
-      output.preference = this.sanitizePreference(input.preference);
+    if (input.preference !== undefined) {
+      output.preference = input.preference && typeof input.preference === 'string'
+        ? this.sanitizePreference(input.preference)
+        : null;
     }
 
-    if (input.salary !== undefined && typeof input.salary === 'object') {
-      output.salary = input.salary
+    if (input.salary !== undefined) {
+      output.salary = (input.salary && typeof input.salary === 'object')
         ? this.sanitizeSalary(input.salary)
         : undefined;
     }
 
-    if (input.source !== undefined && typeof input.source === 'string') {
-      output.source = input.source
+    if (input.source !== undefined) {
+      output.source = (input.source && typeof input.source === 'string')
         ? this.sanitizeString(input.source)
         : undefined;
     }
 
-    if (input.technologies !== undefined && typeof input.technologies === 'object') {
+    if (input.technologies !== undefined) {
       output.technologies = Array.isArray(input.technologies)
         ? this.sanitizeStringArray(input.technologies)
         : null;
     }
 
-    if (input.teleworking !== undefined && typeof input.teleworking === 'boolean') {
-      output.teleworking = !!input.teleworking;
+    if (input.teleworking !== undefined) {
+      output.teleworking =  (typeof input.teleworking === 'boolean')
+       ? input.teleworking
+       : false;
     }
 
     if (input.title !== undefined && typeof input.title === 'string') {
@@ -395,20 +404,20 @@ export class JobSanitizer {
       }
     }
 
-    if (input.motivation_email_subject !== undefined && typeof input.motivation_email_subject === 'string') {
-      output.motivation_email_subject = input.motivation_email_subject
+    if (input.motivation_email_subject !== undefined) {
+      output.motivation_email_subject = (input.motivation_email_subject && typeof input.motivation_email_subject === 'string')
         ? this.sanitizeString(input.motivation_email_subject)
         : null;
     }
 
-    if (input.motivation_email_draft_url !== undefined && typeof input.motivation_email_draft_url === 'string') {
-      output.motivation_email_draft_url = input.motivation_email_draft_url
+    if (input.motivation_email_draft_url !== undefined) {
+      output.motivation_email_draft_url = (input.motivation_email_draft_url && typeof input.motivation_email_draft_url === 'string')
         ? this.sanitizeString(input.motivation_email_draft_url)
         : null;
     }
 
-    if (input.motivation_email_to !== undefined && typeof input.motivation_email_to === 'string') {
-      output.motivation_email_to = input.motivation_email_to
+    if (input.motivation_email_to !== undefined) {
+      output.motivation_email_to = (input.motivation_email_to && typeof input.motivation_email_to === 'string')
         ? this.sanitizeString(input.motivation_email_to)
         : null;
     }
@@ -431,6 +440,7 @@ export class JobSanitizer {
       company_details: output.company_details || null,
       content: output.content || null,
       contract_type: output.contract_type || null,
+      cv_id: output.cv_id || null,
       date: output.date || null,
       description: output.description || null,
       interest_indicator: output.interest_indicator || null,

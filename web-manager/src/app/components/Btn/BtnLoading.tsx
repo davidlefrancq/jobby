@@ -9,24 +9,39 @@ interface BtnLoadingProps {
   width?: string;
   height?: string;
   rounded?: 'rounded-sm' | 'rounded-md' | 'rounded-lg' | 'rounded-xl' | 'rounded-full';
+  isDisabled?: boolean;
   onClick: () => void;
 }
 
-export default function BtnLoading({ title, loading, width = '150px', height = '40px', rounded = 'rounded-full', onClick }: BtnLoadingProps) {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+export default function BtnLoading({
+  title,
+  loading,
+  width = '150px',
+  height = '40px',
+  rounded = 'rounded-full',
+  isDisabled = false,
+  onClick
+}: BtnLoadingProps) {
+  const handleClick = () => {
     if (!loading) {
-      e.preventDefault();
       onClick();
     }
   }
 
-  let btnClassName = "text-white text-center items-center focus:ring-4 font-medium text-sm px-2.5 py-2.5 focus:outline-none caret-transparent";
-  btnClassName += ` ${rounded} transition-all duration-200 ease-in-out`;
-  if (loading) {
-    btnClassName += " bg-blue-100 cursor-not-allowed";
-  } else {
-    btnClassName += " bg-blue-500 hover:bg-blue-600 focus:ring-blue-300 cursor-pointer";
+  let btnClassName = `text-white text-center items-center focus:ring-4 font-medium text-sm px-2.5 py-2.5 focus:outline-none caret-transparent ${rounded} transition-all duration-200 ease-in-out `;
+  const notAllowed = 'bg-gray-500 cursor-not-allowed';
+  switch (true) {
+    case isDisabled:
+      btnClassName += notAllowed;
+      break;
+    case loading:
+      btnClassName += notAllowed;
+      break;
+    default:
+      btnClassName += 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-300 cursor-pointer';
+      break;
   }
+
 
   const btnStyle: CSSProperties = {
     cursor: 'pointer',
@@ -43,8 +58,13 @@ export default function BtnLoading({ title, loading, width = '150px', height = '
     <button
       type="button"
       className={btnClassName}
-      onClick={handleClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!loading && !isDisabled) handleClick();
+      }}
       style={btnStyle}
+      disabled={loading || isDisabled}
     >
       {!loading ? title : <GrowingSpinner />}
     </button>
