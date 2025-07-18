@@ -22,7 +22,7 @@ const data_valid: IJobEntity = {
       {
         name: "Sundar Pichai",
         position: "CEO",
-        email: "sundar.pichai@gamil.com",
+        email: "sundar.pichai@gmail.com",
         github: "https://github.com/sundarpichai",
         linkedin: "https://www.linkedin.com/in/sundar-pichai",
         phone: "1234567890",
