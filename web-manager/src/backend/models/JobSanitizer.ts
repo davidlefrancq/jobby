@@ -331,6 +331,24 @@ export class JobSanitizer {
         : undefined;
     }
 
+    if (input.motivation_email_subject !== undefined) {
+      output.motivation_email_subject = input.motivation_email_subject
+        ? this.sanitizeString(input.motivation_email_subject)
+        : null;
+    }
+
+    if (input.motivation_email_draft_url !== undefined) {
+      output.motivation_email_draft_url = input.motivation_email_draft_url
+        ? this.sanitizeString(input.motivation_email_draft_url)
+        : null;
+    }
+
+    if (input.motivation_email_to !== undefined) {
+      output.motivation_email_to = input.motivation_email_to
+        ? this.sanitizeString(input.motivation_email_to)
+        : null;
+    }
+
     return output;
   }
 
@@ -358,6 +376,9 @@ export class JobSanitizer {
       methodologies: output.methodologies || null,
       motivation_letter: output.motivation_letter || null,
       motivation_email: output.motivation_email || null,
+      motivation_email_draft_url: output.motivation_email_draft_url || null,
+      motivation_email_subject: output.motivation_email_subject || null,
+      motivation_email_to: output.motivation_email_to || null,
       original_job_id: output.original_job_id || null,
       preference: output.preference || null,
       salary: output.salary || null,
