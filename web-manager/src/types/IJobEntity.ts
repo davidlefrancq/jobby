@@ -5,9 +5,9 @@ export const JOB_DISLIKED = 'dislike';
 export type JobPreference = 'like' | 'dislike' | null;
 
 export interface ISalary {
-  currency: string;
-  min?: number | null;
-  max?: number | null;
+  currency: string | null;
+  min: number | null;
+  max: number | null;
 }
 
 export interface ICompanyLocation {
@@ -56,7 +56,7 @@ export interface ICompanyNafApe {
 
 export interface ICompanyDetails {
   clients: string[] | null;
-  creation_date: Date | null;sector?: string | null;
+  creation_date: Date | null;
   description: string | null;
   global_workforce: number | null;
   leadership: ICompanyLeadership[] | null;
@@ -66,6 +66,7 @@ export interface ICompanyDetails {
   market_positioning: ICompanyMarketPositioning | null;  
   products: string[] | null;
   revenue: ICompanyCA[] | null;
+  sector: string | null;
   share_capital: ICompanyShareCapital | null;
   siren: string | null;
   naf_ape: ICompanyNafApe | null;

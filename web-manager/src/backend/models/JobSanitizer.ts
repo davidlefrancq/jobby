@@ -42,7 +42,19 @@ export class JobSanitizer {
    * FR: Parcourt un tableau de chaînes et renvoie un nouveau tableau "nettoyé".
    */
   private static sanitizeStringArray(arr: string[]): string[] {
-    return arr.map((s) => this.sanitizeString(s));
+    const response: string[] = [];
+    // EN: Iterate through the array and sanitize each string
+    // FR: On parcourt le tableau et on sanitize chaque chaîne
+    if (Array.isArray(arr)) {
+      for (let index = 0; index < arr.length; index++) {
+        const s = arr[index];
+        if (typeof s === 'string') {
+          const sanitized = this.sanitizeString(s);
+          if (sanitized && sanitized.length > 0) response.push(sanitized);
+        }
+      }
+    }
+    return response;
   }
 
   /**
@@ -70,9 +82,15 @@ export class JobSanitizer {
    */
   private static sanitizeSalary(sal: ISalary): ISalary {
     return {
-      currency: this.sanitizeString(sal.currency),
-      min: sal.min,
-      max: sal.max,
+      currency: (sal.currency && typeof sal.currency === 'string')
+        ? this.sanitizeString(sal.currency) || null
+        : null,
+      min: (sal.min && typeof sal.min === 'number')
+        ? parseInt(sal.min.toString())
+        : null,
+      max: (sal.max && typeof sal.max === 'number')
+        ? parseInt(sal.max.toString())
+        : null,
     };
   }
 
@@ -82,14 +100,20 @@ export class JobSanitizer {
    */
   private static sanitizeCompanyLocation(loc: ICompanyLocation): ICompanyLocation {
     return {
-      address: loc.address ? this.sanitizeString(loc.address) : null,
-      city: loc.city ? this.sanitizeString(loc.city) : null,
-      country: loc.country ? this.sanitizeString(loc.country) : null,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      postal_code: loc.postal_code ? this.sanitizeString(loc.postal_code) : null,
-      siret: loc.siret ? this.sanitizeString(loc.siret) : null,
-      workforce: loc.workforce,
+      address: loc.address ? this.sanitizeString(loc.address) || null : null,
+      city: loc.city ? this.sanitizeString(loc.city) || null : null,
+      country: loc.country ? this.sanitizeString(loc.country) || null : null,
+      latitude: loc.latitude && typeof loc.latitude === 'number'
+        ? loc.latitude
+        : null,
+      longitude: loc.longitude && typeof loc.longitude === 'number'
+        ? loc.longitude
+        : null,
+      postal_code: loc.postal_code ? this.sanitizeString(loc.postal_code) || null : null,
+      siret: loc.siret ? this.sanitizeString(loc.siret) || null : null,
+      workforce: loc.workforce && typeof loc.workforce === 'number'
+        ? parseInt(loc.workforce.toString())
+        : null,
     };
   }
 
@@ -99,14 +123,14 @@ export class JobSanitizer {
    */
   private static sanitizeCompanyLeadership(lead: ICompanyLeadership): ICompanyLeadership {
     return {
-      email: lead.email ? this.sanitizeString(lead.email) : null,
-      github: lead.github ? this.sanitizeString(lead.github) : null,
-      linkedin: lead.linkedin ? this.sanitizeString(lead.linkedin) : null,
-      name: lead.name ? this.sanitizeString(lead.name) : null,
-      phone: lead.phone ? this.sanitizeString(lead.phone) : null,
-      position: lead.position ? this.sanitizeString(lead.position) : null,
-      twitter: lead.twitter ? this.sanitizeString(lead.twitter) : null,
-      website: lead.website ? this.sanitizeString(lead.website) : null,
+      email: lead.email ? this.sanitizeString(lead.email) || null : null,
+      github: lead.github ? this.sanitizeString(lead.github) || null : null,
+      linkedin: lead.linkedin ? this.sanitizeString(lead.linkedin) || null : null,
+      name: lead.name ? this.sanitizeString(lead.name) || null : null,
+      phone: lead.phone ? this.sanitizeString(lead.phone) || null : null,
+      position: lead.position ? this.sanitizeString(lead.position) || null : null,
+      twitter: lead.twitter ? this.sanitizeString(lead.twitter) || null : null,
+      website: lead.website ? this.sanitizeString(lead.website) || null : null,
     };
   }
 
@@ -130,10 +154,16 @@ export class JobSanitizer {
    */
   private static sanitizeCompanyCA(ca: ICompanyCA): ICompanyCA {
     return {
-      amount: ca.amount,
-      currency: ca.currency ? this.sanitizeString(ca.currency) : null,
+      amount: (ca.amount && typeof ca.amount === 'number')
+        ? ca.amount
+        : null,
+      currency: (ca.currency && typeof ca.currency === 'string')
+        ? this.sanitizeString(ca.currency) || null
+        : null,
       siret: this.sanitizeString(ca.siret),
-      year: ca.year,
+      year: (ca.year && typeof ca.year === 'number')
+        ? ca.year
+        : null,
     };
   }
 
@@ -143,8 +173,8 @@ export class JobSanitizer {
    */
   private static sanitizeCompanyShareCapital(cap: ICompanyShareCapital): ICompanyShareCapital {
     return {
-      amount: cap.amount,
-      currency: cap.currency ? this.sanitizeString(cap.currency) : null,
+      amount: (cap.amount && typeof cap.amount === 'number') ? cap.amount : 0,
+      currency: cap.currency ? this.sanitizeString(cap.currency) || null : null,
     };
   }
 
@@ -154,8 +184,8 @@ export class JobSanitizer {
    */
   private static sanitizeCompanyNafApe(naf: ICompanyNafApe): ICompanyNafApe {
     return {
-      code: naf.code ? this.sanitizeString(naf.code) : null,
-      activity: naf.activity ? this.sanitizeString(naf.activity) : null,
+      code: naf.code ? this.sanitizeString(naf.code) || null : null,
+      activity: naf.activity ? this.sanitizeString(naf.activity) || null : null,
     };
   }
 
@@ -164,38 +194,60 @@ export class JobSanitizer {
    * FR: Sanitize le sous-document CompanyDetails, en ré-appliquant les sanitize sur tous ses champs.
    */
   private static sanitizeCompanyDetails(details: ICompanyDetails): ICompanyDetails {
+    let creation_date: Date | null = null;
+    if (details.creation_date) {
+      creation_date = new Date(details.creation_date);
+      if (isNaN(creation_date.getTime())) {
+        creation_date = null; // If the date is invalid, set it to null
+      }
+    }
     return {
       clients: details.clients ? this.sanitizeStringArray(details.clients) : null,
-      creation_date: details.creation_date, // Date -> pas de sanitisation HTML/JS
-      description: details.description ? this.sanitizeString(details.description) : null,
-      global_workforce: details.global_workforce,
+      creation_date: creation_date, // Date -> pas de sanitisation HTML/JS
+      description: (details.description && typeof details.description === 'string')
+        ? this.sanitizeString(details.description) || null
+        : null,
+      global_workforce: (details.global_workforce && typeof details.global_workforce === 'number')
+        ? parseInt(details.global_workforce.toString())
+        : null,
       leadership:
-        Array.isArray(details.leadership) && details.leadership
+        details.leadership && Array.isArray(details.leadership)
           ? details.leadership.map((lead) => this.sanitizeCompanyLeadership(lead))
           : null,
-      legal_form: details.legal_form ? this.sanitizeString(details.legal_form) : null,
+      legal_form: (details.legal_form && typeof details.legal_form === 'string')
+        ? this.sanitizeString(details.legal_form) || null
+        : null,
       locations:
-        Array.isArray(details.locations) && details.locations
+        details.locations && Array.isArray(details.locations)
           ? details.locations.map((loc) => this.sanitizeCompanyLocation(loc))
           : null,
-      logo: details.logo ? this.sanitizeString(details.logo) : null,
+      logo: (details.logo && typeof details.logo === 'string')
+        ? this.sanitizeString(details.logo) || null
+        : null,
       market_positioning:
         details.market_positioning
           ? this.sanitizeCompanyMarketPositioning(details.market_positioning)
           : null,
       products: details.products ? this.sanitizeStringArray(details.products) : null,
       revenue:
-        Array.isArray(details.revenue) && details.revenue
+        details.revenue && Array.isArray(details.revenue)
           ? details.revenue.map((r) => this.sanitizeCompanyCA(r))
           : null,
+      sector: (details.sector && typeof details.sector === 'string')
+        ? this.sanitizeString(details.sector) || null
+        : null,
       share_capital:
         details.share_capital
           ? this.sanitizeCompanyShareCapital(details.share_capital)
           : null,
-      siren: details.siren ? this.sanitizeString(details.siren) : null,
+      siren: (details.siren && typeof details.siren === 'string')
+        ? this.sanitizeString(details.siren) || null
+        : null,
       naf_ape:
         details.naf_ape ? this.sanitizeCompanyNafApe(details.naf_ape) : null,
-      website: details.website ? this.sanitizeString(details.website) : null,
+      website: (details.website && typeof details.website === 'string')
+        ? this.sanitizeString(details.website) || null
+        : null,
     };
   }
 
@@ -208,142 +260,154 @@ export class JobSanitizer {
   public static partialSanitize(input: Partial<IJob>): Partial<IJob> {
     const output: Partial<IJob> = {};
 
-    if (input.collective_agreement !== undefined) {
+    if (input.collective_agreement !== undefined && typeof input.collective_agreement === 'string') {
       output.collective_agreement =
         input.collective_agreement !== null
           ? this.sanitizeString(input.collective_agreement)
           : null;
     }
 
-    if (input.company !== undefined) {
+    if (input.company !== undefined && typeof input.company === 'string') {
       output.company = input.company
         ? this.sanitizeString(input.company)
         : null;
     }
 
-    if (input.company_details !== undefined) {
+    if (input.company_details !== undefined && typeof input.company_details === 'object') {
       output.company_details = input.company_details
         ? this.sanitizeCompanyDetails(input.company_details)
         : null;
     }
 
-    if (input.content !== undefined) {
+    if (input.content !== undefined && typeof input.content === 'string') {
       output.content = input.content
         ? this.sanitizeString(input.content)
         : null;
     }
 
-    if (input.contract_type !== undefined) {
+    if (input.contract_type !== undefined && typeof input.contract_type === 'string') {
       output.contract_type = input.contract_type
         ? this.sanitizeString(input.contract_type)
         : null;
     }
 
-    if (input.date !== undefined) {
-      output.date = input.date
-        ? this.sanitizeString(input.date)
-        : null;
+    if (input.date !== undefined && typeof input.date === 'string') {
+      let date: string | null = null;
+      if (input.date) {
+        date = this.sanitizeString(input.date);
+        // If the date is invalid, set it to null
+        const d = new Date(date);
+        if (isNaN(d.getTime())) date = null;
+      }
+      output.date = date;
     }
 
-    if (input.description !== undefined) {
+    if (input.description !== undefined && typeof input.description === 'string') {
       output.description = input.description
         ? this.sanitizeString(input.description)
         : null;
     }
 
-    if (input.interest_indicator !== undefined) {
+    if (input.interest_indicator !== undefined && typeof input.interest_indicator === 'string') {
       output.interest_indicator = input.interest_indicator
         ? this.sanitizeString(input.interest_indicator)
         : undefined;
     }
 
-    if (input.language !== undefined) {
+    if (input.language !== undefined && typeof input.language === 'string') {
       output.language = input.language
         ? this.sanitizeString(input.language)
         : null;
     }
 
-    if (input.level !== undefined) {
+    if (input.level !== undefined && typeof input.level === 'string') {
       output.level = input.level
         ? this.sanitizeString(input.level)
         : null;
     }
 
-    if (input.location !== undefined) {
+    if (input.location !== undefined && typeof input.location === 'string') {
       output.location = input.location
         ? this.sanitizeString(input.location)
         : null;
     }
 
-    if (input.methodologies !== undefined) {
+    if (input.methodologies !== undefined && Array.isArray(input.methodologies)) {
       output.methodologies = Array.isArray(input.methodologies)
         ? this.sanitizeStringArray(input.methodologies)
         : null;
     }
 
-    if (input.motivation_letter !== undefined) {
+    if (input.motivation_letter !== undefined && typeof input.motivation_letter === 'string') {
       output.motivation_letter = input.motivation_letter
         ? this.sanitizeString(input.motivation_letter)
         : null;
     }
 
-    if (input.motivation_email !== undefined) {
+    if (input.motivation_email !== undefined && typeof input.motivation_email === 'string') {
       output.motivation_email = input.motivation_email
         ? this.sanitizeString(input.motivation_email)
         : null;
     }
 
-    if (input.original_job_id !== undefined) {
+    if (input.original_job_id !== undefined && typeof input.original_job_id === 'string') {
       output.original_job_id = input.original_job_id
         ? this.sanitizeString(input.original_job_id)
         : null;
     }
 
-    if (input.preference !== undefined) {
+    if (input.preference !== undefined && typeof input.preference === 'string') {
       output.preference = this.sanitizePreference(input.preference);
     }
 
-    if (input.salary !== undefined) {
+    if (input.salary !== undefined && typeof input.salary === 'object') {
       output.salary = input.salary
         ? this.sanitizeSalary(input.salary)
         : undefined;
     }
 
-    if (input.source !== undefined) {
+    if (input.source !== undefined && typeof input.source === 'string') {
       output.source = input.source
         ? this.sanitizeString(input.source)
         : undefined;
     }
 
-    if (input.technologies !== undefined) {
+    if (input.technologies !== undefined && typeof input.technologies === 'object') {
       output.technologies = Array.isArray(input.technologies)
         ? this.sanitizeStringArray(input.technologies)
         : null;
     }
 
-    if (input.teleworking !== undefined) {
+    if (input.teleworking !== undefined && typeof input.teleworking === 'boolean') {
       output.teleworking = !!input.teleworking;
     }
 
-    if (input.title !== undefined) {
-      output.title = input.title
-        ? this.sanitizeString(input.title)
-        : undefined;
+    if (input.title !== undefined && typeof input.title === 'string') {
+      switch (input.title) {
+        case '':
+          output.title = 'unknown';
+          break;
+        case null:
+          output.title = 'unknown';
+          break;
+        default:
+          output.title = this.sanitizeString(input.title);
+      }
     }
 
-    if (input.motivation_email_subject !== undefined) {
+    if (input.motivation_email_subject !== undefined && typeof input.motivation_email_subject === 'string') {
       output.motivation_email_subject = input.motivation_email_subject
         ? this.sanitizeString(input.motivation_email_subject)
         : null;
     }
 
-    if (input.motivation_email_draft_url !== undefined) {
+    if (input.motivation_email_draft_url !== undefined && typeof input.motivation_email_draft_url === 'string') {
       output.motivation_email_draft_url = input.motivation_email_draft_url
         ? this.sanitizeString(input.motivation_email_draft_url)
         : null;
     }
 
-    if (input.motivation_email_to !== undefined) {
+    if (input.motivation_email_to !== undefined && typeof input.motivation_email_to === 'string') {
       output.motivation_email_to = input.motivation_email_to
         ? this.sanitizeString(input.motivation_email_to)
         : null;
