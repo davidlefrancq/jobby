@@ -292,7 +292,7 @@ export class JobSanitizer {
 
     if (input.cv_id !== undefined) {
       output.cv_id = (input.cv_id && typeof input.cv_id === 'string')
-        ? input.cv_id
+        ? this.sanitizeString(input.cv_id)
         : null;
     }
 
