@@ -13,7 +13,7 @@ interface JobLinkCvProps {
   job: IJobEntity;
 }
 
-let isFisrtLoad = true;
+let isFirstLoad = true;
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -77,8 +77,8 @@ export default function JobLinkCv({ job }: JobLinkCvProps) {
   };
 
   useEffect(() => {
-    if (isFisrtLoad) {
-      isFisrtLoad = false;
+    if (isFirstLoad) {
+      isFirstLoad = false;
       setInLoading(true);
       if (job.cv_id) dispatch(setSelectedCvId(job.cv_id));
       // Load CVs when the component mounts
