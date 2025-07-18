@@ -5,6 +5,7 @@ import { IJobEntity } from '@/types/IJobEntity';
 import LanguageFlag from './LanguageFlag';
 import TruncatedText from './TruncatedText';
 import JobStatus from './JobStatus';
+import { DEFAULT_CURRENCY } from '@/constants/default';
 
 interface JobCardProps {
   job: IJobEntity;
@@ -17,11 +18,16 @@ const DotSplitter = () => (<span className="px-1">·</span>);
 function Salary({ job }: {job: IJobEntity}) {
   if (!job || !job.salary) return null;
   const { min, max, currency } = job.salary;
+  const options: Intl.NumberFormatOptions = {
+    style: 'currency',
+    currency: currency || DEFAULT_CURRENCY,
+    maximumFractionDigits: 0
+  };
   return (
     <span className="text-sm text-gray-500">
-      { min ? min.toLocaleString('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }) : null}
+      { min ? min.toLocaleString('fr-FR', options) : null}
       { min && max ? ' - ' : null}
-      { max ? max.toLocaleString('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }) : null}
+      { max ? max.toLocaleString('fr-FR', options) : null}
     </span>
   );
 }
