@@ -655,7 +655,7 @@ describe('JobSanitizer Hacked Data Tests', () => {
     expect(sanitizedJob.company_details?.products?.length).toBe(0);
     const revenue = sanitizedJob.company_details?.revenue ? sanitizedJob.company_details?.revenue[0] : null;
     expect(revenue).toBeDefined();
-    expect(revenue?.amount).toBeNull()
+    expect(revenue?.amount).toBeNull();
     expect(revenue?.currency).toBeNull();
     expect(revenue?.siret).toBe('');
     expect(revenue?.year).toBeNull();
