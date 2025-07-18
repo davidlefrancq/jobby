@@ -1,6 +1,6 @@
 import { ICompanyDetails, IJobEntity, ISalary } from "@/types/IJobEntity";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
@@ -28,6 +28,7 @@ import MotivationEmailBtn from "./MotivationEmailBtn";
 import JobMotivationLetterPanel from "./JobMotivationLetterPanel";
 import JobMotivationEmailPanel from "./JobMotivationEmailPanel";
 import MotivationEmailDraftBtn from "./MotivationEmailDraftBtn";
+import JobLinkCv from "./JobLinkCv";
 
 interface JobModalProps {
   onClose: () => void;
@@ -42,7 +43,6 @@ export default function JobModal({ onClose }: JobModalProps) {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [companyDelailsSelected, setCompanyDelailsSelected] = useState<ICompanyDetails | null>(null);
-  const [cvId, setCvId] = useState<string | null>(null);
   const [showLetterPanel, setShowLetterPanel] = useState(false);
   const [showEmailPanel, setShowEmailPanel] = useState(false);
 
@@ -385,22 +385,6 @@ export default function JobModal({ onClose }: JobModalProps) {
     }
   }
 
-  useEffect(() => {
-    RepositoryFactory.getInstance().getCvRepository().getAll(9, 0).then(cvs => {
-      if (cvs && cvs.length > 0) {
-        setCvId(cvs[0]._id?.toString() || null);
-      } else {
-        setCvId(null);
-      }
-    }).catch(err => {
-      dispatch(addAlert({
-        date: new Date().toISOString(),
-        message: `Failed to load CVs: ${String(err)}`,
-        type: "error"
-      }));
-    });
-  }, []);
-
   const borderStyle = isEditMode ? " border border-red-500" : " border border-white";
 
   return (
@@ -429,7 +413,7 @@ export default function JobModal({ onClose }: JobModalProps) {
             </div>
 
             {/* Title */}
-            <h2 className="text-xl font-semibold mb-2 text-gray-800">
+            <h2 className="text-xl font-semibold mb-0 text-gray-800">
               <FieldEditorString
                 initialValue={jobSelected.title}
                 isEditMode={isEditMode}
@@ -437,7 +421,7 @@ export default function JobModal({ onClose }: JobModalProps) {
                 saveFunction={handleTitleUpdate}
               />
             </h2>
-            <div className="flex text-sm text-gray-500 mb-4">
+            <div className="flex text-sm text-gray-500 mb-0">
               {/* Company */}
               <span
                 className={`py-2.5 mr-1 ${!isEditMode && jobSelected.company_details?.siren ? 'cursor-pointer caret-transparent hover:ps-2 hover:pe-2 hover:rounded-xl hover:shadow-xl hover:text-white hover:bg-blue-600 focus:ring-4 focus:ring-blue-300' : ''}`}
@@ -474,6 +458,8 @@ export default function JobModal({ onClose }: JobModalProps) {
                 />
               </span>
             </div>
+
+            <JobLinkCv job={jobSelected} />
 
             {/* Description */}
             <div className="text-sm text-gray-700 whitespace-pre-line mb-6 text-justify">
@@ -647,23 +633,16 @@ export default function JobModal({ onClose }: JobModalProps) {
             <div className="flex flex-row w-full">
               {/* Colonne 1 */}
               <div className="flex-1 flex items-center justify-center gap-2">
-                <MotivationLetterBtn jobId={jobSelected._id?.toString() || ''} cvId={cvId || ''} />
-                <MotivationEmailBtn jobId={jobSelected._id?.toString() || ''} cvId={cvId || ''} />
-                <MotivationEmailDraftBtn jobId={jobSelected._id?.toString() || ''} cvId={cvId || ''} />
+                <MotivationLetterBtn jobId={jobSelected._id?.toString() || null} cvId={jobSelected?.cv_id || null} />
+                <MotivationEmailBtn jobId={jobSelected._id?.toString() || null} cvId={jobSelected?.cv_id || null} />
+                <MotivationEmailDraftBtn jobId={jobSelected._id?.toString() || null} cvId={jobSelected?.cv_id || null} />
               </div>
 
               {/* Colonne 2 */}
               <div className="flex-1 flex items-center justify-center">
                 <span className="text-gray-400">{jobSelected._id ? jobSelected._id.toString() : '[N/A]'}</span>
               </div>
-
-              {/* Colonne 3 */}
-              <div className="flex-1 flex items-center justify-center">
-                <span className="text-gray-400">
-                  { cvId ? cvId : <span className="text-gray-400">[No CV available]</span> }
-                </span>
-              </div>
-            </div>
+          </div>
 
             <div className="absolute bottom-4 right-4 flex items-center gap-3">
               <BtnRemove job={jobSelected} onRemove={() => onClose()} />

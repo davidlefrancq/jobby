@@ -6,7 +6,7 @@ interface CvsState {
   cvsCounter: number
   cvsLimit: number
   cvsSkip: number
-  selectedCvId?: string
+  selectedCvId: string | null
 }
 
 const initialState: CvsState = {
@@ -14,7 +14,7 @@ const initialState: CvsState = {
   cvsCounter: 0,
   cvsLimit: 10,
   cvsSkip: 0,
-  selectedCvId: undefined,
+  selectedCvId: null,
 }
 
 const cvsSlice = createSlice({
@@ -41,7 +41,7 @@ const cvsSlice = createSlice({
       state.cvs = state.cvs.filter(cv => cv._id?.toString() !== action.payload)
       state.cvsCounter = Math.max(0, state.cvsCounter - 1) // Ensure counter does not go negative
     },
-    setSelectedCvId(state, action: PayloadAction<string | undefined>) {
+    setSelectedCvId(state, action: PayloadAction<string | null>) {
       state.selectedCvId = action.payload
     },
     clearCvs(state) {
@@ -49,7 +49,7 @@ const cvsSlice = createSlice({
       state.cvsCounter = 0
       state.cvsLimit = 10
       state.cvsSkip = 0
-      state.selectedCvId = undefined
+      state.selectedCvId = null
     }
   },
 })
