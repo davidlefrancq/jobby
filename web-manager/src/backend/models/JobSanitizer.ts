@@ -54,7 +54,7 @@ export class JobSanitizer {
         }
       }
     }
-    return response
+    return response;
   }
 
   /**
