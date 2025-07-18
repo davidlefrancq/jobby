@@ -128,7 +128,7 @@ export class JobSanitizer {
       linkedin: lead.linkedin ? this.sanitizeString(lead.linkedin) || null : null,
       name: lead.name ? this.sanitizeString(lead.name) || null : null,
       phone: lead.phone ? this.sanitizeString(lead.phone) || null : null,
-      position: lead.position ? this.sanitizeString(lead.position) : null,
+      position: lead.position ? this.sanitizeString(lead.position) || null : null,
       twitter: lead.twitter ? this.sanitizeString(lead.twitter) || null : null,
       website: lead.website ? this.sanitizeString(lead.website) || null : null,
     };
