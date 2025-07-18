@@ -117,7 +117,7 @@ export default function JobLinkCv({ job }: JobLinkCvProps) {
       {/* Liste of CVs */}
       {!selectedCv && cvsList.length > 0 && (
         <div className="mb-2 text-sm text-gray-700">
-          <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">Selectionne un CV:</span>
+          <span className="min-w-30 mt-0 mb-auto py-2.5 mr-1 font-bold">Sélectionne un CV:</span>
         </div>
       )}
       {!selectedCv && cvsList.map(cv => (
