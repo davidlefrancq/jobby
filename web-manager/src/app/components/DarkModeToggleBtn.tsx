@@ -1,28 +1,42 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 import { setTheme } from "../store/themeReducer";
 import { ThemeType } from "@/types/ThemeType";
-
-let isFirstLoad = true;
 
 export default function DarkModeToggleBtn() {
   const dispatch = useAppDispatch();
   const { theme } = useAppSelector(state => state.themeReducer);
 
+  // FR: Utilisation d'une référence pour éviter l'effet de bord lors du premier chargement
+  // EN: Using a ref to avoid side effects on the first load
+  const isFirstLoad = useRef(true);
+
   const [isDark, setIsDark] = useState(theme === "dark");
+
+  // FR: Mise à jour de l'état isDark, de la classe HTML et du thème dans le store et du localStorage
+  // EN: Update isDark state, HTML class, and theme in store and localStorage
+  const updateTheme = (newTheme: ThemeType) => {
+    setIsDark(newTheme === "dark");
+    updateHtmlClass(newTheme === "dark" ? "dark" : "light");
+    dispatch(setTheme(newTheme));
+    localStorage.setItem("hs_theme", newTheme);
+  }
 
   // FR: Initialisation du thème depuis localStorage
   // EN: Initialize the theme from localStorage
   useEffect(() => {
-    if (isFirstLoad) {
-      isFirstLoad = false;
+    if (isFirstLoad.current) {
+      // FR: Mise à jour de l'état isFirstLoad pour éviter l'effet de bord
+      // EN: Update isFirstLoad state to avoid side effects
+      isFirstLoad.current = false;
+      // FR: Récupération du thème depuis localStorage ou utilisation du thème par défaut
+      // EN: Retrieve theme from localStorage or use default theme
       const hs_theme: ThemeType = (localStorage.getItem("hs_theme") ?? "dark") as ThemeType;
-      setIsDark(hs_theme === "dark");
-      updateHtmlClass(hs_theme === "dark" ? "dark" : "light");
-      dispatch(setTheme(hs_theme));
-      localStorage.setItem("hs_theme", hs_theme);
+      // FR: Mise à jour du thème
+      // EN: Update the theme
+      updateTheme(hs_theme);
     }
   }, []);
 
@@ -34,10 +48,7 @@ export default function DarkModeToggleBtn() {
 
   const toggleTheme = () => {
     const newTheme = isDark ? "light" : "dark";
-    setIsDark(!isDark);
-    updateHtmlClass(newTheme);
-    dispatch(setTheme(newTheme));
-    localStorage.setItem("hs_theme", newTheme);
+    updateTheme(newTheme);
   };
 
   return (
