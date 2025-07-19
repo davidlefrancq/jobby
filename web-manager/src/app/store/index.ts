@@ -8,6 +8,7 @@ import { n8nReducer } from './n8nReducer'
 import { menuReducer } from './menuReducer'
 import { cvsReducer } from './cvsReducer'
 import { healthReducer } from './healthReducer'
+import { themeReducer } from './themeReducer'
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     menuReducer,
     n8nReducer,
     notificationsReducer,
+    themeReducer,
   },
 })
 

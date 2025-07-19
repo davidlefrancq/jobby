@@ -5,7 +5,6 @@ import { setCvs, setCvsCounter, setCvsSkip, setSelectedCvId } from "../store/cvs
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { ICvEntity } from "@/types/ICvEntity";
-import DisplayBanner from "./DisplayBanner";
 import CVFormEdit from "./CVFormEdit";
 import CvTable from "./CvTable";
 
@@ -15,7 +14,7 @@ let firstLoad = true;
 
 export default function CVPanel() {
   const dispatch = useAppDispatch()
-  const { cvs, cvsCounter, cvsLimit, cvsSkip, selectedCvId } = useAppSelector(state => state.cvsReducer)
+  const { cvs, cvsLimit, cvsSkip, selectedCvId } = useAppSelector(state => state.cvsReducer)
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -119,8 +118,6 @@ export default function CVPanel() {
 
   return (
     <div>
-      <DisplayBanner value={`${cvs.length}/${cvsCounter} CVs`} />
-
       <div className="flex justify-end mb-4">
         {!showNewForm && !selectedCv && (
           <button

@@ -10,7 +10,7 @@ import { setLikedJobs, setLikedSkip, setLikedCounter, setJobSelected } from "../
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
-import DisplayBanner from "./DisplayBanner";
+import FullscreenModal from "./FullscreenModal";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -18,7 +18,7 @@ let firstLoad = true;
 
 export default function JobQueueLiked() {
   const dispatch = useAppDispatch()
-  const { likedJobs, jobQueueSelected, likedCounter, likedLimit: limit, likedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
+  const { likedJobs, jobQueueSelected, likedLimit: limit, likedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -98,18 +98,17 @@ export default function JobQueueLiked() {
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 mt-1 ${jobQueueSelected === JobQueueEnum.Liked ? '' : 'hidden'}`}>
       
-      {/* Liked Counter */}
-      <DisplayBanner value={`${likedJobs.length}/${likedCounter} liked`} />
-
       <JobTable jobs={likedJobs} onView={(job: IJobEntity) => dispatch(setJobSelected(job))} />
 
-      <div ref={loaderRef} className="h-10"></div>
+      <div ref={loaderRef} className="h-80"></div>
       <div className="text-center text-sm text-gray-400 mt-2 mb-6">
         {!hasMore && "No more liked job"}
         {isFetching && hasMore && "Loading..."}
       </div>
 
-      { jobSelected ? <JobModal onClose={() => dispatch(setJobSelected(null))} /> : null }
+      <FullscreenModal title={jobSelected ?  jobSelected.title || '': ''} onClose={() => dispatch(setJobSelected(null))} >
+        { jobSelected && <JobModal onClose={() => dispatch(setJobSelected(null))} /> }
+      </FullscreenModal>
     </div>
   );
 }

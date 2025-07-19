@@ -39,7 +39,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       {/* Bouton NOPE gauche */}
       <button
         onClick={() => onDislike(job)}
-        className="absolute left-0 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-red-600 transition group"
+        className="absolute sm:left-0 lg:left-12 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-red-600 transition group"
         style={{ cursor: 'pointer' }}
       >
         <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-red-400">
@@ -118,7 +118,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       {/* Bouton LIKE droite */}
       <button
         onClick={() => onLike(job)}
-        className="absolute right-0 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-green-600 transition group"
+        className="absolute sm:right-0 lg:right-12 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-green-600 transition group"
         style={{ cursor: 'pointer' }}
       >
         <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-green-400">

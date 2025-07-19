@@ -1,7 +1,5 @@
 'use client';
 import Image from "next/image";
-import { Lora } from "next/font/google";
-import MenuActionBar from "./components/MenuActionBar";
 import JobBoard from "./components/JobBoard";
 import CVPanel from "./components/CVPanel";
 import { useAppSelector, useAppDispatch } from "./store";
@@ -12,11 +10,9 @@ import png_jobby from '../../public/icon-192-jobby-persona-logo-rounded.png';
 import { useEffect, useState } from "react";
 import { APIHealthCheck } from "./lib/APIHealthCheck";
 import { setIsAliveApi } from "./store/healthReducer";
+import DarkModeToggleBtn from "./components/DarkModeToggleBtn";
+import MenuSidebar from "./components/MenuSidebar";
 
-const lora = Lora({
-  weight: ["400", "700"],
-  subsets: ["latin"],
-});
 
 let firstRender = true;
 
@@ -45,33 +41,48 @@ export default function HomePage() {
   }, []);
 
   return (
-    <section className="w-full">
-      <div className="w-full mx-0 p-3">
-        <div className="flex justify-between items-center pt-2 ms-2 pe-2 pb-8 mb-1 border-b border-gray-200">
-          {/* App Name */}
-          <div className="flex items-center gap-0">
-            <Image src={png_jobby} alt="Job Board Logo" className="h-14 w-14 rounded-full" />
-            <h1 className={`${lora.className} text-3xl font-bold text-gray-800`}>Jobby</h1>
-          </div>
+    <div className="container mx-auto">
+      <div className="grid gap-4 mb-2 transform transition-all duration-300 bg-white border-gray-200 dark:text-white dark:bg-neutral-800 dark:border-neutral-700 lg:translate-x-0">
+        <header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3">
+          <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
+            <a className="flex-none font-semibold text-xl text-black focus:outline-hidden focus:opacity-80 dark:text-white" href="#" aria-label="Jobby">
+              <Image src={png_jobby} alt="Job Board Logo" className="h-14 w-14 rounded-full" />
+              <h1>Jobby</h1>
+            </a>
+
+            <div className="flex flex-row items-center gap-5 mt-5 sm:justify-end sm:mt-0 sm:ps-5">
+              {/* Links exemple */}
+              {/* 
+              <a className="font-medium text-blue-500 focus:outline-hidden" href="#" aria-current="page">Link</a>
+              <a className="font-medium text-gray-600 hover:text-gray-400 focus:outline-hidden focus:text-gray-400 dark:text-neutral-400 dark:hover:text-neutral-500 dark:focus:text-neutral-500" href="#">Link</a>
+              */}
+              <DarkModeToggleBtn />
+            </div>
+          </nav>
+        </header>
+      </div>
+
+      <div className="grid grid-cols-6 gap-2">
+        <div className="col-span-1 dark:border-e-neutral-700">
+          <MenuSidebar />
+        </div>
+        <div className="col-span-5 transform transition-all duration-300 bg-white border-gray-200 dark:text-white dark:bg-neutral-800 dark:border-neutral-700 lg:translate-x-0">
           
-          {/* Menu */}
-          <MenuActionBar />
+          <N8NWorkflowPanel />
+          <ErrorsPanel />
+
+          {target === MenuTargetEnum.Jobs && <JobBoard />}
+          {target === MenuTargetEnum.CVs && <CVPanel />}
+          
+          {!isAliveApi && showApiError && (
+            <div className="text-red-500 text-center mt-4">
+              <p className="text-lg font-semibold">API is not responding.</p>
+              <p>Please check the server status or try again later.</p>
+            </div>
+          )}
 
         </div>
-        
-        <N8NWorkflowPanel />
-        <ErrorsPanel />
-
-        {target === MenuTargetEnum.Jobs && <JobBoard />}
-        {target === MenuTargetEnum.CVs && <CVPanel />}
-
-        {!isAliveApi && showApiError && (
-          <div className="text-red-500 text-center mt-4">
-            <p className="text-lg font-semibold">API is not responding.</p>
-            <p>Please check the server status or try again later.</p>
-          </div>
-        )}
       </div>
-    </section>
+    </div>
   );
 }
