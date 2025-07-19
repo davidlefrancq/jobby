@@ -10,7 +10,6 @@ import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
 import JobTable from "./JobTable";
-import DisplayBanner from "./DisplayBanner";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -18,7 +17,7 @@ let firstLoad = true;
 
 export default function JobQueueDisliked() {
   const dispatch = useAppDispatch()
-  const { dislikedJobs, jobQueueSelected, dislikedCounter, dislikedLimit: limit, dislikedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
+  const { dislikedJobs, jobQueueSelected, dislikedLimit: limit, dislikedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -97,9 +96,6 @@ export default function JobQueueDisliked() {
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 mt-1 ${jobQueueSelected === JobQueueEnum.Disliked ? '' : 'hidden'}`}>
       
-      {/* Disliked Counter */}
-      <DisplayBanner value={`${dislikedJobs.length}/${dislikedCounter} disliked`} />
-
       <JobTable jobs={dislikedJobs} onView={(job: IJobEntity) => dispatch(setJobSelected(job))} />
 
       <div ref={loaderRef} className="h-10"></div>

@@ -10,7 +10,6 @@ import JobCard from "./JobCard";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { JobQueueEnum } from "@/constants/JobQueueEnum";
-import DisplayBanner from "./DisplayBanner";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -169,9 +168,6 @@ export default function JobQueueUnrated() {
   return (      
     <div className={`container mx-auto p-4 ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
       <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${hasMore ? 'overflow-x-hidden' : ''} min-h[calc(100vh-4rem)]`}>
-
-        {/* Unrated Counter */}
-        <DisplayBanner value={`${jobTargeted ? 1 : 0}/${unratedCounter} unrated`} />
 
         <AnimatePresence mode="wait">
           {jobTargeted && jobTargeted._id && (
