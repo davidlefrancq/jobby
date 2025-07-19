@@ -1,11 +1,11 @@
 # Step 1 – install dependencies
-FROM node:latest AS dependencies
+FROM node:24.4.1-alpine3.21 AS dependencies
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
 # Step 2 – build the app
-FROM node:latest AS builder
+FROM node:24.4.1-alpine3.21 AS builder
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY ./src ./src
@@ -19,7 +19,7 @@ COPY ./postcss.config.mjs ./
 RUN npm run build
 
 # Step 3 – final image
-FROM node:latest AS runner
+FROM node:24.4.1-alpine3.21 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/public ./public
