@@ -22,6 +22,7 @@ export default function DarkModeToggleBtn() {
       setIsDark(hs_theme === "dark");
       updateHtmlClass(hs_theme === "dark" ? "dark" : "light");
       dispatch(setTheme(hs_theme));
+      localStorage.setItem("hs_theme", hs_theme);
     }
   }, []);
 
@@ -36,6 +37,7 @@ export default function DarkModeToggleBtn() {
     setIsDark(!isDark);
     updateHtmlClass(newTheme);
     dispatch(setTheme(newTheme));
+    localStorage.setItem("hs_theme", newTheme);
   };
 
   return (
