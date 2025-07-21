@@ -53,7 +53,7 @@ export const Stepper = ({ steps }: StepperProps) => {
                       ? "bg-teal-500 text-white"
                       : step.status === "error"
                       ? "bg-red-500 text-white"
-                      : "bg-gray-100 text-gray-800 dark:bg-neutral-700 dark:text-white"
+                      : "bg-gray-300 text-gray-800 dark:bg-neutral-700 dark:text-white"
                   }
                 `}
               >

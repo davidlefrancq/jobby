@@ -42,7 +42,7 @@ export default function JobStepper() {
 
   return (
     <div className="p-4">
-      <div className="w-full bg-amber-50 p-4 rounded-lg shadow dark:bg-neutral-900">
+      <div className="w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
         <Stepper steps={steps} />
       </div>
       <div className="mt-4 flex justify-between">
