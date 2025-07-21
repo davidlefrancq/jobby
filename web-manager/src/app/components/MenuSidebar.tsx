@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Layers, Menu, ThumbsDown, ThumbsUp } from "lucide-react";
+import { FileText, Menu, Route, ThumbsDown, ThumbsUp, MessageCircleQuestionIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
@@ -83,6 +83,22 @@ export default function MenuSidebar() {
           <nav className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 dark:scrollbar-thumb-neutral-500 dark:scrollbar-track-neutral-700 px-2">
             <ul className="space-y-1 pb-4">
 
+              {/* Steps Button */}
+              <li>
+                <Link
+                  href="#"
+                  className={`flex items-center gap-x-3.5 py-2 px-2.5 ${target === MenuTargetEnum.Steps ? activeStyle : normalStyle}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    dispatch(selectMenuTarget(MenuTargetEnum.Steps))
+                  }}
+                >
+                  <Route />
+                  Steps
+                </Link>
+              </li>
+
               {/* CVs Button */}
               <li>
                 <Link
@@ -117,7 +133,7 @@ export default function MenuSidebar() {
                     dispatch(selectMenuTarget(MenuTargetEnum.Jobs))
                   }}
                 >
-                  <Layers />
+                  <MessageCircleQuestionIcon />
                   In waiting
                   {unratedCounter > 0 && (
                     <span className="ms-auto py-0.5 px-1.5 inline-flex items-center gap-x-1.5 text-xs bg-gray-200 text-gray-800 rounded-full dark:bg-neutral-600 dark:text-neutral-200">

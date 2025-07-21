@@ -103,6 +103,7 @@ const data_valid: IJobEntity = {
   source: "https://www.google.com/jobs/devops-engineer",
   technologies: ["Docker", "Kubernetes", "Terraform"],
   teleworking: false,
+  cv_id: null,
 }
 
 // Test JobSanitizer with valid data

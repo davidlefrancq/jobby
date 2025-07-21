@@ -6,9 +6,10 @@ import { addAlert } from '@/app/store/alertsReducer';
 import { 
   setIsStartedWorkflows,
   setFranceTravailStarted,
-  setGoogleAlertsStarted,
+  setFranceTravailStatus,
   setLinkedInStarted,
-  setCompaniesDetailsStarted
+  setLinkedInStatus,
+  setCompaniesDetailsStarted,
 } from '@/app/store/n8nReducer';
 import { addNotification } from '@/app/store/notificationsReducer';
 import { N8NWorkflow, StartWorkflowProps } from "../lib/N8NWorkflow";
@@ -22,9 +23,7 @@ export default function N8NWorkflowPanel() {
   const {
     isStartedWorkflows,
     franceTravailStarted,
-    googleAlertsStarted,
     linkedInStarted,
-    companiesDetailsStarted
   } = useAppSelector(state => state.n8nReducer)
 
   const [progress, setProgress] = useState(0);    
@@ -32,7 +31,6 @@ export default function N8NWorkflowPanel() {
 
   const onFinishHandle = () => {
     dispatch(setFranceTravailStarted(false));
-    dispatch(setGoogleAlertsStarted(false));
     dispatch(setLinkedInStarted(false));
     dispatch(setCompaniesDetailsStarted(false));
     dispatch(setIsStartedWorkflows(false));
@@ -41,6 +39,7 @@ export default function N8NWorkflowPanel() {
   const workflowFranceTravailHandler = async () => {
     if (!franceTravailStarted) {
       dispatch(setFranceTravailStarted(true));
+      dispatch(setFranceTravailStatus('processing'));
       try {
         const workflow: StartWorkflowProps = {
           workflow: N8N_WORKFLOW_NAMES.FranceTravail,
@@ -49,7 +48,9 @@ export default function N8NWorkflowPanel() {
           }
         };
         await n8nWorkflow.startWorkflow(workflow);
+        dispatch(setFranceTravailStatus('success'));
       } catch (error) {
+        dispatch(setFranceTravailStatus('error'));
         console.error(error);
         dispatch(addAlert({
           date: new Date().toISOString(),
@@ -57,60 +58,8 @@ export default function N8NWorkflowPanel() {
           type: 'error'
         }));
       } finally{
+        dispatch(setFranceTravailStarted(false));
         dispatch(addNotification({ id: Date.now(), message: 'Workflow FranceTravail finished.' }));
-      }
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const workflowGoogleAlertsHandler = async () => {
-    if (!googleAlertsStarted) {
-      dispatch(setGoogleAlertsStarted(true));
-      try {
-        const workflow: StartWorkflowProps = {
-          workflow: N8N_WORKFLOW_NAMES.GoogleAlerts,
-          setError: (error: string) => {
-            dispatch(addAlert({ date: new Date().toISOString(), message: error, type: 'error' }));
-          }
-        };
-        await n8nWorkflow.startWorkflow(workflow);
-      } catch (error) {
-        console.error(error);
-        dispatch(addAlert({
-          date: new Date().toISOString(),
-          message: 'Failed to start GoogleAlerts workflow.',
-          type: 'error'
-        }));
-      } finally {
-        dispatch(addNotification({ id: Date.now(), message: 'Workflow GoogleAlerts finished.' }));
-      }
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const workflowCompaniesDetailsHandler = async () => {
-    if (!companiesDetailsStarted) {
-      dispatch(setCompaniesDetailsStarted(true));
-      try {
-        const workflow: StartWorkflowProps = {
-          workflow: N8N_WORKFLOW_NAMES.CompaniesDetails,
-          setError: (error: string) => {
-            dispatch(addAlert({ date: new Date().toISOString(), message: error, type: 'error' }));
-          }
-        };
-        await n8nWorkflow.startWorkflow(workflow);
-      } catch (error) {
-        console.error(error);
-        dispatch(addAlert({
-          date: new Date().toISOString(),
-          message: 'Failed to start CompaniesDetails workflow.',
-          type: 'error'
-        }));
-      } finally {
-        dispatch(addNotification({
-          id: Date.now(),
-          message: 'Workflow CompaniesDetails finished.'
-        }));
       }
     }
   }
@@ -118,6 +67,7 @@ export default function N8NWorkflowPanel() {
   const workflowLinkedInHandler = async () => {
     if (!linkedInStarted) {
       dispatch(setLinkedInStarted(true));
+      dispatch(setLinkedInStatus('processing'));
       try {
         const workflow: StartWorkflowProps = {
           workflow: N8N_WORKFLOW_NAMES.LinkedIn,
@@ -130,7 +80,9 @@ export default function N8NWorkflowPanel() {
           }
         };
         await n8nWorkflow.startWorkflow(workflow);
+        dispatch(setLinkedInStatus('success'));
       } catch (error) {
+        dispatch(setLinkedInStatus('error'));
         console.error(error);
         dispatch(addAlert({
           date: new Date().toISOString(),
@@ -138,6 +90,7 @@ export default function N8NWorkflowPanel() {
           type: 'error'
         }));
       } finally {
+        dispatch(setLinkedInStarted(false));
         dispatch(addNotification({
           id: Date.now(),
           message: 'Workflow LinkedIn finished.'
@@ -148,23 +101,19 @@ export default function N8NWorkflowPanel() {
 
   const runWorkflows = async () => {
     await workflowFranceTravailHandler();
-    // await workflowGoogleAlertsHandler();
     await workflowLinkedInHandler();
-    await workflowCompaniesDetailsHandler();
   }
 
   useEffect(() => {
     let counter = 0;
     if (franceTravailStarted) counter++;
-    // if (googleAlertsStarted) counter++;
     if (linkedInStarted) counter++;
-    if (companiesDetailsStarted) counter++;
     const progress = (counter / nbWorkflows) * 100;
     setProgress(progress);
-  }, [franceTravailStarted, googleAlertsStarted, linkedInStarted, companiesDetailsStarted]);
+  }, [franceTravailStarted, linkedInStarted]);
 
   useEffect(() => {
-    if (isStartedWorkflows && !franceTravailStarted && !linkedInStarted && !companiesDetailsStarted) {      
+    if (isStartedWorkflows && !franceTravailStarted && !linkedInStarted) {      
       runWorkflows().then(() => {
         setProgress(100);
         setTimeout(() => {

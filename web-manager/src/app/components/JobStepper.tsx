@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import { Stepper } from "./Stepper";
 import { IStep, StepStatus } from "@/types/IStep";
+import BtnLoading from "./Btn/BtnLoading";
+import { RefreshCcw } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "../store";
+import { setIsStartedWorkflows } from "../store/n8nReducer";
+import JobQueueUnrated from "./JobQueueUnrated";
 
 export default function JobStepper() {
+  const dispatch = useAppDispatch()
+  const { isStartedWorkflows, franceTravailStatus, linkedInStatus } = useAppSelector(state => state.n8nReducer)
+  const { unratedJobs } = useAppSelector(state => state.jobsReducer);
+
   const [currentStep, setCurrentStep] = useState(0);
   const [currentStatus, setCurrentStatus] = useState<StepStatus>("default");
   const [steps, setSteps] = useState<IStep[]>([
     { label: "Mails", status: "active" },
-    { label: "Jobs", status: "default" },
     { label: "Like/Dislike", status: "default" },
     { label: "Enterprise", status: "default" },
     { label: "CV", status: "default" },
@@ -29,14 +37,46 @@ export default function JobStepper() {
     );
   };
 
-  const simulateStepProgress = () => {
-    if (currentStatus === "active") {
-      handleStepChange(currentStep, "processing");
-      setTimeout(() => {
+  const startEmailWorkflowsHandler = () => {
+    if (!isStartedWorkflows) {
+      dispatch(setIsStartedWorkflows(true));
+    }
+  }
+
+  const nextStep = () => {
+    setCurrentStep(currentStep + 1);
+    handleStepChange(currentStep + 1, "active");
+  };
+
+  useEffect(() => {
+    if (franceTravailStatus === "success" && linkedInStatus === "success") {
+      handleStepChange(0, "success");
+      nextStep();
+    } else if (franceTravailStatus === "error" || linkedInStatus === "error") {
+      handleStepChange(0, "error");
+    } else if (franceTravailStatus === "processing" || linkedInStatus === "processing") {
+      handleStepChange(0, "processing");
+    }
+  }, [franceTravailStatus, linkedInStatus]);
+
+  useEffect(() => {
+    if (currentStep === 1) {
+      if (unratedJobs.length === 0) {
         handleStepChange(currentStep, "success");
-        handleStepChange(currentStep + 1, "active");
-        setCurrentStep((prev) => prev + 1);
-      }, 1000); // Simulate a delay for processing 
+        nextStep();
+      }
+    }
+  }, [unratedJobs]);
+
+  const startStepProgress = () => {
+    switch (currentStep) {
+      case 0:
+        if (!isStartedWorkflows) startEmailWorkflowsHandler();
+        break;
+      case 1:
+        if (currentStatus !== "active") handleStepChange(currentStep, "processing");
+      default:
+        break;
     }
   };
 
@@ -45,7 +85,10 @@ export default function JobStepper() {
       <div className="w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
         <Stepper steps={steps} />
       </div>
+
+      {/* Steps Button */}
       <div className="mt-4 flex justify-between">
+        {/* Previous button */}
         <button
           className={`ml-2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 ${currentStep === 0 || currentStatus === "processing" ? "opacity-50 cursor-not-allowed" : ""}`}
           onClick={() => {
@@ -59,17 +102,27 @@ export default function JobStepper() {
           }}
           disabled={currentStep === 0 || currentStatus === "processing"}
         >
-          Rollback
+          Previous
         </button>
+
+        {/* Next button */}
         <button
           className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${currentStatus === "processing" || (currentStep >= steps.length - 1 && currentStatus !== "active") ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={simulateStepProgress}
-          // disabled={currentStatus === "processing" || currentStep >= steps.length - 1}
-          disabled={currentStatus === "processing" || (currentStep === steps.length - 1 && currentStatus !== "active") || currentStep > steps.length - 1}
+          onClick={startStepProgress}
+          disabled={
+            currentStatus === "processing"
+            || (currentStep === steps.length - 1 && currentStatus !== "active")
+            || currentStep > steps.length - 1
+          }
         >
-          Start
+          Next
         </button>
       </div>
+      
+      {/* Unrated Management */}
+      {currentStep === 1 && (
+        <JobQueueUnrated />
+      )}
     </div>
   );
 }
