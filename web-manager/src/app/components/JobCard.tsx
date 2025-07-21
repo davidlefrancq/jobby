@@ -35,7 +35,7 @@ function Salary({ job }: {job: IJobEntity}) {
 export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
   const date = job.date ? new Date(job.date) : null;
   return (
-    <div className="relative w-full mx-auto flex items-center justify-center min-h-[40vh] px-4 mb-6">
+    <div className="relative w-full mx-auto flex items-center justify-center min-h-[40vh] px-4">
       {/* Bouton NOPE gauche */}
       <button
         onClick={() => onDislike(job)}

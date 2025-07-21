@@ -10,7 +10,7 @@ import JobQueueUnrated from "./JobQueueUnrated";
 export default function JobStepper() {
   const dispatch = useAppDispatch()
   const { isStartedWorkflows, franceTravailStatus, linkedInStatus } = useAppSelector(state => state.n8nReducer)
-  const { unratedJobs } = useAppSelector(state => state.jobsReducer);
+  const { unratedJobs, unratedCounter } = useAppSelector(state => state.jobsReducer);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [currentStatus, setCurrentStatus] = useState<StepStatus>("default");
@@ -118,11 +118,15 @@ export default function JobStepper() {
           Next
         </button>
       </div>
-      
+
       {/* Unrated Management */}
-      {currentStep === 1 && (
+      {currentStep === 1 && (<>
         <JobQueueUnrated />
-      )}
+        {/* Unrated conter */}
+        <div className="flex justify-center mt-4 text-gray-600 dark:text-neutral-400">
+          {unratedCounter}
+        </div>
+      </>)}
     </div>
   );
 }
