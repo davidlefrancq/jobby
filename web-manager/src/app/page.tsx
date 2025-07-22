@@ -13,6 +13,7 @@ import { setIsAliveApi } from "./store/healthReducer";
 import DarkModeToggleBtn from "./components/DarkModeToggleBtn";
 import MenuSidebar from "./components/MenuSidebar";
 import JobStepper from "./components/JobStepper";
+import { N8N_HOME_PAGE } from "@/constants/n8n-webhooks";
 
 
 let firstRender = true;
@@ -57,6 +58,40 @@ export default function HomePage() {
               <a className="font-medium text-blue-500 focus:outline-hidden" href="#" aria-current="page">Link</a>
               <a className="font-medium text-gray-600 hover:text-gray-400 focus:outline-hidden focus:text-gray-400 dark:text-neutral-400 dark:hover:text-neutral-500 dark:focus:text-neutral-500" href="#">Link</a>
               */}
+              {/* N8N Button */}
+              <button
+                className={`
+                  flex
+                  items-center
+                  justify-center
+                  cursor-pointer
+                  h-[38px]
+                  w-[38px]
+                  focus:bg-gray-200
+                  outline-gray-400
+                  dark:outline-neutral-600
+                  transition-all
+                  rounded-full
+                `}
+                onClick={() => window.open(N8N_HOME_PAGE, '_blank')}
+                title="N8N"
+              >
+                    <Image
+                      src="/n8n.png"
+                      width={30}
+                      height={30}
+                      alt="Picture of the author"
+                      className={`
+                        transition-all
+                        hover:scale-125
+                        focus:scale-125
+                        dark:transition-all
+                        dark:hover:scale-125
+                        dark:focus:scale-125
+                        rounded-full
+                      `}
+                    />
+              </button>
               <DarkModeToggleBtn />
             </div>
           </nav>
