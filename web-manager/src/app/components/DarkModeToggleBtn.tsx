@@ -55,7 +55,33 @@ export default function DarkModeToggleBtn() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="font-medium text-gray-800 rounded-full hover:bg-gray-200 focus:outline-none focus:bg-gray-200 dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+      className={`
+        font-medium
+        text-gray-500
+        focus:text-gray-800
+        hover:text-gray-800
+        dark:text-neutral-200
+        dark:hover:text-white
+        dark:focus:text-white
+
+        border
+        border-gray-500
+        focus:border-gray-800
+        hover:border-gray-800
+        dark:border-neutral-200
+        dark:focus:border-white
+        dark:hover:border-white
+        
+        bg-white
+        hover:bg-gray-200
+        focus:bg-gray-200
+        dark:bg-neutral-800
+        dark:hover:bg-neutral-700
+        dark:focus:bg-neutral-700
+
+        rounded-full
+        focus:outline-none
+      `}
       aria-label="Toggle theme"
     >
       <span className="group inline-flex shrink-0 justify-center items-center size-9">
