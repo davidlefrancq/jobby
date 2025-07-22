@@ -55,7 +55,15 @@ export default function DarkModeToggleBtn() {
     <button
       type="button"
       onClick={toggleTheme}
+      title={isDark ? "Light Mode" : "Dark Mode"}
       className={`
+        flex
+        items-center
+        justify-center
+        cursor-pointer
+        h-[32px]
+        w-[32px]
+
         font-medium
         text-gray-500
         focus:text-gray-800
@@ -78,6 +86,13 @@ export default function DarkModeToggleBtn() {
         dark:bg-neutral-800
         dark:hover:bg-neutral-700
         dark:focus:bg-neutral-700
+
+        transition-all
+        hover:scale-125
+        focus:scale-125
+        dark:transition-all
+        dark:hover:scale-125
+        dark:focus:scale-125
 
         rounded-full
         focus:outline-none
