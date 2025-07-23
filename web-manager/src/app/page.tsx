@@ -104,7 +104,6 @@ export default function HomePage() {
         </div>
         <div className="col-span-5 transform transition-all duration-300 bg-white border-gray-200 dark:text-white dark:bg-neutral-800 dark:border-neutral-700 lg:translate-x-0">
           
-          <N8NWorkflowPanel />
           <ErrorsPanel />
 
           {target === MenuTargetEnum.Steps && <JobStepper />}

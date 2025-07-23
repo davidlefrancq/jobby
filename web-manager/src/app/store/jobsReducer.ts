@@ -9,14 +9,17 @@ interface JobsState {
   unratedCounter: number
   unratedLimit: number
   unratedSkip: number
+  unratedInLoading: boolean
   likedJobs: IJobEntity[]
   likedCounter: number
   likedLimit: number
   likedSkip: number
+  likedInLoading: boolean
   dislikedJobs: IJobEntity[]
   dislikedCounter: number
   dislikedLimit: number
   dislikedSkip: number
+  dislikedInLoading: boolean
   jobQueueSelected: JobQueueEnum
   jobSelected: IJobEntity | null
 }
@@ -26,14 +29,17 @@ const initialState: JobsState = {
   unratedCounter: 0,
   unratedLimit: REQUEST_RESULT_LIMIT,
   unratedSkip: 0,
+  unratedInLoading: false,
   likedJobs: [],
   likedCounter: 0,
   likedLimit: REQUEST_RESULT_LIMIT,
   likedSkip: 0,
+  likedInLoading: false,
   dislikedJobs: [],
   dislikedCounter: 0,
   dislikedLimit: REQUEST_RESULT_LIMIT,
   dislikedSkip: 0,
+  dislikedInLoading: false,
   jobQueueSelected: JobQueueEnum.Unrated,
   jobSelected: null,
 }
@@ -54,6 +60,9 @@ const jobsSlice = createSlice({
     },
     setUnratedJobs(state, action: PayloadAction<IJobEntity[]>) {
       state.unratedJobs = action.payload
+    },
+    setUnratedInLoading(state, action: PayloadAction<boolean>) {
+      state.unratedInLoading = action.payload
     },
     updateUnratedJob(state, action: PayloadAction<IJobEntity>) {
       const idx = state.unratedJobs.findIndex(j => j._id === action.payload._id)
@@ -76,6 +85,9 @@ const jobsSlice = createSlice({
     },
     setLikedJobs(state, action: PayloadAction<IJobEntity[]>) {
       state.likedJobs = action.payload
+    },
+    setLikedInLoading(state, action: PayloadAction<boolean>) {
+      state.likedInLoading = action.payload
     },
     addLikedJob(state, action: PayloadAction<IJobEntity>) {
       const existingJob = state.likedJobs.find(j => j._id === action.payload._id)
@@ -107,6 +119,9 @@ const jobsSlice = createSlice({
     },
     setDislikedJobs(state, action: PayloadAction<IJobEntity[]>) {
       state.dislikedJobs = action.payload
+    },
+    setDislikedInLoading(state, action: PayloadAction<boolean>) {
+      state.dislikedInLoading = action.payload
     },
     addDislikedJob(state, action: PayloadAction<IJobEntity>) {
       const existingJob = state.dislikedJobs.find(j => j._id === action.payload._id)
@@ -142,6 +157,7 @@ export const {
   setUnratedLimit,
   setUnratedSkip,
   setUnratedJobs,
+  setUnratedInLoading,
   updateUnratedJob,
   removeUnratedJob,
 
@@ -150,6 +166,7 @@ export const {
   setLikedLimit,
   setLikedSkip,
   setLikedJobs,
+  setLikedInLoading,
   addLikedJob,
   updateLikedJob,
   removeLikedJob,
@@ -159,6 +176,7 @@ export const {
   setDislikedLimit,
   setDislikedSkip,
   setDislikedJobs,
+  setDislikedInLoading,
   addDislikedJob,
   updateDislikedJob,
   removeDislikedJob,

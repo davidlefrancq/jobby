@@ -16,7 +16,7 @@ import { N8NWorkflow, StartWorkflowProps } from "../lib/N8NWorkflow";
 import { N8N_WORKFLOW_NAMES } from "@/constants/n8n-webhooks";
 
 const n8nWorkflow = N8NWorkflow.getInstance();
-const nbWorkflows = 4; // Number of workflows to track progress
+const nbWorkflows = 3; // Number of workflows to track progress
 
 export default function N8NWorkflowPanel() {
   const dispatch = useAppDispatch()
