@@ -1,25 +1,20 @@
 import { useEffect, useState } from "react";
 import { Stepper } from "./Stepper";
-import { IStep, StepStatus } from "@/types/IStep";
+import { IStep } from "@/types/IStep";
 import { useAppDispatch, useAppSelector } from "../store";
 import { setIsStartedWorkflows } from "../store/n8nReducer";
-import { setUnratedSkip, setUnratedJobs } from "../store/jobsReducer";
-import { addAlert } from "../store/alertsReducer";
 import JobQueueUnrated from "./JobQueueUnrated";
 import JobExplorer from "./JobExplorer";
-import { JobRepository } from "../dal/JobRepository";
 import N8NWorkflowPanel from "./N8NWorkflowPanel";
-
-const jobRepository = JobRepository.getInstance();
 
 export default function JobStepper() {
   const dispatch = useAppDispatch()
   const { isStartedWorkflows, franceTravailStatus, linkedInStatus } = useAppSelector(state => state.n8nReducer)
-  const { unratedJobs, unratedCounter, unratedInLoading } = useAppSelector(state => state.jobsReducer);
+  const { unratedCounter, unratedInLoading } = useAppSelector(state => state.jobsReducer);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "active" },
+    { label: "Mails", status: "default" },
     { label: "Like/Dislike", status: "default" },
     { label: "Enterprise", status: "default" },
     { label: "CV", status: "default" },
@@ -95,19 +90,6 @@ export default function JobStepper() {
         >
           Previous
         </button>
-
-        {/* Next button */}
-        {/* <button
-          className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active") ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={startStepProgress}
-          disabled={
-            steps[currentStep].status === "processing"
-            || (currentStep === steps.length - 1 && steps[currentStep].status !== "active")
-            || currentStep > steps.length - 1
-          }
-        >
-          Next
-        </button> */}
 
         {/* Start Button */}
         {currentStep === 0 && (

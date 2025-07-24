@@ -10,16 +10,19 @@ interface JobsState {
   unratedLimit: number
   unratedSkip: number
   unratedInLoading: boolean
+  unratedHasMore: boolean
   likedJobs: IJobEntity[]
   likedCounter: number
   likedLimit: number
   likedSkip: number
   likedInLoading: boolean
+  likedHasMore: boolean
   dislikedJobs: IJobEntity[]
   dislikedCounter: number
   dislikedLimit: number
   dislikedSkip: number
   dislikedInLoading: boolean
+  dislikedHasMore: boolean
   jobQueueSelected: JobQueueEnum
   jobSelected: IJobEntity | null
 }
@@ -30,16 +33,19 @@ const initialState: JobsState = {
   unratedLimit: REQUEST_RESULT_LIMIT,
   unratedSkip: 0,
   unratedInLoading: false,
+  unratedHasMore: true,
   likedJobs: [],
   likedCounter: 0,
   likedLimit: REQUEST_RESULT_LIMIT,
   likedSkip: 0,
   likedInLoading: false,
+  likedHasMore: true,
   dislikedJobs: [],
   dislikedCounter: 0,
   dislikedLimit: REQUEST_RESULT_LIMIT,
   dislikedSkip: 0,
   dislikedInLoading: false,
+  dislikedHasMore: true,
   jobQueueSelected: JobQueueEnum.Unrated,
   jobSelected: null,
 }
@@ -63,6 +69,9 @@ const jobsSlice = createSlice({
     },
     setUnratedInLoading(state, action: PayloadAction<boolean>) {
       state.unratedInLoading = action.payload
+    },
+    setUnratedHasMore(state, action: PayloadAction<boolean>) {
+      state.unratedHasMore = action.payload
     },
     updateUnratedJob(state, action: PayloadAction<IJobEntity>) {
       const idx = state.unratedJobs.findIndex(j => j._id === action.payload._id)
@@ -88,6 +97,9 @@ const jobsSlice = createSlice({
     },
     setLikedInLoading(state, action: PayloadAction<boolean>) {
       state.likedInLoading = action.payload
+    },
+    setLikedHasMore(state, action: PayloadAction<boolean>) {
+      state.likedHasMore = action.payload
     },
     addLikedJob(state, action: PayloadAction<IJobEntity>) {
       const existingJob = state.likedJobs.find(j => j._id === action.payload._id)
@@ -122,6 +134,9 @@ const jobsSlice = createSlice({
     },
     setDislikedInLoading(state, action: PayloadAction<boolean>) {
       state.dislikedInLoading = action.payload
+    },
+    setDislikedHasMore(state, action: PayloadAction<boolean>) {
+      state.dislikedHasMore = action.payload
     },
     addDislikedJob(state, action: PayloadAction<IJobEntity>) {
       const existingJob = state.dislikedJobs.find(j => j._id === action.payload._id)
@@ -158,6 +173,7 @@ export const {
   setUnratedSkip,
   setUnratedJobs,
   setUnratedInLoading,
+  setUnratedHasMore,
   updateUnratedJob,
   removeUnratedJob,
 
@@ -167,6 +183,7 @@ export const {
   setLikedSkip,
   setLikedJobs,
   setLikedInLoading,
+  setLikedHasMore,
   addLikedJob,
   updateLikedJob,
   removeLikedJob,
@@ -177,6 +194,7 @@ export const {
   setDislikedSkip,
   setDislikedJobs,
   setDislikedInLoading,
+  setDislikedHasMore,
   addDislikedJob,
   updateDislikedJob,
   removeDislikedJob,
