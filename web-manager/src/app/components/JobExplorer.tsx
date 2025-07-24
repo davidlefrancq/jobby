@@ -109,7 +109,7 @@ export default function JobExplorer() {
 
   return (
     <div className="w-full">
-      <div className="grid sm:grid-cols-1 lg:grid-cols-1 gap-2">
+      <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-2">
         {likedJobs.map(job => job._id && (
           <JobExplorerCard key={job._id.toString()} job={job} />
         ))}
