@@ -14,13 +14,13 @@ export default function JobStepper() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "default" },
+    { label: "Mails", status: "success" },
     { label: "Like/Dislike", status: "default" },
-    { label: "Enterprise", status: "default" },
-    { label: "CV", status: "default" },
-    { label: "Letter", status: "default" },
-    { label: "Email", status: "default" },
-    { label: "Gmail Draft", status: "default" },
+    { label: "Jobs", status: "default" },
+    // { label: "CV", status: "default" },
+    // { label: "Letter", status: "default" },
+    // { label: "Email", status: "default" },
+    // { label: "Gmail Draft", status: "default" },
   ]);
 
   const handleStepChange = (index: number, status: "default" | "active" | "success" | "error" | "processing") => {
@@ -68,7 +68,7 @@ export default function JobStepper() {
 
   return (
     <div className="p-4">
-      <div className="w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
+      <div className="flex items-center text-center w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
         <Stepper steps={steps} />
       </div>
 

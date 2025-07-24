@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
-import { setLikedCounter, setLikedJobs, setLikedSkip, setLikedHasMore, setLikedInLoading } from "../store/jobsReducer";
+import { setLikedCounter, setLikedJobs, setLikedSkip, setLikedHasMore, setLikedInLoading, updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { IJobEntity } from "@/types/IJobEntity";
@@ -10,6 +10,11 @@ import LanguageFlag from "./LanguageFlag";
 import { JobTools } from "../lib/JobTools";
 import SalaryItem from "./SalaryItem";
 import TruncatedText from "./TruncatedText";
+import FieldEditorCompanySiren from "./FieldEditor/FieldEditorCompanySiren";
+import { SquareArrowOutUpRight } from "lucide-react";
+import { N8NWorkflow } from "../lib/N8NWorkflow";
+import { addNotification } from "../store/notificationsReducer";
+import JobExplorerCard from "./JobExplorerCard";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -44,6 +49,7 @@ export default function JobExplorer() {
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
     const filteredJobs = likedJobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
+    // Sort jobs by date, with new jobs
     const updatedJobList = [...filteredJobs, ...newJobs].sort((a, b) => {
       if (b.date && a.date) return new Date(b.date).getTime() - new Date(a.date).getTime();
       else if (b.date) return -1;
@@ -102,90 +108,23 @@ export default function JobExplorer() {
   }, [loaderRef, likedHasMore, likedInLoading, likedSkip]);
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      {likedJobs.map(job => (
-        <div key={job._id?.toString()}>
-          <div
-            className="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
-          >
-            <div className="bg-gray-100 border-b border-gray-200 rounded-t-xl py-3 px-4 md:py-4 md:px-5 dark:bg-neutral-900 dark:border-neutral-700">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-white">
-                <TruncatedText text={job.title || "Unknown Title"} length={35} />
-              </h3>
-              <div className="flex gap-2 mt-1 text-sm text-gray-500 dark:text-neutral-500">
-                <JobStatus job={job} showLegend={false} />
-                <LanguageFlag language={job.language || ''} cssStyle='w-4 h-4' />
-                <TruncatedText text={job.contract_type || ''} length={25} />
-                <span className="ml-auto mr-0">
-                  <SalaryItem salary={job.salary} />
-                </span>
-              </div>
-            </div>
-            <div className="p-4 md:p-5">
-              <div className="flex flex-col-3 gap-2">
-                <span className="pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                  <TruncatedText text={job.company || ''} length={35} />
-                </span>
-                <span className="pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                  <TruncatedText text={job.location || ''} length={35} />
-                </span>
-              </div>
-
-              <p className="mt-2 text-gray-500 dark:text-neutral-400">
-                {job.description ? job.description : 'No description available.'}
-              </p>
-
-              <p className="mt-2 text-gray-500 dark:text-neutral-400">
-                {/* Technologies */}
-                {job.technologies && job.technologies.length > 0 ? (
-                  <>
-                    {job.technologies.map((tech, index) => (
-                      <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2 dark:bg-neutral-700 dark:text-white">
-                        #{tech}
-                      </span>
-                    ))}
-                  </>
-                ) : null}
-                {/* Methodologies */}
-                {job.methodologies && job.methodologies.length > 0 ? (
-                  <>
-                    {job.methodologies.map((method, index) => (
-                      <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2 dark:bg-neutral-700 dark:text-white">
-                        #{method}
-                      </span>
-                    ))}
-                  </>
-                ) : null}
-              </p>
-
-              <div className="flex justify-end mt-4 gap-2 dark:text-neutral-400">
-                <span>{job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}</span>
-              </div>
-
-              <div className="flex justify-end mt-4 gap-2">
-                
-                {job.original_job_id && job.source
-                  ? <button
-                      className="min-w-[150px] px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                      onClick={() => window.open(job.source || '', '_blank')}
-                    >
-                      {JobTools.getSourceName(job)}
-                    </button>
-                  : 'N/A'
-                }
-
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-
-      <div ref={loaderRef} className="col-span-2"></div>
-      
-      <div className="col-span-2 text-center text-sm text-gray-400 mt-2 mb-6">
-        {!likedHasMore && "No more liked job."}
-        {likedInLoading && likedHasMore && "Loading..."}
+    <div className="w-full">
+      <div className="grid sm:grid-cols-1 lg:grid-cols-1 gap-2">
+        {likedJobs.map(job => job._id && (
+          <JobExplorerCard key={job._id.toString()} job={job} />
+        ))}
       </div>
+
+      {/* Loader for more jobs */}
+      <div className="grid grid-cols-1 gap-2 mt-4">
+        <div ref={loaderRef} className="col-span-2"></div>
+        
+        <div className="col-span-1 text-center text-sm text-gray-400 mt-2 mb-6">
+          {!likedHasMore && "No more liked job."}
+          {likedInLoading && likedHasMore && "Loading..."}
+        </div>
+      </div>
+
     </div>
   );
 }
