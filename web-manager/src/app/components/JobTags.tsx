@@ -23,7 +23,7 @@ export default function JobTags({ job }: JobTagsProps) {
           key={index}
           className={`px-3 py-1 rounded-full text-xs font-semibold ${isTechnology(tag) ? cssTechnology : cssMethodology}`}
         >
-          #{tag}
+          {tag}
         </span>
       ))}
     </div>
