@@ -142,7 +142,7 @@ export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction 
           value={inputSiren || ''}
           onChange={handleSirenChange}
           className="border border-blue-800 rounded px-2 py-1 w-full mr-1"
-          placeholder="SIREN (optional)"
+          placeholder="SIREN"
         />
         <BtnLoading
           loading={inSaving}

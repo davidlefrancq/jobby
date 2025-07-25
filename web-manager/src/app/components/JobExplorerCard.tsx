@@ -4,7 +4,7 @@ import JobStatus from "./JobStatus";
 import LanguageFlag from "./LanguageFlag";
 import SalaryItem from "./SalaryItem";
 import FieldEditorCompanySiren from "./FieldEditor/FieldEditorCompanySiren";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { ArrowBigDownDash, SquareArrowOutUpRight } from "lucide-react";
 import { JobTools } from "../lib/JobTools";
 import { useAppDispatch } from "../store";
 import { addAlert } from "../store/alertsReducer";
@@ -15,6 +15,9 @@ import { addNotification } from "../store/notificationsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobTags from "./JobTags";
 import JobDislikeBtn from "./JobDislikeBtn";
+import JobStepper from "./JobStepper";
+import { useState } from "react";
+import BtnLoading from "./Btn/BtnLoading";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -25,6 +28,8 @@ interface JobExplorerCardProps {
 export default function JobExplorerCard({ job }: JobExplorerCardProps) {
   const dispatch = useAppDispatch();
 
+  const [jobCompanyInUpdateing, setJobCompanyInUpdating] = useState(false);
+
   const handleAddError = (message: string, type: MessageType) => {
     const errorMessage = {
       date: new Date().toISOString(),
@@ -34,7 +39,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
     dispatch(addAlert(errorMessage));
   }
 
-  const updateJob = async (job: Partial<IJobEntity>) => {
+  const updateJobCompany = async (job: Partial<IJobEntity>) => {
     // Check if job is valid
     if (!job || !job._id) {
       dispatch(addAlert({
@@ -44,6 +49,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
       }));
       return;
     }
+    setJobCompanyInUpdating(true);
 
     try {
       const { _id, ...jobData} = job
@@ -66,10 +72,18 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
                 type: "error"
               }));
             } else {
-              dispatch(addNotification({
-                id: Date.now(),
-                message: "Company Details Workflow is complete."
-              }));
+              const jobUpdated = await jobRepository.getById(jobUpdateResponse._id.toString());
+              if (jobUpdated) {
+                if (jobUpdated.preference === 'dislike') dispatch(updateDislikedJob(jobUpdated));
+                else if (jobUpdated.preference === 'like') dispatch(updateLikedJob(jobUpdated));
+                else if (!jobUpdated.preference) dispatch(updateUnratedJob(jobUpdated));
+                dispatch(addNotification({
+                  id: Date.now(),
+                  message: `Company Details has been updated for job ${jobUpdateResponse._id}`,
+                }));
+              } else {
+                handleAddError(`Failed to retrieve updated job after Company Details Workflow: ${String(_id)}`, 'error');
+              }
             }
             
           }
@@ -83,6 +97,8 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
         message: String(error),
         type: "error"
       }));
+    } finally {
+      setJobCompanyInUpdating(false);
     }
   }
 
@@ -92,9 +108,9 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
         className="w-full h-full bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
       >
         {/* Card Header */}
-        <div className="bg-gray-100 border-b border-gray-200 rounded-t-xl py-3 px-4 md:py-4 md:px-5 dark:bg-neutral-900 dark:border-neutral-700">
+        <div className="bg-gray-100 border-b border-gray-200 rounded-t-xl py-3 px-4 dark:bg-neutral-900 dark:border-neutral-700">
           <h3 className="text-lg font-bold text-gray-800 dark:text-white">
-            <TruncatedText text={job.title || "Unknown Title"} length={70} />
+            <TruncatedText text={job.title || "Unknown Title"} length={55} />
           </h3>
 
           <div className="flex gap-2 mt-1 text-sm text-gray-500 dark:text-neutral-500">
@@ -107,7 +123,11 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
           </div>
         </div>
 
-        <div className="h-[400px] p-4">
+        <div className="flex flex-col gap-2">
+          <JobStepper job={job} />
+        </div>
+
+        <div className="h-[400px] ps-4 pe-4 pt-0 pv-auto overflow-auto">
 
           <div className="flex flex-col-3 gap-2">
             <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
@@ -129,24 +149,43 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             `}>
               {job.company_details?.siren
                 ? job.company_details?.siren
-                : <FieldEditorCompanySiren job={job} isEditMode={true} saveFunction={updateJob} />
+                : <FieldEditorCompanySiren job={job} isEditMode={true} saveFunction={updateJobCompany} />
               }
             </span>
           </div>
 
           <div className="mt-2 flex flex-col-3 gap-2">
+            {/* Spinner if jobCompanyInUpdateing === true */}
+            { jobCompanyInUpdateing && (
+              <span className="min-h-8 w-full flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
+              </span>
+            )}
+            {/* Button Update Job Companu Details if details not exist */}
+            { !jobCompanyInUpdateing && !job.company_details?.description && (
+              <BtnLoading
+                title={<span className="flex justify-center items-center gap-1"><ArrowBigDownDash />Update Company Details</span>}
+                loading={jobCompanyInUpdateing}
+                onClick={() => updateJobCompany(job)}
+                width="200px"
+                height="32px"
+                rounded="rounded-md"
+                isDisabled={!!job.company_details?.description}
+              />
+            )}
+
             { (job.company_details?.description) && (
-              <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+              <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
                 <TruncatedText text={job.company_details.description} length={120} />
               </span>
             )}
             { (job.company_details?.naf_ape?.activity || job.company_details?.naf_ape?.code) && (
-              <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+              <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
                 <TruncatedText text={job.company_details.naf_ape.activity || job.company_details.naf_ape.code || ''} length={35} />
               </span>
             )}
             { job.company_details?.website && (
-              <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+              <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
                 <a href={job.company_details.website} target="_blank" rel="noopener noreferrer">
                   {job.company_details.website}
                 </a>

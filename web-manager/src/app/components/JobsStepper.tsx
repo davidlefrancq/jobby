@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Stepper } from "./Stepper";
 import { IStep } from "@/types/IStep";
 import { useAppDispatch, useAppSelector } from "../store";
-import { setIsStartedWorkflows } from "../store/n8nReducer";
+import { setIsStartedWorkflows, resetMainWorkflows } from "../store/n8nReducer";
 import JobQueueUnrated from "./JobQueueUnrated";
 import JobExplorer from "./JobExplorer";
 import N8NWorkflowPanel from "./N8NWorkflowPanel";
+import BtnLoading from "./Btn/BtnLoading";
 
 export default function JobsStepper() {
   const dispatch = useAppDispatch()
@@ -14,13 +15,9 @@ export default function JobsStepper() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "default" },
-    { label: "Like/Dislike", status: "default" },
+    { label: "Mails", status: "success" },
+    { label: "Assessment", status: "default" }, // Like/Dislike
     { label: "Jobs", status: "default" },
-    // { label: "CV", status: "default" },
-    // { label: "Letter", status: "default" },
-    // { label: "Email", status: "default" },
-    // { label: "Gmail Draft", status: "default" },
   ]);
 
   const handleStepChange = (index: number, status: "default" | "active" | "success" | "error" | "processing") => {
@@ -30,9 +27,22 @@ export default function JobsStepper() {
     );
   };
 
-  const nextStep = () => {
+  const nextStepHandler = () => {
+    if (currentStep === 1 && unratedCounter === 0) handleStepChange(currentStep, "success");
     setCurrentStep(currentStep + 1);
     handleStepChange(currentStep + 1, "active");
+  };
+
+  const previousStepHandler = () => {
+    handleStepChange(currentStep, "default");
+    if (currentStep > 0) {
+      if (currentStep === 1) {
+        dispatch(setIsStartedWorkflows(false));
+        dispatch(resetMainWorkflows());
+      }
+      setCurrentStep(currentStep - 1);
+      handleStepChange(currentStep - 1, "active");
+    }
   };
 
   const startEmailWorkflowsHandler = () => {
@@ -44,7 +54,7 @@ export default function JobsStepper() {
   /* Step successful: go to next */
   useEffect(() => {
     const step = steps[currentStep];
-    if (step.status === "success" && currentStep < steps.length) nextStep();
+    if (step.status === "success" && currentStep < steps.length) nextStepHandler();
   }, [steps]);
 
   {/* Mails - update status */}
@@ -54,7 +64,7 @@ export default function JobsStepper() {
     else if (isStartedWorkflows && (franceTravailStatus !== "success" || linkedInStatus !== "success")) handleStepChange(0, "processing");
   }, [isStartedWorkflows, franceTravailStatus, linkedInStatus]);
 
-  {/* Like/Dislike - update status */}
+  {/* Assessment - update status with "like" or "dislike" */}
   useEffect(() => {
     if (currentStep === 1) {
       if (steps[1].status === "default") {
@@ -71,21 +81,14 @@ export default function JobsStepper() {
       <div className="flex items-center text-center w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
         {/* Stepper previous button */}
         <div className="flex justify-between">
-          <button
-            className={`w-[80px] px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 ${currentStep === 0 || steps[currentStep].status === "processing" ? "opacity-50 cursor-not-allowed" : ""}`}
-            onClick={() => {
-              if (currentStep > 0) {
-                handleStepChange(currentStep, "default");
-                setCurrentStep(currentStep - 1);
-                handleStepChange(currentStep - 1, "active");
-              } else {
-                handleStepChange(currentStep, "default");
-              }
-            }}
-            disabled={currentStep === 0 || steps[currentStep].status === "processing"}
-          >
-            Previous
-          </button>
+          <BtnLoading
+            title={`Previous`}
+            loading={steps[currentStep].status === "processing"}
+            onClick={previousStepHandler}
+            width="80px"
+            rounded="rounded-sm"
+            isDisabled={currentStep === 0 || steps[currentStep].status === "processing"}
+          />
         </div>
         
         {/* Stepper progress bar */}
@@ -97,51 +100,26 @@ export default function JobsStepper() {
         <div className="flex items-center">
           {/* Start Button */}
           {currentStep === 0 && (
-            <button
-              className={`
-                w-[80px]
-                px-4
-                py-2
-                bg-blue-600
-                text-white
-                rounded
-                hover:bg-blue-700
-                ${steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active") ? "opacity-50 cursor-not-allowed" : ""}
-              `}
-              onClick={() => startEmailWorkflowsHandler()}
-              disabled={steps[0].status === "processing"}
-            >
-              {"Start"}
-            </button>
+            <BtnLoading
+              title={`Start`}
+              loading={steps[currentStep].status === "processing"}
+              onClick={startEmailWorkflowsHandler}
+              width="80px"
+              rounded="rounded-sm"
+              isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
+            />
           )}
 
           {/* Next Button */}
           {currentStep > 0 && (
-            <button
-              className={`
-                w-[80px]
-                px-4
-                py-2
-                bg-blue-600
-                text-white
-                rounded
-                hover:bg-blue-700
-                ${steps[currentStep].status === "processing"
-                || (
-                  currentStep >= steps.length - 1
-                  || steps[currentStep].status === "error"
-                ) ? "opacity-50 cursor-not-allowed" : ""}
-              `}
-              onClick={() => {
-                handleStepChange(currentStep, "success");
-              }}
-              disabled={
-                steps[currentStep].status === "processing"
-                || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")
-              }
-            >
-              {"Next"}
-            </button>
+            <BtnLoading
+              title={`Next`}
+              loading={steps[currentStep].status === "processing"}
+              onClick={nextStepHandler}
+              width="80px"
+              rounded="rounded-sm"
+              isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")}
+            />
           )}
         </div>
       </div>

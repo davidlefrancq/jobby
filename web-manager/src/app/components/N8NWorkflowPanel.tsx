@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 import { addAlert } from '@/app/store/alertsReducer';
 import { 
-  setIsStartedWorkflows,
   setFranceTravailStarted,
   setFranceTravailStatus,
   setLinkedInStarted,
   setLinkedInStatus,
-  setCompaniesDetailsStarted,
 } from '@/app/store/n8nReducer';
 import { addNotification } from '@/app/store/notificationsReducer';
 import { N8NWorkflow, StartWorkflowProps } from "../lib/N8NWorkflow";
@@ -28,13 +26,6 @@ export default function N8NWorkflowPanel() {
 
   const [progress, setProgress] = useState(0);    
   const hiddenClass = isStartedWorkflows ? '' : 'hidden';
-
-  const onFinishHandle = () => {
-    dispatch(setFranceTravailStarted(false));
-    dispatch(setLinkedInStarted(false));
-    dispatch(setCompaniesDetailsStarted(false));
-    dispatch(setIsStartedWorkflows(false));
-  }
 
   const workflowFranceTravailHandler = async () => {
     if (!franceTravailStarted) {
@@ -116,10 +107,6 @@ export default function N8NWorkflowPanel() {
     if (isStartedWorkflows && !franceTravailStarted && !linkedInStarted) {      
       runWorkflows().then(() => {
         setProgress(100);
-        setTimeout(() => {
-          setProgress(0);
-          onFinishHandle();
-        }, 2000);
       }).catch(err => {
         const msg = `Failed to start workflow: ${String(err)}`;
         dispatch(addAlert({ date: new Date().toISOString(), message: msg, type: 'error' }));
