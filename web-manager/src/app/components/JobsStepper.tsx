@@ -15,7 +15,7 @@ export default function JobsStepper() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "success" },
+    { label: "Mails", status: "default" },
     { label: "Assessment", status: "default" }, // Like/Dislike
     { label: "Jobs", status: "default" },
   ]);
