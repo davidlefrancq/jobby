@@ -14,7 +14,7 @@ export default function JobStepper() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "success" },
+    { label: "Mails", status: "default" },
     { label: "Like/Dislike", status: "default" },
     { label: "Jobs", status: "default" },
     // { label: "CV", status: "default" },
@@ -69,74 +69,81 @@ export default function JobStepper() {
   return (
     <div className="p-4">
       <div className="flex items-center text-center w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
-        <Stepper steps={steps} />
-      </div>
-
-      {/* Steps Button */}
-      <div className="mt-4 flex justify-between">
-        {/* Previous button */}
-        <button
-          className={`ml-2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 ${currentStep === 0 || steps[currentStep].status === "processing" ? "opacity-50 cursor-not-allowed" : ""}`}
-          onClick={() => {
-            if (currentStep > 0) {
-              handleStepChange(currentStep, "default");
-              setCurrentStep(currentStep - 1);
-              handleStepChange(currentStep - 1, "active");
-            } else {
-              handleStepChange(currentStep, "default");
-            }
-          }}
-          disabled={currentStep === 0 || steps[currentStep].status === "processing"}
-        >
-          Previous
-        </button>
-
-        {/* Start Button */}
-        {currentStep === 0 && (
+        {/* Stepper previous button */}
+        <div className="flex justify-between">
           <button
-            className={`
-              px-4
-              py-2
-              bg-blue-600
-              text-white
-              rounded
-              hover:bg-blue-700
-              ${steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active") ? "opacity-50 cursor-not-allowed" : ""}
-            `}
-            onClick={() => startEmailWorkflowsHandler()}
-            disabled={steps[0].status === "processing"}
-          >
-            {"Start"}
-          </button>
-        )}
-
-        {/* Next Button */}
-        {currentStep > 0 && (
-          <button
-            className={`
-              px-4
-              py-2
-              bg-blue-600
-              text-white
-              rounded
-              hover:bg-blue-700
-              ${steps[currentStep].status === "processing"
-              || (
-                currentStep >= steps.length - 1
-                || steps[currentStep].status === "error"
-              ) ? "opacity-50 cursor-not-allowed" : ""}
-            `}
+            className={`w-[80px] px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 ${currentStep === 0 || steps[currentStep].status === "processing" ? "opacity-50 cursor-not-allowed" : ""}`}
             onClick={() => {
-              handleStepChange(currentStep, "success");
+              if (currentStep > 0) {
+                handleStepChange(currentStep, "default");
+                setCurrentStep(currentStep - 1);
+                handleStepChange(currentStep - 1, "active");
+              } else {
+                handleStepChange(currentStep, "default");
+              }
             }}
-            disabled={
-              steps[currentStep].status === "processing"
-              || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")
-            }
+            disabled={currentStep === 0 || steps[currentStep].status === "processing"}
           >
-            {"Next"}
+            Previous
           </button>
-        )}
+        </div>
+        
+        {/* Stepper progress bar */}
+        <div className="flex items-center justify-center flex-1 ps-4 pe-4">
+          <Stepper steps={steps} />
+        </div>
+        
+        {/* Stepper start/next button */}
+        <div className="flex items-center">
+          {/* Start Button */}
+          {currentStep === 0 && (
+            <button
+              className={`
+                w-[80px]
+                px-4
+                py-2
+                bg-blue-600
+                text-white
+                rounded
+                hover:bg-blue-700
+                ${steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active") ? "opacity-50 cursor-not-allowed" : ""}
+              `}
+              onClick={() => startEmailWorkflowsHandler()}
+              disabled={steps[0].status === "processing"}
+            >
+              {"Start"}
+            </button>
+          )}
+
+          {/* Next Button */}
+          {currentStep > 0 && (
+            <button
+              className={`
+                w-[80px]
+                px-4
+                py-2
+                bg-blue-600
+                text-white
+                rounded
+                hover:bg-blue-700
+                ${steps[currentStep].status === "processing"
+                || (
+                  currentStep >= steps.length - 1
+                  || steps[currentStep].status === "error"
+                ) ? "opacity-50 cursor-not-allowed" : ""}
+              `}
+              onClick={() => {
+                handleStepChange(currentStep, "success");
+              }}
+              disabled={
+                steps[currentStep].status === "processing"
+                || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")
+              }
+            >
+              {"Next"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* N8N Workflow Panel */}

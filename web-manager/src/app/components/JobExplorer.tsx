@@ -1,19 +1,10 @@
 import { useEffect, useRef } from "react";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
-import { setLikedCounter, setLikedJobs, setLikedSkip, setLikedHasMore, setLikedInLoading, updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
+import { setLikedCounter, setLikedJobs, setLikedSkip, setLikedHasMore, setLikedInLoading } from "../store/jobsReducer";
 import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { IJobEntity } from "@/types/IJobEntity";
-import JobStatus from "./JobStatus";
-import LanguageFlag from "./LanguageFlag";
-import { JobTools } from "../lib/JobTools";
-import SalaryItem from "./SalaryItem";
-import TruncatedText from "./TruncatedText";
-import FieldEditorCompanySiren from "./FieldEditor/FieldEditorCompanySiren";
-import { SquareArrowOutUpRight } from "lucide-react";
-import { N8NWorkflow } from "../lib/N8NWorkflow";
-import { addNotification } from "../store/notificationsReducer";
 import JobExplorerCard from "./JobExplorerCard";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();

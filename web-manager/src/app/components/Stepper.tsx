@@ -35,40 +35,40 @@ export const Stepper = ({ steps }: StepperProps) => {
 
   return (
     <div className="w-full">
-      {/* Stepper Header */}
-      <ul className="flex flex-wrap justify-between gap-y-4">
+
+      <ul className="relative flex flex-row gap-x-2 max-w-lg mx-auto">
+        {/* Stepper items */}
         {steps.map((step, index) => (
-          <li
-            key={index}
-            className={`flex items-center gap-x-2 shrink basis-0 flex-1 group ${step.status}`}
-          >
-            <span className="min-w-7 min-h-7 inline-flex items-center text-xs align-middle">
-              <span
-                className={`
-                  size-7 flex justify-center items-center shrink-0 rounded-full font-medium
-                  ${
-                    step.status === "active" || step.status === "processing"
-                      ? "bg-blue-600 text-white"
-                      : step.status === "success"
-                      ? "bg-teal-500 text-white"
-                      : step.status === "error"
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-300 text-gray-800 dark:bg-neutral-700 dark:text-white"
-                  }
-                `}
-              >
+          <li key={index} className="shrink basis-0 flex-1 group">
+            <div className="min-w-12 min-h-7 w-full inline-flex items-center text-xs align-middle">
+              {/* Stepper index */}
+              <span className={`
+                size-7
+                flex
+                justify-center
+                items-center
+                shrink-0
+                font-medium
+                rounded-full
+                ${step.status === "success" && "bg-green-700 text-white"}
+                ${step.status === "error" && "bg-red-500 text-white"}
+                ${step.status === "processing" && "bg-blue-600 text-white"}
+                ${step.status === "active" && "bg-blue-600 text-white"}
+                ${step.status === "default" && "bg-gray-300 text-gray-800 dark:bg-neutral-700 dark:text-white"}
+              `}>
                 {getStepIcon(step.status, index)}
               </span>
-              <span className="ms-2 text-sm font-medium text-gray-800 dark:text-white">
+              {/* Stepper label */}
+              <span className="ms-2 text-sm font-medium text-gray-800 dark:text-white hidden lg:inline-block">
                 {step.label}
               </span>
-            </span>
-            {index < steps.length - 1 && (
-              <div className="w-full h-px flex-1 bg-gray-200 dark:bg-neutral-700"></div>
-            )}
+              {/* Line between items */}
+              <div className="ms-2 w-full h-px flex-1 bg-gray-200 group-last:hidden dark:bg-neutral-700"></div>
+            </div>
           </li>
         ))}
       </ul>
+
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { addNotification } from "../store/notificationsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobTags from "./JobTags";
+import JobDislikeBtn from "./JobDislikeBtn";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -116,6 +117,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               <TruncatedText text={job.location || ''} length={35} />
             </span>
             <span className={`
+              h-8
               flex justify-center items-center 
               ${job.company_details?.siren ? 'pl-2 pr-2' : 'px-0 my-0'}
               rounded
@@ -130,6 +132,26 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
                 : <FieldEditorCompanySiren job={job} isEditMode={true} saveFunction={updateJob} />
               }
             </span>
+          </div>
+
+          <div className="mt-2 flex flex-col-3 gap-2">
+            { (job.company_details?.description) && (
+              <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                <TruncatedText text={job.company_details.description} length={120} />
+              </span>
+            )}
+            { (job.company_details?.naf_ape?.activity || job.company_details?.naf_ape?.code) && (
+              <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                <TruncatedText text={job.company_details.naf_ape.activity || job.company_details.naf_ape.code || ''} length={35} />
+              </span>
+            )}
+            { job.company_details?.website && (
+              <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                <a href={job.company_details.website} target="_blank" rel="noopener noreferrer">
+                  {job.company_details.website}
+                </a>
+              </span>
+            )}
           </div>
 
           <p className="mt-2 text-gray-500 dark:text-neutral-400">
@@ -150,11 +172,18 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             {/* Job date */}
             {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
           </div>
-          <div className="flex-auto mt-1 mb-1 text-sm text-gray-500 dark:text-neutral-500">
+          <div className="flex-auto mt-1 mb-1 text-sm text-center text-gray-500 dark:text-neutral-500">
             {/* Job ID */}
-            {job._id?.toString()}
+            <div>{job._id?.toString()}</div>
+            {job.original_job_id && (
+              <div>
+                {job.original_job_id}
+              </div>
+            )}
           </div>
-          <div className="flex-auto mt-1 mb-1 text-sm text-right text-gray-500 dark:text-neutral-500">
+          <div className="flex gap-2 mt-1 mb-1 text-sm text-right text-gray-500 dark:text-neutral-500">
+            {/* Dislike Button */}
+            <JobDislikeBtn job={job} />
             {/* Original job url */}
             {job.original_job_id && job.source
               ? <button
