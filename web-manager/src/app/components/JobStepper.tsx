@@ -120,12 +120,19 @@ export default function JobStepper() {
               text-white
               rounded
               hover:bg-blue-700
-              ${steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active") ? "opacity-50 cursor-not-allowed" : ""}
+              ${steps[currentStep].status === "processing"
+              || (
+                currentStep >= steps.length - 1
+                || steps[currentStep].status === "error"
+              ) ? "opacity-50 cursor-not-allowed" : ""}
             `}
             onClick={() => {
               handleStepChange(currentStep, "success");
             }}
-            disabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
+            disabled={
+              steps[currentStep].status === "processing"
+              || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")
+            }
           >
             {"Next"}
           </button>
