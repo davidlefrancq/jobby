@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { IJobEntity } from '@/types/IJobEntity'
 import { JobQueueEnum } from '@/constants/JobQueueEnum'
+import { JobSorter } from '@/backend/lib/JobSorter'
 
 const REQUEST_RESULT_LIMIT = process.env.NEXT_PUBLIC_REQUEST_RESULT_LIMIT ? parseInt(process.env.NEXT_PUBLIC_REQUEST_RESULT_LIMIT) : 25
 
@@ -56,104 +57,97 @@ const jobsSlice = createSlice({
   reducers: {
     // Urated Jobs Methods
     setUnratedCounter(state, action: PayloadAction<number>) {
-      state.unratedCounter = Math.round(action.payload)
+      state.unratedCounter = Math.round(action.payload);
     },
     setUnratedLimit(state, action: PayloadAction<number>) {
-      state.unratedLimit = Math.round(action.payload)
+      state.unratedLimit = Math.round(action.payload);
     },
     setUnratedSkip(state, action: PayloadAction<number>) {
-      state.unratedSkip = Math.round(action.payload)
+      state.unratedSkip = Math.round(action.payload);
     },
     setUnratedJobs(state, action: PayloadAction<IJobEntity[]>) {
-      state.unratedJobs = action.payload
+      state.unratedJobs = action.payload;
+      state.unratedCounter = action.payload.length;
     },
     setUnratedInLoading(state, action: PayloadAction<boolean>) {
-      state.unratedInLoading = action.payload
+      state.unratedInLoading = action.payload;
     },
     setUnratedHasMore(state, action: PayloadAction<boolean>) {
-      state.unratedHasMore = action.payload
+      state.unratedHasMore = action.payload;
     },
     updateUnratedJob(state, action: PayloadAction<IJobEntity>) {
-      const idx = state.unratedJobs.findIndex(j => j._id === action.payload._id)
-      if (idx !== -1) state.unratedJobs[idx] = action.payload
+      const jobListWithoutUpdated = state.unratedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
+      state.unratedJobs = [...jobListWithoutUpdated, action.payload].sort(JobSorter.byDate);
     },
     removeUnratedJob(state, action: PayloadAction<string>) {
-      state.unratedJobs = state.unratedJobs.filter(j => j._id?.toString() !== action.payload)
-      state.unratedCounter = Math.max(0, state.unratedCounter - 1) // Ensure counter does not go negative
+      state.unratedJobs = state.unratedJobs.filter(j => j._id?.toString() !== action.payload);
+      state.unratedCounter = state.unratedJobs.length;
     },
 
     // Liked Jobs Methods
     setLikedCounter(state, action: PayloadAction<number>) {
-      state.likedCounter = Math.round(action.payload)
+      state.likedCounter = Math.round(action.payload);
     },
     setLikedLimit(state, action: PayloadAction<number>) {
-      state.likedLimit = Math.round(action.payload)
+      state.likedLimit = Math.round(action.payload);
     },
     setLikedSkip(state, action: PayloadAction<number>) {
-      state.likedSkip = Math.round(action.payload)
+      state.likedSkip = Math.round(action.payload);
     },
     setLikedJobs(state, action: PayloadAction<IJobEntity[]>) {
-      state.likedJobs = action.payload
+      state.likedJobs = action.payload;
     },
     setLikedInLoading(state, action: PayloadAction<boolean>) {
-      state.likedInLoading = action.payload
+      state.likedInLoading = action.payload;
     },
     setLikedHasMore(state, action: PayloadAction<boolean>) {
-      state.likedHasMore = action.payload
+      state.likedHasMore = action.payload;
     },
     addLikedJob(state, action: PayloadAction<IJobEntity>) {
-      const existingJob = state.likedJobs.find(j => j._id === action.payload._id)
-      if (!existingJob) {
-        let newLikedJobs = state.likedJobs.filter(j => j._id !== action.payload._id)
-        newLikedJobs = [...newLikedJobs, action.payload]
-        state.likedJobs = newLikedJobs
-        state.likedCounter = Math.max(0, state.likedCounter + 1) // Ensure counter does not go negative
-      }
+      const jobListWithoutNew = state.likedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
+      state.likedJobs = [...jobListWithoutNew, action.payload].sort(JobSorter.byDate);
+      state.likedCounter = state.likedJobs.length;
     },
     updateLikedJob(state, action: PayloadAction<IJobEntity>) {
-      const jobId = state.likedJobs.findIndex(j => j._id === action.payload._id)
-      if (jobId !== -1) state.likedJobs[jobId] = action.payload
+      const jobListWithoutUpdated = state.likedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
+      state.likedJobs = [...jobListWithoutUpdated, action.payload].sort(JobSorter.byDate);
     },
     removeLikedJob(state, action: PayloadAction<string>) {
-      state.likedJobs = state.likedJobs.filter(j => j._id?.toString() !== action.payload)
-      state.likedCounter = Math.max(0, state.likedCounter - 1) // Ensure counter does not go negative
+      state.likedJobs = state.likedJobs.filter(j => j._id?.toString() !== action.payload);
+      state.likedCounter = state.likedJobs.length;
     },
 
     // Disliked Jobs Methods
     setDislikedCounter(state, action: PayloadAction<number>) {
-      state.dislikedCounter = Math.round(action.payload)
+      state.dislikedCounter = Math.round(action.payload);
     },
     setDislikedLimit(state, action: PayloadAction<number>) {
-      state.dislikedLimit = Math.round(action.payload)
+      state.dislikedLimit = Math.round(action.payload);
     },
     setDislikedSkip(state, action: PayloadAction<number>) {
-      state.dislikedSkip = Math.round(action.payload)
+      state.dislikedSkip = Math.round(action.payload);
     },
     setDislikedJobs(state, action: PayloadAction<IJobEntity[]>) {
-      state.dislikedJobs = action.payload
+      state.dislikedJobs = action.payload;
     },
     setDislikedInLoading(state, action: PayloadAction<boolean>) {
-      state.dislikedInLoading = action.payload
+      state.dislikedInLoading = action.payload;
     },
     setDislikedHasMore(state, action: PayloadAction<boolean>) {
-      state.dislikedHasMore = action.payload
+      state.dislikedHasMore = action.payload;
     },
     addDislikedJob(state, action: PayloadAction<IJobEntity>) {
-      const existingJob = state.dislikedJobs.find(j => j._id === action.payload._id)
-      if (!existingJob) {
-        let newDislikedJobs = state.dislikedJobs.filter(j => j._id !== action.payload._id)
-        newDislikedJobs = [...newDislikedJobs, action.payload]
-        state.dislikedJobs = newDislikedJobs
-        state.dislikedCounter = Math.max(0, state.dislikedCounter + 1) // Ensure counter does not go negative
-      }
+      const jobListWithoutNew = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
+      state.dislikedJobs = [...jobListWithoutNew, action.payload].sort(JobSorter.byDate);
+      state.dislikedCounter = state.dislikedJobs.length;
     },
     updateDislikedJob(state, action: PayloadAction<IJobEntity>) {
-      const jobId = state.dislikedJobs.findIndex(j => j._id === action.payload._id)
-      if (jobId !== -1) state.dislikedJobs[jobId] = action.payload
+      const jobListWithoutUpdated = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
+      state.dislikedJobs = [...jobListWithoutUpdated, action.payload].sort(JobSorter.byDate);
     },
     removeDislikedJob(state, action: PayloadAction<string>) {
       state.dislikedJobs = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload)
-      state.dislikedCounter = Math.max(0, state.dislikedCounter - 1) // Ensure counter does not go negative
+      state.dislikedCounter = state.dislikedJobs.length
     },
 
     // Job Queue Selector Method

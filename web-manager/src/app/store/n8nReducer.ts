@@ -26,6 +26,17 @@ const n8nSlice = createSlice({
   name: 'n8n',
   initialState,
   reducers: {
+    resetMainWorkflows(state) {
+      state.isStartedWorkflows = false;
+      state.linkedInStarted = false;
+      state.linkedInStatus = '';
+      state.franceTravailStarted = false;
+      state.franceTravailStatus = '';
+    },
+    resetCompaniesDetails(state) {
+      state.companiesDetailsStarted = false;
+      state.companiesDetailsStatus = '';
+    },
     setIsStartedWorkflows(state, action: PayloadAction<boolean>) {
       state.isStartedWorkflows = action.payload
     },
@@ -51,6 +62,8 @@ const n8nSlice = createSlice({
 })
 
 export const {
+  resetMainWorkflows,
+  resetCompaniesDetails,
   setIsStartedWorkflows,
   setLinkedInStarted,
   setLinkedInStatus,
