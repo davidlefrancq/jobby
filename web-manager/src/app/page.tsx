@@ -12,7 +12,7 @@ import { APIHealthCheck } from "./lib/APIHealthCheck";
 import { setIsAliveApi } from "./store/healthReducer";
 import DarkModeToggleBtn from "./components/DarkModeToggleBtn";
 import MenuSidebar from "./components/MenuSidebar";
-import JobStepper from "./components/JobStepper";
+import JobsStepper from "./components/JobsStepper";
 import { N8N_HOME_PAGE } from "@/constants/n8n-webhooks";
 
 
@@ -106,7 +106,7 @@ export default function HomePage() {
           
           <ErrorsPanel />
 
-          {target === MenuTargetEnum.Steps && <JobStepper />}
+          {target === MenuTargetEnum.Steps && <JobsStepper />}
           {target === MenuTargetEnum.Jobs && <JobBoard />}
           {target === MenuTargetEnum.CVs && <CVPanel />}
           

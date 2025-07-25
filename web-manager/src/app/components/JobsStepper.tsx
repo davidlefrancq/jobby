@@ -7,7 +7,7 @@ import JobQueueUnrated from "./JobQueueUnrated";
 import JobExplorer from "./JobExplorer";
 import N8NWorkflowPanel from "./N8NWorkflowPanel";
 
-export default function JobStepper() {
+export default function JobsStepper() {
   const dispatch = useAppDispatch()
   const { isStartedWorkflows, franceTravailStatus, linkedInStatus } = useAppSelector(state => state.n8nReducer)
   const { unratedCounter, unratedInLoading } = useAppSelector(state => state.jobsReducer);
