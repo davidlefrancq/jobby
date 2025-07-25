@@ -94,7 +94,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
         {/* Card Header */}
         <div className="bg-gray-100 border-b border-gray-200 rounded-t-xl py-3 px-4 md:py-4 md:px-5 dark:bg-neutral-900 dark:border-neutral-700">
           <h3 className="text-lg font-bold text-gray-800 dark:text-white">
-            <TruncatedText text={job.title || "Unknown Title"} length={35} />
+            <TruncatedText text={job.title || "Unknown Title"} length={70} />
           </h3>
 
           <div className="flex gap-2 mt-1 text-sm text-gray-500 dark:text-neutral-500">
