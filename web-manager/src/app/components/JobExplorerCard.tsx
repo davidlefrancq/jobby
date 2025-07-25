@@ -162,7 +162,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               </span>
             )}
             {/* Button Update Job Companu Details if details not exist */}
-            { !jobCompanyInUpdateing && !job.company_details?.description && (
+            { !jobCompanyInUpdateing && job.company_details?.siren && !job.company_details?.description && (
               <BtnLoading
                 title={<span className="flex justify-center items-center gap-1"><ArrowBigDownDash />Update Company Details</span>}
                 loading={jobCompanyInUpdateing}
