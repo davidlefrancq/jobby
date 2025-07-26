@@ -19,6 +19,7 @@ import JobStepper from "./JobStepper";
 import { useState } from "react";
 import BtnLoading from "./Btn/BtnLoading";
 import JobTabsMenu from "./JobTabsMenu";
+import JobCvSelector from "./JobCvSelector";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -204,18 +205,18 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               { label: 'Email', icon: <SquarePen /> },
             ]}
           >
-            <p className="min-h-[150px] mt-2 text-gray-500 dark:text-neutral-400 text-justify">
+            <div className="min-h-[150px] mt-2 text-gray-500 dark:text-neutral-400 text-justify">
               {job.description ? job.description : 'No description available.'}
-            </p>
-            <p className="min-h-[150px] text-gray-500 dark:text-neutral-400">
-              CV selector not implemented yet.
-            </p>
-            <p className="min-h-[150px] text-gray-500 dark:text-neutral-400">
-              Lettre generator not implemented yet.
-            </p>
-            <p className="min-h-[150px] text-gray-500 dark:text-neutral-400">
-              Email generator not implemented yet.
-            </p>
+            </div>
+            <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+              <JobCvSelector job={job} />
+            </div>
+            <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+              {job.motivation_letter ? job.motivation_letter : ' No motivation letter available.'}
+            </div>
+            <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+              {job.motivation_email ? job.motivation_email : 'No email available.'}
+            </div>
           </JobTabsMenu>
 
 

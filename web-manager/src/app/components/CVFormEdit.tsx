@@ -3,7 +3,7 @@ import { ICvEntity, IExperience, IEducation } from "@/types/ICvEntity";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { addAlert } from "../store/alertsReducer";
-import { setCvs, setCvsCounter } from "../store/cvsReducer";
+import { setCvs } from "../store/cvsReducer";
 import FieldEditorStringArrayLight from "./FieldEditor/FieldEditorStringArrayLight";
 import FieldEditorStringLight from "./FieldEditor/FieldEditorStringLight";
 import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
@@ -116,7 +116,6 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
       if (created) {
         const newCvList: ICvEntity[] = [...cvs.filter(cv => cv._id !== created._id), created]; 
         dispatch(setCvs(newCvList));
-        dispatch(setCvsCounter(newCvList.length));
         onClose();
       }
     } catch (error) {
@@ -161,7 +160,6 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
         if (updated) {
           const newCvList: ICvEntity[] = [...cvs.filter(cv => cv._id?.toString() !== updated._id?.toString()), updated];
           dispatch(setCvs(newCvList));
-          dispatch(setCvsCounter(newCvList.length));
           onClose();
         }
       } catch (error) {

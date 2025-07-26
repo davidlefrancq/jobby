@@ -4,7 +4,6 @@ import JobBoard from "./components/JobBoard";
 import CVPanel from "./components/CVPanel";
 import { useAppSelector, useAppDispatch } from "./store";
 import { MenuTargetEnum } from "./store/menuReducer";
-import N8NWorkflowPanel from "./components/N8NWorkflowPanel";
 import ErrorsPanel from "./components/ErrorsPanel";
 import png_jobby from '../../public/icon-192-jobby-persona-logo-rounded.png';
 import { useEffect, useState } from "react";
@@ -14,7 +13,6 @@ import DarkModeToggleBtn from "./components/DarkModeToggleBtn";
 import MenuSidebar from "./components/MenuSidebar";
 import JobsStepper from "./components/JobsStepper";
 import { N8N_HOME_PAGE } from "@/constants/n8n-webhooks";
-
 
 let firstRender = true;
 

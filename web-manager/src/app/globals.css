@@ -2,7 +2,10 @@
 
 /* Preline UI */
 @import "preline/variants.css";
-@source "../node_modules/preline/dist/*.js";
+@source "preline/dist/*.js";
+
+/* Plugins */
+@plugin "@tailwindcss/forms";
 
 /* Custom variants */
 @custom-variant dark (&:where(.dark, .dark *));
