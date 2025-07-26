@@ -4,7 +4,7 @@ import JobStatus from "./JobStatus";
 import LanguageFlag from "./LanguageFlag";
 import SalaryItem from "./SalaryItem";
 import FieldEditorCompanySiren from "./FieldEditor/FieldEditorCompanySiren";
-import { ArrowBigDownDash, SquareArrowOutUpRight } from "lucide-react";
+import { ArrowBigDownDash, SquareArrowOutUpRight, SquarePen } from "lucide-react";
 import { JobTools } from "../lib/JobTools";
 import { useAppDispatch } from "../store";
 import { addAlert } from "../store/alertsReducer";
@@ -18,6 +18,7 @@ import JobDislikeBtn from "./JobDislikeBtn";
 import JobStepper from "./JobStepper";
 import { useState } from "react";
 import BtnLoading from "./Btn/BtnLoading";
+import JobTabsMenu from "./JobTabsMenu";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -129,7 +130,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
 
         <div className="h-[400px] ps-4 pe-4 pt-0 pv-auto overflow-auto">
 
-          <div className="flex flex-col-3 gap-2">
+          <div className="flex flex-col-3 gap-2 mb-2">
             <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
               <TruncatedText text={job.company || ''} length={35} />
             </span>
@@ -154,48 +155,70 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             </span>
           </div>
 
-          <div className="mt-2 flex flex-col-3 gap-2">
-            {/* Spinner if jobCompanyInUpdateing === true */}
-            { jobCompanyInUpdateing && (
-              <span className="min-h-8 w-full flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
-              </span>
-            )}
-            {/* Button Update Job Companu Details if details not exist */}
-            { !jobCompanyInUpdateing && job.company_details?.siren && !job.company_details?.description && (
-              <BtnLoading
-                title={<span className="flex justify-center items-center gap-1"><ArrowBigDownDash />Update Company Details</span>}
-                loading={jobCompanyInUpdateing}
-                onClick={() => updateJobCompany(job)}
-                width="200px"
-                height="32px"
-                rounded="rounded-md"
-                isDisabled={!!job.company_details?.description}
-              />
-            )}
+          {jobCompanyInUpdateing || job.company_details?.siren && (
+            <div className="mb-2 flex flex-col-3 gap-2">
+              {/* Spinner if jobCompanyInUpdateing === true */}
+              { jobCompanyInUpdateing && (
+                <span className="min-h-8 w-full flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                  <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
+                </span>
+              )}
+              {/* Button Update Job Companu Details if details not exist */}
+              { !jobCompanyInUpdateing && job.company_details?.siren && !job.company_details?.description && (
+                <BtnLoading
+                  title={<span className="flex justify-center items-center gap-1"><ArrowBigDownDash />Update Company Details</span>}
+                  loading={jobCompanyInUpdateing}
+                  onClick={() => updateJobCompany(job)}
+                  width="200px"
+                  height="32px"
+                  rounded="rounded-md"
+                  isDisabled={!!job.company_details?.description}
+                />
+              )}
 
-            { (job.company_details?.description) && (
-              <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                <TruncatedText text={job.company_details.description} length={120} />
-              </span>
-            )}
-            { (job.company_details?.naf_ape?.activity || job.company_details?.naf_ape?.code) && (
-              <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                <TruncatedText text={job.company_details.naf_ape.activity || job.company_details.naf_ape.code || ''} length={35} />
-              </span>
-            )}
-            { job.company_details?.website && (
-              <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                <a href={job.company_details.website} target="_blank" rel="noopener noreferrer">
-                  {job.company_details.website}
-                </a>
-              </span>
-            )}
-          </div>
+              { (job.company_details?.description) && (
+                <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                  <TruncatedText text={job.company_details.description} length={120} />
+                </span>
+              )}
+              { (job.company_details?.naf_ape?.activity || job.company_details?.naf_ape?.code) && (
+                <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                  <TruncatedText text={job.company_details.naf_ape.activity || job.company_details.naf_ape.code || ''} length={35} />
+                </span>
+              )}
+              { job.company_details?.website && (
+                <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+                  <a href={job.company_details.website} target="_blank" rel="noopener noreferrer">
+                    {job.company_details.website}
+                  </a>
+                </span>
+              )}
+            </div>
+        )}
 
-          <p className="mt-2 text-gray-500 dark:text-neutral-400">
-            {job.description ? job.description : 'No description available.'}
-          </p>
+          <JobTabsMenu
+            items={[
+              { label: 'Description', icon: <SquarePen /> },
+              { label: 'CV', icon: <SquarePen /> },
+              { label: 'Lettre', icon: <SquarePen /> },
+              { label: 'Email', icon: <SquarePen /> },
+            ]}
+          >
+            <p className="min-h-[150px] mt-2 text-gray-500 dark:text-neutral-400 text-justify">
+              {job.description ? job.description : 'No description available.'}
+            </p>
+            <p className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+              CV selector not implemented yet.
+            </p>
+            <p className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+              Lettre generator not implemented yet.
+            </p>
+            <p className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+              Email generator not implemented yet.
+            </p>
+          </JobTabsMenu>
+
+
 
           <JobTags job={job} />
 
