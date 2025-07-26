@@ -67,7 +67,6 @@ const jobsSlice = createSlice({
     },
     setUnratedJobs(state, action: PayloadAction<IJobEntity[]>) {
       state.unratedJobs = action.payload;
-      state.unratedCounter = action.payload.length;
     },
     setUnratedInLoading(state, action: PayloadAction<boolean>) {
       state.unratedInLoading = action.payload;
@@ -81,7 +80,6 @@ const jobsSlice = createSlice({
     },
     removeUnratedJob(state, action: PayloadAction<string>) {
       state.unratedJobs = state.unratedJobs.filter(j => j._id?.toString() !== action.payload);
-      state.unratedCounter = state.unratedJobs.length;
     },
 
     // Liked Jobs Methods
@@ -106,7 +104,6 @@ const jobsSlice = createSlice({
     addLikedJob(state, action: PayloadAction<IJobEntity>) {
       const jobListWithoutNew = state.likedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
       state.likedJobs = [...jobListWithoutNew, action.payload].sort(JobSorter.byDate);
-      state.likedCounter = state.likedJobs.length;
     },
     updateLikedJob(state, action: PayloadAction<IJobEntity>) {
       const jobListWithoutUpdated = state.likedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
@@ -114,7 +111,6 @@ const jobsSlice = createSlice({
     },
     removeLikedJob(state, action: PayloadAction<string>) {
       state.likedJobs = state.likedJobs.filter(j => j._id?.toString() !== action.payload);
-      state.likedCounter = state.likedJobs.length;
     },
 
     // Disliked Jobs Methods
@@ -139,7 +135,6 @@ const jobsSlice = createSlice({
     addDislikedJob(state, action: PayloadAction<IJobEntity>) {
       const jobListWithoutNew = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
       state.dislikedJobs = [...jobListWithoutNew, action.payload].sort(JobSorter.byDate);
-      state.dislikedCounter = state.dislikedJobs.length;
     },
     updateDislikedJob(state, action: PayloadAction<IJobEntity>) {
       const jobListWithoutUpdated = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload._id?.toString());
@@ -147,7 +142,6 @@ const jobsSlice = createSlice({
     },
     removeDislikedJob(state, action: PayloadAction<string>) {
       state.dislikedJobs = state.dislikedJobs.filter(j => j._id?.toString() !== action.payload)
-      state.dislikedCounter = state.dislikedJobs.length
     },
 
     // Job Queue Selector Method
