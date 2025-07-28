@@ -54,7 +54,7 @@ export default function JobsStepper() {
   /* Step successful: go to next */
   useEffect(() => {
     const step = steps[currentStep];
-    if (step.status === "success" && currentStep < steps.length) nextStepHandler();
+    if (step.status === "success" && currentStep < steps.length - 1) nextStepHandler();
   }, [steps]);
 
   {/* Mails - update status */}
