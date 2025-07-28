@@ -113,7 +113,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
 
       // FR: sauvegarder la email de motivation dans le job
       // EN: Save the motivation email in the job
-      const motivation_email= motivationEmail?.trim() || null;
+      const motivation_email = motivationEmail?.trim() || null;
       const updatedJob = await jobRepository.update(jobId, { motivation_email });
       if (updatedJob) {
         dispatch(updateLikedJob(updatedJob));
