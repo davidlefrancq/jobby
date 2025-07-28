@@ -248,7 +248,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
             loading={inSaveMotivationEmail} // Replace with actual loading state if needed
             onClick={saveMotivationEmailHandler}
             rounded="rounded-md"
-            isDisabled={!job.motivation_email || job.motivation_email === motivationEmail} // Disable if no motivation email is present
+            isDisabled={!motivationEmail || job.motivation_email === motivationEmail} // Disable if no changes are made or motivationEmail is empty
           />
         </div>
       </div>
