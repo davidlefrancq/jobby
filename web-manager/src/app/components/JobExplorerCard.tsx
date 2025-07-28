@@ -65,7 +65,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
     setJobCompanyInUpdating(true);
 
     try {
-      const { _id, ...jobData} = job
+      const { _id, ...jobData } = job
       if (_id) {
         const jobUpdateResponse = await jobRepository.update(String(_id), jobData);
         if (jobUpdateResponse && jobUpdateResponse._id) {
