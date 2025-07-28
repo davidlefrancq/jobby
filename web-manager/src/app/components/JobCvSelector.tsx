@@ -30,7 +30,6 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
    */
   const handleJobUpdate = () => {
     if (!inUpdating && cvSelected && job._id) {
-      console.log('Updating job CV:', job._id, 'with CV:', cvSelected);
       setCvSelected(cvSelected);
       setInUpdating(true);
       jobRepository.update(job._id?.toString(), { cv_id: cvSelected }).then((data) => {
