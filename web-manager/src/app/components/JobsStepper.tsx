@@ -15,7 +15,7 @@ export default function JobsStepper() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "default" },
+    { label: "Mails", status: "active" },
     { label: "Assessment", status: "default" }, // Like/Dislike
     { label: "Jobs", status: "default" },
   ]);
@@ -126,17 +126,27 @@ export default function JobsStepper() {
 
       {/* N8N Workflow Panel */}
       <div className={`p-8 ${currentStep === 0 ? "mt-4" : "hidden"} transition-all duration-300`}>
+        {/* Skip button */}
+        {!isStartedWorkflows && <div className="flex justify-center mb-4">
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            onClick={nextStepHandler}
+          >
+            Skip
+          </button>
+        </div>}
+        {/* N8N Workflow Panel */}
         <N8NWorkflowPanel />
       </div>
 
       {/* Unrated Management */}
       {currentStep === 1 && (<>
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-4 transition-all duration-300">
           <JobQueueUnrated />
         </div>
         {/* Unrated conter */}
         {unratedCounter > 0 && (
-          <div className="flex justify-center mt-4 text-gray-600 dark:text-neutral-400">
+          <div className="flex justify-center mt-4 text-gray-600 dark:text-neutral-400 transition-all duration-300">
             {unratedCounter}
           </div>
         )}
@@ -144,7 +154,7 @@ export default function JobsStepper() {
 
       {/* Job Explorer */}
       { currentStep === 2 && (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-4 transition-all duration-300">
           <JobExplorer />
         </div>
       )}
