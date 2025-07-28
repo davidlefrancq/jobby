@@ -58,7 +58,7 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
    * FR: Chargement du compteur de CVs depuis le serveur.
    * EN: Loads the CVs counter from the server.
    */
-  const loadCvsConter = () => {
+  const loadCvsCounter = () => {
     cvRepository.count()
       .then((counter) => {
         if (counter) {
@@ -112,7 +112,7 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
   useEffect(() => {
     if (firstLoad.current) {
       firstLoad.current = false;
-      loadCvsConter();
+      loadCvsCounter();
       loadCvs();
     }
   }, []);
