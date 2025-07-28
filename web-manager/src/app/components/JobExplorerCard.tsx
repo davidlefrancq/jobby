@@ -21,6 +21,7 @@ import BtnLoading from "./Btn/BtnLoading";
 import JobTabsMenu from "./JobTabsMenu";
 import JobCvSelector from "./JobCvSelector";
 import JobMotivationLetter from "./JobMotivationLetter";
+import JobMotivationEmail from "./JobMotivationEmail";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 const n8nWorkflow = N8NWorkflow.getInstance();
@@ -224,7 +225,8 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               <JobMotivationLetter job={job} />
             </div>
             <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
-              {job.motivation_email ? job.motivation_email : 'No email available.'}
+              {/* {job.motivation_email ? job.motivation_email : 'No email available.'} */}
+              <JobMotivationEmail job={job} />
             </div>
           </JobTabsMenu>
 
