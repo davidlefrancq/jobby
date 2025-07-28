@@ -33,7 +33,7 @@ interface JobExplorerCardProps {
 export default function JobExplorerCard({ job }: JobExplorerCardProps) {
   const dispatch = useAppDispatch();
 
-  const [jobCompanyInUpdateing, setJobCompanyInUpdating] = useState(false);
+  const [jobCompanyInUpdating, setJobCompanyInUpdating] = useState(false);
 
   /**
    * FR: Ajoute un message d'erreur à la liste des alertes
@@ -166,19 +166,19 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             </span>
           </div>
 
-          {jobCompanyInUpdateing || job.company_details?.siren && (
+          {jobCompanyInUpdating || job.company_details?.siren && (
             <div className="mb-2 flex grid-cols-3 gap-2">
               {/* Spinner if jobCompanyInUpdateing === true */}
-              { jobCompanyInUpdateing && (
+              { jobCompanyInUpdating && (
                 <span className="min-h-8 w-full flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
                   <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span>
                 </span>
               )}
               {/* Button Update Job Companu Details if details not exist */}
-              { !jobCompanyInUpdateing && job.company_details?.siren && !job.company_details?.description && (
+              { !jobCompanyInUpdating && job.company_details?.siren && !job.company_details?.description && (
                 <BtnLoading
                   title={<span className="flex justify-center items-center gap-1"><ArrowBigDownDash />Update Company Details</span>}
-                  loading={jobCompanyInUpdateing}
+                  loading={jobCompanyInUpdating}
                   onClick={() => updateJobCompany(job)}
                   width="200px"
                   height="32px"
