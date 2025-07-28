@@ -104,14 +104,14 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
         return;
       }
 
-      // FR: Si la email de motivation n'a pas changé, ne rien faire
+      // FR: Si l'email de motivation n'a pas changé, ne rien faire
       // EN: If the motivation email has not changed, do nothing
       if (motivationEmail === job.motivation_email) {
         handleAddError("No changes detected in the motivation email.", 'warning');
         return;
       }
 
-      // FR: sauvegarder la email de motivation dans le job
+      // FR: sauvegarder l'email de motivation dans le job
       // EN: Save the motivation email in the job
       const motivation_email = motivationEmail?.trim() || null;
       const updatedJob = await jobRepository.update(jobId, { motivation_email });
