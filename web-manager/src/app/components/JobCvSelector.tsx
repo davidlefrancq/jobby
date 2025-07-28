@@ -111,7 +111,7 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
   }, []);
 
   return (
-    <div className="flex flex-col-3 gap-4 bg-white dark:bg-neutral-900 rounded-md shadow-md">
+    <div className="grid grid-cols-3 gap-4 bg-white dark:bg-neutral-900 rounded-md shadow-md">
       <select
         className="col-span-2 dark:bg-neutral-800 dark:text-neutral-200 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full"
         value={cvSelected || ''}
