@@ -141,7 +141,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
 
         <div className="h-[400px] ps-4 pe-4 pt-0 pv-auto overflow-auto">
 
-          <div className="flex flex-col-3 gap-2 mb-2">
+          <div className="flex grid-cols-3 gap-2 mb-2">
             <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
               <TruncatedText text={job.company || ''} length={35} />
             </span>
@@ -167,7 +167,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
           </div>
 
           {jobCompanyInUpdateing || job.company_details?.siren && (
-            <div className="mb-2 flex flex-col-3 gap-2">
+            <div className="mb-2 flex grid-cols-3 gap-2">
               {/* Spinner if jobCompanyInUpdateing === true */}
               { jobCompanyInUpdateing && (
                 <span className="min-h-8 w-full flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">

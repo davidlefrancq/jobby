@@ -205,7 +205,7 @@ export default function JobMotivationLetter({ job }: JobMotivationLetterProps) {
         }}
       />
 
-      <div className="w-full flex flex-col-4 items-start justify-end gap-2">
+      <div className="w-full flex grid-cols-4 items-start justify-end gap-2">
 
         {/* Show generation time if inGenerateMotivationLetterDateStart is set */}
         {inGenerateMotivationLetterDateStart && (
