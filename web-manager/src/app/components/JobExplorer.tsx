@@ -70,7 +70,7 @@ export default function JobExplorer() {
 
   // Load the first batch of jobs
   useEffect(() => {
-    if (isFirstLoad) {
+    if (isFirstLoad.current) {
       isFirstLoad.current = false;
       loadLikedJobsCounter()
       loadLikedJobs().then(() => {}).catch(err => {
