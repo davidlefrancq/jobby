@@ -41,14 +41,12 @@ export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction 
         if (/^\d+$/.test(sirenValue)) {
           const value = parseInt(sirenValue);
           if (isNaN(value)) {
-            console.error("SIREN is not a number:", e.target.value);
             setError("SIREN must be a number");
           } else {
             setInputSiren(value.toString());
             setError(null);
           }
         } else {
-          console.error("SIREN is not a valid number:", e.target.value);
           setError("SIREN must be a number");
         }
       }
