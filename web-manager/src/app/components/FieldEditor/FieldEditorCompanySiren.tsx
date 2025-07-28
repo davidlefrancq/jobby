@@ -5,6 +5,8 @@ import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 import { ICompanyDetails, IJobEntity } from "@/types/IJobEntity";
 import BtnLoading from "../Btn/BtnLoading";
 import { Save } from "lucide-react";
+import { addAlert } from "@/app/store/alertsReducer";
+import { useAppDispatch } from "@/app/store";
 
 interface FieldEditorCompanySirenProps {
   job: IJobEntity;
@@ -13,6 +15,8 @@ interface FieldEditorCompanySirenProps {
 }
 
 export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction }: FieldEditorCompanySirenProps) {
+  const dispatch = useAppDispatch();
+
   const ref = useRef<HTMLDivElement>(null);
 
   const [inputSiren, setInputSiren] = useState<string | null>(job.company_details?.siren || null);
@@ -49,7 +53,11 @@ export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction 
         }
       }
     } catch (error) {
-      console.error(error);
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        type: 'error',
+        message: `Failed to process SIREN input. Error: ${String(error)}`,
+      }));
       setError("SIREN must be a number.");
     }    
   }
