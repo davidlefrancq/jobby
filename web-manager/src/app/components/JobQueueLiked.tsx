@@ -65,7 +65,7 @@ export default function JobQueueLiked() {
 
   // Load the first batch of jobs
   useEffect(() => {
-    if (isFirstLoad && jobQueueSelected === JobQueueEnum.Liked) {
+    if (isFirstLoad.current && jobQueueSelected === JobQueueEnum.Liked) {
       isFirstLoad.current = false;
       loadLikedJobsCounter()
       loadLikedJobs().then(() => {}).catch(err => {
