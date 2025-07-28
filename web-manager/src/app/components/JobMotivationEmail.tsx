@@ -205,7 +205,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
         }}
       />
 
-      <div className="w-full grid grid-cols-4 items-start justify-end gap-2">
+      <div className="w-full flex grid-cols-4 items-start justify-end gap-2">
 
         {/* Show generation time if inGenerateMotivationEmailDateStart is set */}
         {inGenerateMotivationEmailDateStart && (
