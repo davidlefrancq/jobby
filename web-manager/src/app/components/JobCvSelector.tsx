@@ -95,7 +95,11 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
         }
       }
     } catch (error) {
-      console.error('Error loading CVs:', error);
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        type: 'error',
+        message: `Error loading CVs: ${String(error)}`,
+      }));
     } finally {
       dispatch(setCvsInLoading(false));
     }
