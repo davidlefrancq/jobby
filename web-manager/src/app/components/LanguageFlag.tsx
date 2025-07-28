@@ -37,7 +37,7 @@ const EnFlag = ({ cssStyle }: FlagProps) => {
   let className = 'w-5 h-5';
   if (cssStyle && cssStyle.includes('w-')) className = className.replace('w-5 ', '');
   if (cssStyle && cssStyle.includes('h-')) className = className.replace('h-5', '');
-  console.log({ cssStyle, className });
+  
   if (cssStyle) className += ` ${cssStyle}`;
   return <svg className={className} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
     <circle cx="256" cy="256" fill="#f0f0f0" r="256"/>
