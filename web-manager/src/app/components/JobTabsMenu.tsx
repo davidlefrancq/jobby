@@ -27,7 +27,7 @@ export default function JobTabsMenu({ children, items }: JobTabsMenuProps) {
               type="button"
               className={`
                 py-2
-                px-1
+                px-2
                 inline-flex
                 items-center
                 gap-x-2
@@ -57,7 +57,7 @@ export default function JobTabsMenu({ children, items }: JobTabsMenuProps) {
           ))}
         </nav>
       </div>
-      <div className="mt-3">
+      <div className="mt-2">
         {Children.map(children, (child, index) => (
           <div
             id={`tabs-with-icons-${index + 1}`}

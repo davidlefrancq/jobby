@@ -4,7 +4,7 @@ import JobStatus from "./JobStatus";
 import LanguageFlag from "./LanguageFlag";
 import SalaryItem from "./SalaryItem";
 import FieldEditorCompanySiren from "./FieldEditor/FieldEditorCompanySiren";
-import { ArrowBigDownDash, SquareArrowOutUpRight, SquarePen } from "lucide-react";
+import { ArrowBigDownDash, FileText, Info, Logs, Mail, SquareArrowOutUpRight, SquarePen } from "lucide-react";
 import { JobTools } from "../lib/JobTools";
 import { useAppDispatch } from "../store";
 import { addAlert } from "../store/alertsReducer";
@@ -16,12 +16,13 @@ import { MessageType } from "@/types/MessageType";
 import JobTags from "./JobTags";
 import JobDislikeBtn from "./JobDislikeBtn";
 import JobStepper from "./JobStepper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BtnLoading from "./Btn/BtnLoading";
 import JobTabsMenu from "./JobTabsMenu";
 import JobCvSelector from "./JobCvSelector";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
+const n8nWorkflow = N8NWorkflow.getInstance();
 
 interface JobExplorerCardProps {
   job: IJobEntity;
@@ -31,7 +32,16 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
   const dispatch = useAppDispatch();
 
   const [jobCompanyInUpdateing, setJobCompanyInUpdating] = useState(false);
+  const [motivationLetter, setMotivationLetter] = useState<string | null>(job.motivation_letter || null);
+  const [inGenerateMotivationLetter, setInGenerateMotivationLetter] = useState(false);
+  const [inGenerateMotivationLetterDateStart, setInGenerateMotivationLetterDateStart] = useState<Date | null>(null);
+  const [inGenerateMotivationLetterDateEnd, setInGenerateMotivationLetterDateEnd] = useState<Date | null>(null);
+  const [inSaveMotivationLetter, setInSaveMotivationLetter] = useState(false);
 
+  /**
+   * FR: Ajoute un message d'erreur à la liste des alertes
+   * EN: Adds an error message to the alert list
+   */
   const handleAddError = (message: string, type: MessageType) => {
     const errorMessage = {
       date: new Date().toISOString(),
@@ -41,6 +51,10 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
     dispatch(addAlert(errorMessage));
   }
 
+  /**
+   * FR: Met à jour les détails de l'entreprise du job
+   * EN: Updates the company details of the job
+   */
   const updateJobCompany = async (job: Partial<IJobEntity>) => {
     // Check if job is valid
     if (!job || !job._id) {
@@ -65,7 +79,6 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
 
           /** Start N8N Company Details Workflow */
           if (job.company_details && job.company_details.siren) {
-            const n8nWorkflow = N8NWorkflow.getInstance();
             const cdwResponse = await n8nWorkflow.startCompanyDetailsWorkflow({ _id: jobUpdateResponse._id.toString() });
             if (cdwResponse.error) {
               dispatch(addAlert({
@@ -103,6 +116,88 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
       setJobCompanyInUpdating(false);
     }
   }
+
+  /**
+   * FR: Générer une lettre de motivation pour le job en cours
+   * EN: Generate a motivation letter for the current job
+   */
+  const generateMotivationLetterHandler = async () => {
+    if (inGenerateMotivationLetter) return; // Prevent multiple clicks
+    setInGenerateMotivationLetter(true);
+    setInGenerateMotivationLetterDateStart(new Date());
+    setInGenerateMotivationLetterDateEnd(null);
+
+    try {
+      const jobId = job._id?.toString();
+      const cvId = job.cv_id?.toString();
+
+      // FR: Vérifier si jobId et cvId sont définis
+      // EN: Check if jobId and cvId are defined
+      if (!jobId || !cvId) {
+        if (!jobId) handleAddError("Job ID is not defined.", 'error');
+        if (!cvId) handleAddError("CV ID is not defined.", 'error');
+        return;
+      }
+
+      const response = await n8nWorkflow.startCVMotivationLetterWorkflow({ jobId, cvId });
+      if (response.error) {
+        handleAddError(`Failed to generate motivation letter: ${response.error}`, 'error');
+      } else {
+        dispatch(addNotification({
+          id: Date.now(),
+          message: `Motivation letter generated for job ${jobId}`,
+        }));
+        // Reload the job to reflect the changes
+        const updatedJob = await jobRepository.getById(jobId);
+        if (updatedJob) {
+          if (updatedJob.preference === 'dislike') dispatch(updateDislikedJob(updatedJob));
+          else if (updatedJob.preference === 'like') dispatch(updateLikedJob(updatedJob));
+          else if (!updatedJob.preference) dispatch(updateUnratedJob(updatedJob));
+        } else {
+          handleAddError(`Failed to retrieve updated job after motivation letter generation: ${String(jobId)}`, 'error');
+        }
+      }
+    } catch (err) {
+      handleAddError(`Failed to start motivation letter workflow: ${String(err)}`, 'error');
+    } finally {
+      setInGenerateMotivationLetter(false);
+      setInGenerateMotivationLetterDateEnd(new Date());
+    }
+  }
+
+  const saveMotivationLetterHandler = async () => {
+    if (inSaveMotivationLetter) return; // Prevent multiple clicks
+    setInSaveMotivationLetter(true);
+
+    try {
+      const jobId = job._id?.toString();
+      if (!jobId) {
+        handleAddError("Job ID is not defined.", 'error');
+        return;
+      }
+
+      const motivation_letter = motivationLetter?.trim() || null;
+      const updatedJob = await jobRepository.update(jobId, { motivation_letter });
+      if (updatedJob) {
+        dispatch(updateLikedJob(updatedJob));
+        dispatch(addNotification({
+          id: Date.now(),
+          message: `Motivation letter saved for job ${jobId}`,
+        }));
+      } else {
+        handleAddError(`Failed to save motivation letter for job: ${String(jobId)}`, 'error');
+      }
+    } catch (err) {
+      handleAddError(`Failed to save motivation letter: ${String(err)}`, 'error');
+    } finally {
+      setInSaveMotivationLetter(false);
+    }
+  }
+
+  useEffect(() => {
+    // Reset motivation letter state when job changes
+    setMotivationLetter(job.motivation_letter || null);
+  }, [job.motivation_letter]);
 
   return (
     <div key={job._id?.toString()} className="col-span-1">
@@ -199,10 +294,10 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
 
           <JobTabsMenu
             items={[
-              { label: 'Description', icon: <SquarePen /> },
-              { label: 'CV', icon: <SquarePen /> },
-              { label: 'Lettre', icon: <SquarePen /> },
-              { label: 'Email', icon: <SquarePen /> },
+              { label: 'Description', icon: <Info /> },
+              { label: 'CV', icon: <Logs /> },
+              { label: 'Lettre', icon: <FileText /> },
+              { label: 'Email', icon: <Mail /> },
             ]}
           >
             <div className="min-h-[150px] mt-2 text-gray-500 dark:text-neutral-400 text-justify">
@@ -212,7 +307,60 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               <JobCvSelector job={job} />
             </div>
             <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
-              {job.motivation_letter ? job.motivation_letter : ' No motivation letter available.'}
+              {/* Textarea for edit job.motivation_letter */}
+              <textarea
+                className="w-full h-[100px] p-2 border border-gray-300 rounded-md dark:bg-neutral-800 dark:border-neutral-700"
+                placeholder="Edit motivation letter here..."
+                value={motivationLetter || ''}
+                onChange={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMotivationLetter(e.target.value);
+                }}
+              />
+
+              <div className="w-full flex flex-col-4 items-start justify-end gap-2">
+
+                {/* Show generation time if inGenerateMotivationLetterDateStart is set */}
+                {inGenerateMotivationLetterDateStart && (
+                  <div className="col-span-1 text-sm text-gray-500 dark:text-neutral-400">
+                    <span>Generation started at: {inGenerateMotivationLetterDateStart.toLocaleTimeString()}</span>
+                    {inGenerateMotivationLetterDateEnd && (
+                      <span> - Ended at: {inGenerateMotivationLetterDateEnd.toLocaleTimeString()}</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Generation total duration */}
+                {inGenerateMotivationLetterDateStart && inGenerateMotivationLetterDateEnd && (
+                  <div className="col-span-1 text-sm text-gray-500 dark:text-neutral-400">
+                    {`Total duration: ${(inGenerateMotivationLetterDateEnd.getTime() - inGenerateMotivationLetterDateStart.getTime()) / 1000} seconds`}
+                    
+                  </div>
+                )}
+
+                {/* Button for generate letter from N8N Workflows */}
+                <div className="col-span-1">
+                  <BtnLoading
+                    title={'Generate'}
+                    loading={inGenerateMotivationLetter} // Replace with actual loading state if needed
+                    onClick={generateMotivationLetterHandler}
+                    rounded="rounded-md"
+                    isDisabled={!job.cv_id} // Disable if no CV is selected
+                  />
+                </div>
+
+                {/* BtnLoading for save textarea value if différente of job.motivation_letter */}
+                <div className="col-span-1">
+                  <BtnLoading
+                    title="Save"
+                    loading={inSaveMotivationLetter} // Replace with actual loading state if needed
+                    onClick={saveMotivationLetterHandler}
+                    rounded="rounded-md"
+                    isDisabled={!job.motivation_letter} // Disable if no motivation letter is present
+                  />
+                </div>
+              </div>
             </div>
             <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
               {job.motivation_email ? job.motivation_email : 'No email available.'}
