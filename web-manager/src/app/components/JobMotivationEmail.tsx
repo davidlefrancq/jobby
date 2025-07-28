@@ -40,7 +40,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
   }
 
   /**
-   * FR: Générer une lettre de motivation pour le job en cours
+   * FR: Générer un email de motivation pour le job en cours
    * EN: Generate a motivation email for the current job
    */
   const generateMotivationEmailHandler = async () => {
@@ -184,7 +184,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
   }, [inGenerateMotivationEmailDateStart, inGenerateMotivationEmailDateEnd]);
 
   /**
-   * FR: Met à jour la lettre de motivation lorsque le job change
+   * FR: Met à jour l'email de motivation lorsque le job change
    * EN: Updates the motivation email when the job changes
    */
   useEffect(() => {
