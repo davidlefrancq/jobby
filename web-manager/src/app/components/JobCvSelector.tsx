@@ -6,6 +6,7 @@ import { addAlert } from "../store/alertsReducer";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { setCvs, setCvsCounter, setCvsHasMore, setCvsInLoading } from "../store/cvsReducer";
 import { CvSorter } from "@/backend/lib/CvSorter";
+import BtnLoading from "./Btn/BtnLoading";
 
 const cvRepository = RepositoryFactory.getInstance().getCvRepository();
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
@@ -16,13 +17,17 @@ interface JobCvSelectorProps {
 
 export default function JobCvSelector({ job }: JobCvSelectorProps) {
   const dispatch = useAppDispatch()
-  const { cvs, cvsCounter, cvsLimit, cvsSkip, selectedCvId, cvsHasMore, cvsInLoading } = useAppSelector(state => state.cvsReducer)
+  const { cvs, cvsLimit, cvsSkip, cvsHasMore, cvsInLoading } = useAppSelector(state => state.cvsReducer)
 
   const [ cvSelected, setCvSelected ] = useState<string | null>(job.cv_id || null);
   const [ inUpdating, setInUpdating ] = useState(false);
 
   const firstLoad = useRef(true);
 
+  /**
+   * FR: Met à jour le CV associé à un job.
+   * EN: Updates the CV associated with a job.
+   */
   const handleJobUpdate = () => {
     if (!inUpdating && cvSelected && job._id) {
       console.log('Updating job CV:', job._id, 'with CV:', cvSelected);
@@ -46,6 +51,10 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
     }
   }
 
+  /**
+   * FR: Chargement du compteur de CVs depuis le serveur.
+   * EN: Loads the CVs counter from the server.
+   */
   const loadCvsConter = () => {
     cvRepository.count()
       .then((counter) => {
@@ -62,10 +71,13 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
       });
   }
 
+  /**
+   * FR: Chargement des CVs avec pagination depuis le serveur et mise à jour de l'état.
+   * EN: Loads CVs with pagination options from the server and updates the state.
+   */
   const loadCvs = async () => {
     if (cvsInLoading || !cvsHasMore) return; // Prevent multiple fetches
 
-    // setIsLoading(true);
     dispatch(setCvsInLoading(true));
     try {
       const data = await cvRepository.getAll(cvsLimit, cvsSkip);
@@ -86,6 +98,10 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
     }
   }
 
+  /**
+   * FR: Chargement initial des CVs et du compteur.
+   * EN: Initial loading of CVs and the counter.
+   */
   useEffect(() => {
     if (firstLoad.current) {
       firstLoad.current = false;
@@ -93,15 +109,11 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
       loadCvs();
     }
   }, []);
-  
-  useEffect(() => {
-    handleJobUpdate();
-  }, [cvSelected]);
 
   return (
-    <>
+    <div className="flex flex-col-3 gap-4 bg-white dark:bg-neutral-900 rounded-md shadow-md">
       <select
-        className=""
+        className="col-span-2 dark:bg-neutral-800 dark:text-neutral-200 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full"
         value={cvSelected || ''}
         onChange={(e) => {
           if (e.target.value !== cvSelected) {
@@ -120,11 +132,19 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
         ))}
       </select>
 
+      <BtnLoading
+        loading={inUpdating}
+        title={'Save'}
+        onClick={handleJobUpdate}
+        rounded="rounded-sm"
+        isDisabled={!cvSelected || inUpdating || job.cv_id === cvSelected}
+      />
+
       {cvsInLoading && (
-        <div className="text-center text-gray-500 dark:text-neutral-400">
+        <div className="col-span-3 text-center text-gray-500 bg-amber-50 dark:text-neutral-400 dark:bg-neutral-800">
           Loading CVs...
         </div>
       )}
-    </>
+    </div>
   );
 }
