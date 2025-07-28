@@ -44,7 +44,11 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
           setInUpdating(false);
         }
       }).catch(err => {
-        console.error('Error updating job CV:', err);
+        dispatch(addAlert({
+          date: new Date().toISOString(),
+          type: 'error',
+          message: `Failed to update job CV. Please try again. Error: ${String(err)}`,
+        }));
         setCvSelected(job.cv_id || null); // Reset to previous CV if update fails
       });
     }
