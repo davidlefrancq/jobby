@@ -17,7 +17,7 @@ export default function JobQueueUnrated() {
   const hasRun = useRef(false);
 
   const dispatch = useAppDispatch();
-  const { unratedJobs: jobs, unratedInLoading, jobQueueSelected, unratedCounter, dislikedSkip: skip} = useAppSelector(state => state.jobsReducer);
+  const { unratedJobs: jobs, unratedInLoading, jobQueueSelected, unratedCounter, unratedSkip} = useAppSelector(state => state.jobsReducer);
   const { franceTravailStarted, linkedInStarted } = useAppSelector(state => state.n8nReducer);
 
   const [jobsUnrated, setJobsUnrated] = useState<IJobEntity[]>([]);
@@ -35,9 +35,9 @@ export default function JobQueueUnrated() {
     if (!unratedInLoading && hasMore) {
       dispatch(setUnratedInLoading(true));
       try {
-        const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit: 9, skip });
+        const data = await jobRepository.getAll({ filter: { preference: 'null' }, limit: 9, skip: unratedSkip });
         if (data && data.length > 0) {
-          dispatch(setUnratedSkip(skip + data.length));
+          dispatch(setUnratedSkip(unratedSkip + data.length));
           addJobs(data);
         } else if (data && data.length === 0) {
           setHasMore(false);
