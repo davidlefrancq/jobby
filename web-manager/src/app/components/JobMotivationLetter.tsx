@@ -248,7 +248,7 @@ export default function JobMotivationLetter({ job }: JobMotivationLetterProps) {
             loading={inSaveMotivationLetter} // Replace with actual loading state if needed
             onClick={saveMotivationLetterHandler}
             rounded="rounded-md"
-            isDisabled={!job.motivation_letter || job.motivation_letter === motivationLetter} // Disable if no motivation letter is present
+            isDisabled={!motivationLetter || job.motivation_letter === motivationLetter} // Disable if no changes to the motivation letter
           />
         </div>
       </div>
