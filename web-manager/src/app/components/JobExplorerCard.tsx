@@ -11,7 +11,6 @@ import { addAlert } from "../store/alertsReducer";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
-import { addNotification } from "../store/notificationsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobTags from "./JobTags";
 import JobDislikeBtn from "./JobDislikeBtn";
@@ -49,17 +48,34 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
   }
 
   /**
+   * FR: Recharge un job par son ID
+   * EN: Reloads a job by its ID
+   */
+  const jobReload = async (jobId: string) => {
+    try {
+      if (jobId) {
+        const jobUpdated = await jobRepository.getById(jobId);
+        if (jobUpdated) {
+          if (jobUpdated.preference === 'dislike') dispatch(updateDislikedJob(jobUpdated));
+          else if (jobUpdated.preference === 'like') dispatch(updateLikedJob(jobUpdated));
+          else if (!jobUpdated.preference) dispatch(updateUnratedJob(jobUpdated));
+        } else {
+          handleAddError(`Failed to reload job: ${jobId}`, 'error');
+        }
+      }
+    } catch (err) {
+      handleAddError(`Error reloading job: ${String(err)}`, 'error');
+    }
+  }
+
+  /**
    * FR: Met à jour les détails de l'entreprise du job
    * EN: Updates the company details of the job
    */
   const updateJobCompany = async (job: Partial<IJobEntity>) => {
     // Check if job is valid
     if (!job || !job._id) {
-      dispatch(addAlert({
-        date: new Date().toISOString(),
-        message: "Job entity is not valid.",
-        type: "error"
-      }));
+      handleAddError("Job entity is not valid.", 'error');
       return;
     }
     setJobCompanyInUpdating(true);
@@ -74,41 +90,22 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
           else if (jobUpdateResponse.preference === 'like') dispatch(updateLikedJob(jobUpdateResponse));
           else if (!jobUpdateResponse.preference) dispatch(updateUnratedJob(jobUpdateResponse));
 
-          /** Start N8N Company Details Workflow */
+          // Start N8N Company Details Workflow
           if (job.company_details && job.company_details.siren) {
             const cdwResponse = await n8nWorkflow.startCompanyDetailsWorkflow({ _id: jobUpdateResponse._id.toString() });
-            if (cdwResponse.error) {
-              dispatch(addAlert({
-                date: new Date().toISOString(),
-                message: `Failed to start Company Details Workflow: ${cdwResponse.error}`,
-                type: "error"
-              }));
-            } else {
-              const jobUpdated = await jobRepository.getById(jobUpdateResponse._id.toString());
-              if (jobUpdated) {
-                if (jobUpdated.preference === 'dislike') dispatch(updateDislikedJob(jobUpdated));
-                else if (jobUpdated.preference === 'like') dispatch(updateLikedJob(jobUpdated));
-                else if (!jobUpdated.preference) dispatch(updateUnratedJob(jobUpdated));
-                dispatch(addNotification({
-                  id: Date.now(),
-                  message: `Company Details has been updated for job ${jobUpdateResponse._id}`,
-                }));
-              } else {
-                handleAddError(`Failed to retrieve updated job after Company Details Workflow: ${String(_id)}`, 'error');
-              }
-            }
             
+            // If there is an error in the workflow, add an alert
+            if (cdwResponse.error) handleAddError(`Failed to start Company Details Workflow: ${cdwResponse.error}`, 'error');
+            
+            // If the workflow is successful, reload the job
+            else await jobReload(jobUpdateResponse._id.toString());
           }
-        } else {
-          handleAddError(`Failed to update job: ${String(_id)}`, 'error');
         }
+        // If the job update response is not valid, add an error alert
+        else handleAddError(`Failed to update job: ${String(_id)}`, 'error');
       }
     } catch (error) {
-      dispatch(addAlert({
-        date: new Date().toISOString(),
-        message: String(error),
-        type: "error"
-      }));
+      handleAddError(`Error updating job company: ${String(error)}`, 'error');
     } finally {
       setJobCompanyInUpdating(false);
     }
