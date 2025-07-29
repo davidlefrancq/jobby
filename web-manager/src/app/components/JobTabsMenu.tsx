@@ -19,8 +19,8 @@ export default function JobTabsMenu({ children, items }: JobTabsMenuProps) {
 
   return (
     <div>
-      <div className="border-b border-gray-200 dark:border-neutral-700">
-        <nav className="flex gap-x-1" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
+      <div className="border-b-2 border-gray-200 dark:border-neutral-900">
+        <nav className="flex gap-x-2" aria-label="Tabs" role="tablist" aria-orientation="horizontal">
           {items.map((item, index) => (
             <button
               key={index}
@@ -34,18 +34,25 @@ export default function JobTabsMenu({ children, items }: JobTabsMenuProps) {
                 text-sm
                 border-b-2
                 whitespace-nowrap
-                hs-tab-active:font-semibold
                 hs-tab-active:text-blue-600
                 hs-tab-active:border-blue-600
+                dark:hs-tab-active:text-blue-400
+                dark:hs-tab-active:border-blue-400
                 hover:text-blue-600 
                 hover:border-blue-600 
+                dark:hover:text-blue-400
+                dark:hover:border-blue-400
                 focus:outline-none
                 focus:text-blue-600
+                dark:focus:text-blue-400
                 
-                bg-white dark:bg-neutral-800
+                bg-white dark:bg-neutral-900
                 rounded-t-sm
                 
-                ${selectedTab == index ? 'border-blue-600 text-blue-600 font-semibold' : 'text-gray-500 border-transparent'}
+                ${selectedTab == index 
+                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  : 'text-gray-800 dark:text-gray-200 border-transparent'
+                }
               `}
               onClick={() => onTabClick(index)}
             >

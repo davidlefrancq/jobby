@@ -117,15 +117,36 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
   return (
     <div key={job._id?.toString()} className="col-span-1">
       <div
-        className="w-full h-full bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70"
+        className={`
+          w-full
+          h-full
+          bg-white
+          dark:bg-neutral-800
+          border
+          border-gray-200
+          dark:border-none
+          shadow-md
+          rounded-xl
+        `}
       >
         {/* Card Header */}
-        <div className="bg-gray-100 border-b border-gray-200 rounded-t-xl py-3 px-4 dark:bg-neutral-900 dark:border-neutral-700">
+        <div
+          className={`
+            py-3
+            px-4
+            bg-gray-100
+            dark:bg-neutral-900
+            border-b
+            border-gray-200
+            dark:border-neutral-700
+            rounded-t-xl
+          `}
+        >
           <h3 className="text-lg font-bold text-gray-800 dark:text-white">
             <TruncatedText text={job.title || "Unknown Title"} length={55} />
           </h3>
 
-          <div className="flex gap-2 mt-1 text-sm text-gray-500 dark:text-neutral-500">
+          <div className="flex gap-2 mt-1 text-sm text-gray-800 dark:text-neutral-200">
             <JobStatus job={job} showLegend={false} />
             <LanguageFlag language={job.language || ''} cssStyle='w-4 h-4' />
             <TruncatedText text={job.contract_type || '[Contract type N/A]'} length={25} />
@@ -143,7 +164,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
 
           <div className="flex grid-cols-3 gap-2 mb-2">
             <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-              <TruncatedText text={job.company || ''} length={35} />
+              <TruncatedText text={job.company || 'N/A'} length={35} />
             </span>
             <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
               <TruncatedText text={job.location || ''} length={35} />
@@ -205,7 +226,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
                 </span>
               )}
             </div>
-        )}
+          )}
 
           <JobTabsMenu
             items={[
@@ -215,16 +236,16 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               { label: 'Email', icon: <Mail /> },
             ]}
           >
-            <div className="min-h-[150px] mt-2 text-gray-500 dark:text-neutral-400 text-justify">
+            <div className="min-h-[150px] mt-2 text-gray-800 dark:text-neutral-400 text-justify">
               {job.description ? job.description : 'No description available.'}
             </div>
-            <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+            <div className="min-h-[150px] text-gray-800 dark:text-neutral-400">
               <JobCvSelector job={job} />
             </div>
-            <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+            <div className="min-h-[150px] text-gray-800 dark:text-neutral-400">
               <JobMotivationLetter job={job} />
             </div>
-            <div className="min-h-[150px] text-gray-500 dark:text-neutral-400">
+            <div className="min-h-[150px] text-gray-800 dark:text-neutral-400">
               {/* {job.motivation_email ? job.motivation_email : 'No email available.'} */}
               <JobMotivationEmail job={job} />
             </div>
@@ -232,19 +253,32 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
 
           <JobTags job={job} />
 
-          <div className="flex justify-end mt-4 gap-2 dark:text-neutral-400">
-            <span></span>
-          </div>
-
         </div>
 
         {/* Bottom bar */}
-        <div className="h-[65px] flex justify-center items-center bg-gray-100 border-t border-gray-200 rounded-b-xl py-3 px-4 md:py-4 md:px-5 dark:bg-neutral-900 dark:border-neutral-700">
-          <div className="flex-auto mt-1 mb-1 text-sm text-gray-500 dark:text-neutral-500">
+        <div
+          className={`
+            h-[65px]
+            py-3
+            px-4
+            md:py-4
+            md:px-5
+            flex
+            justify-center
+            items-center
+            bg-gray-100
+            dark:bg-neutral-900
+            border-t
+            border-gray-200
+            dark:border-none
+            rounded-b-xl
+          `}
+        >
+          <div className="flex-auto mt-1 mb-1 text-sm text-gray-800 dark:text-neutral-200">
             {/* Job date */}
             {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
           </div>
-          <div className="flex-auto mt-1 mb-1 text-sm text-center text-gray-500 dark:text-neutral-500">
+          <div className="flex-auto mt-1 mb-1 text-sm text-center text-gray-800 dark:text-neutral-200">
             {/* Job ID */}
             <div>{job._id?.toString()}</div>
             {job.original_job_id && (
@@ -253,13 +287,25 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               </div>
             )}
           </div>
-          <div className="flex gap-2 mt-1 mb-1 text-sm text-right text-gray-500 dark:text-neutral-500">
+          <div className="flex gap-2 mt-1 mb-1 text-sm text-right text-gray-800 dark:text-neutral-200">
             {/* Dislike Button */}
             <JobDislikeBtn job={job} />
             {/* Original job url */}
             {job.original_job_id && job.source
               ? <button
-                  className="min-w-[150px] px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                  className={`
+                    min-w-[150px]
+                    px-4
+                    py-2
+                    bg-blue-600
+                    hover:bg-blue-700
+                    text-white
+                    rounded
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                    focus:ring-opacity-50
+                  `}
                   onClick={() => window.open(job.source || '', '_blank')}
                 >
                   <span className="flex gap-2 justify-center items-center capitalize">

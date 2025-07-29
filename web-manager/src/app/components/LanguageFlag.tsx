@@ -78,7 +78,7 @@ export default function LanguageFlag({ language, cssStyle }: LanguageFlagProps) 
   if (flags.length === 0 && language) flags.push(<span key="default" className="text-gray-500">{language}</span>);
 
   return (
-    <span title={language} className={`${cssStyle ?? ''} flex gap-1`}>
+    <span title={language} className={`${cssStyle ?? ''} flex gap-2`}>
       {flags.length > 0 ? flags : null}
     </span>
   );

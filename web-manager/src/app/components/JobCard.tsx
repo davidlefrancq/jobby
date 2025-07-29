@@ -24,7 +24,7 @@ function Salary({ job }: {job: IJobEntity}) {
     maximumFractionDigits: 0
   };
   return (
-    <span className="text-sm text-gray-500 dark:text-neutral-400">
+    <span className="text-sm text-gray-600 dark:text-neutral-200">
       { min ? min.toLocaleString('fr-FR', options) : null}
       { min && max ? ' - ' : null}
       { max ? max.toLocaleString('fr-FR', options) : null}
@@ -68,9 +68,9 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
         <div className="text-left">
           {/* Job title and company */}
           <h2 className="text-xl font-bold">{job.title}</h2>
-          <div className="text-gray-700 font-medium dark:text-neutral-400">{job.company}</div>
+          <div className="text-gray-600 font-medium dark:text-neutral-200">{job.company}</div>
           {/* Details */}
-          <div className="flex text-gray-500 text-sm dark:text-neutral-400">
+          <div className="flex text-gray-600 text-sm dark:text-neutral-200">
             {/* Language */}
             {job.language ? <LanguageFlag language={job.language} cssStyle='mr-1' />: null}
             {/* Location */}
@@ -90,7 +90,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             </span>
           </div>
           {/* Descripttion */}
-          <div className="mt-4 text-gray-700 text-justify dark:text-neutral-300">
+          <div className="mt-4 text-gray-600 text-justify dark:text-neutral-200">
             {job.description}
           </div>
           <div className="pt-4 pb-2">
@@ -98,7 +98,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             {job.technologies && job.technologies.length > 0 ? (
               <>
                 {job.technologies.map((tech, index) => (
-                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2 dark:bg-neutral-700 dark:text-white">
+                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-600 mr-2 mb-2 dark:bg-neutral-700 dark:text-neutral-200">
                     #{tech}
                   </span>
                 ))}
@@ -108,7 +108,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             {job.methodologies && job.methodologies.length > 0 ? (
               <>
                 {job.methodologies.map((method, index) => (
-                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2 dark:bg-neutral-700 dark:text-white">
+                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-600 mr-2 mb-2 dark:bg-neutral-700 dark:text-neutral-200">
                     #{method}
                   </span>
                 ))}
@@ -125,7 +125,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           ) : <span className="text-gray-400 dark:text-neutral-300">No source.</span>}
           {/* Mongo job id */}
           <div className="grid grid-flow-col justify-items-end">
-            <span className="text-gray-400 dark:text-neutral-300">{job._id && job._id.toString()}</span>
+            <span className="text-gray-600 dark:text-neutral-200">{job._id && job._id.toString()}</span>
           </div>
         </div>
       </div>
@@ -142,9 +142,9 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           items-center
           px-4
           py-2
-          text-gray-500
+          text-gray-600
           hover:text-green-600
-          dark:text-neutral-400
+          dark:text-neutral-200
           dark:hover:text-green-400
           transition
           group
@@ -155,7 +155,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           w-12
           h-12
           border
-          border-gray-300
+          border-gray-400
           rounded-full
           flex
           items-center

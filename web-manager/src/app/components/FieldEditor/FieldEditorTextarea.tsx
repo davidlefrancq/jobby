@@ -71,7 +71,7 @@ export default function FieldEditorTextarea({ className, initialValue, legendVal
     };
   }, []);
 
-  let style = "flex flex-wrap items-center gap-1 px-2 py-2";
+  let style = "flex flex-wrap items-center gap-2 px-2 py-2";
   if (className) {
     style += ` ${className}`;
   }

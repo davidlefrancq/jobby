@@ -13,15 +13,15 @@ export default function JobTags({ job }: JobTagsProps) {
     return technologies.includes(tag);
   };
   
-  const cssTechnology = "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100";
-  const cssMethodology = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100";
+  const cssTechnology = "bg-violet-100 text-violet-900 dark:bg-violet-900 dark:text-gray-100";
+  const cssMethodology = "bg-cyan-100 text-cyan-900 dark:bg-cyan-900 dark:text-gray-100";
 
   return (
-    <div className="flex flex-wrap gap-2 mt-2">
+    <div className="flex flex-wrap gap-2 mt-2 mb-2">
       {tags.map((tag, index) => (
         <span
           key={index}
-          className={`px-3 py-1 rounded-full text-xs font-semibold ${isTechnology(tag) ? cssTechnology : cssMethodology}`}
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${isTechnology(tag) ? cssTechnology : cssMethodology}`}
         >
           {tag}
         </span>

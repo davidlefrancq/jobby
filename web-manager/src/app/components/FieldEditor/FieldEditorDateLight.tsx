@@ -30,7 +30,7 @@ export default function FieldEditorDateLight({ className, initialValue, legendVa
     setInputValue(initialValue || null);
   }, [initialValue]);
 
-  let style = "flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 shadow-md";
+  let style = "flex flex-wrap items-center gap-2 bg-blue-50 px-2 py-2 shadow-md";
   if (className) {
     style += ` ${className}`;
   }

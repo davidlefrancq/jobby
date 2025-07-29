@@ -42,7 +42,23 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto">
-      <div className="grid gap-4 mb-2 transform transition-all duration-300 bg-white border-gray-200 dark:text-white dark:bg-neutral-800 dark:border-neutral-700 lg:translate-x-0">
+      <div
+        className={`
+          grid
+          gap-2
+          bg-gray-100
+          dark:bg-neutral-900
+          dark:text-white
+          border-gray-100
+          dark:border-neutral-700
+          rounded-lg
+          shadow-md
+          transform
+          transition-all
+          duration-300
+          lg:translate-x-0
+        `}
+      >
         <header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3">
           <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
             <a className="flex-none font-semibold text-xl text-black focus:outline-hidden focus:opacity-80 dark:text-white" href="#" aria-label="Jobby">
@@ -50,7 +66,7 @@ export default function HomePage() {
               <h1>Jobby</h1>
             </a>
 
-            <div className="flex flex-row items-center gap-5 mt-5 sm:justify-end sm:mt-0 sm:ps-5">
+            <div className="flex flex-row items-center gap-2 mt-2 sm:justify-end sm:mt-0 sm:ps-5">
               {/* Links exemple */}
               {/* 
               <a className="font-medium text-blue-500 focus:outline-hidden" href="#" aria-current="page">Link</a>
@@ -96,11 +112,22 @@ export default function HomePage() {
         </header>
       </div>
 
-      <div className="grid grid-cols-6 gap-2">
+      <div className="grid grid-cols-6 gap-0 m-0 p-0">
         <div className="col-span-1 dark:border-e-neutral-700">
           <MenuSidebar />
         </div>
-        <div className="col-span-5 transform transition-all duration-300 bg-white border-gray-200 dark:text-white dark:bg-neutral-800 dark:border-neutral-700 lg:translate-x-0">
+        <div
+          className={`
+            col-span-5
+            transform
+            transition-all
+            duration-300
+            lg:translate-x-0
+            dark:text-white
+            border-gray-200
+            dark:border-neutral-700
+          `}
+        >
           
           <ErrorsPanel />
 
@@ -109,7 +136,7 @@ export default function HomePage() {
           {target === MenuTargetEnum.CVs && <CVPanel />}
           
           {!isAliveApi && showApiError && (
-            <div className="text-red-500 text-center mt-4">
+            <div className="bg-gray-100 dark:bg-neutral-800 text-red-500 text-center mt-4">
               <p className="text-lg font-semibold">API is not responding.</p>
               <p>Please check the server status or try again later.</p>
             </div>

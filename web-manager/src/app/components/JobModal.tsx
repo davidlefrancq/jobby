@@ -388,7 +388,7 @@ export default function JobModal({ onClose }: JobModalProps) {
     <>
       {jobSelected && <>
         {/* Button Bar */}
-        <div className={"absolute top-4 right-4 flex items-center gap-3"}>
+        <div className={"absolute top-4 right-4 flex items-center gap-2"}>
           {/* Edit Mode Button */}
           <BtnEditor onClick={handleToggleEdit} className="text-gray-500 hover:text-black" isEditMode={isEditMode} autoPositionning={false} />
           
@@ -567,7 +567,7 @@ export default function JobModal({ onClose }: JobModalProps) {
           </div>
         </div>
 
-        <div className="flex flex-row w-full mt-4 mb-6 gap-3">
+        <div className="flex flex-row w-full mt-4 mb-6 gap-2">
           {/* Motivation Letter */}
           {!showLetterPanel && (
             <div className="mb-4">
@@ -628,7 +628,7 @@ export default function JobModal({ onClose }: JobModalProps) {
           </div>
         </div>
 
-        <div className="absolute bottom-4 right-4 flex items-center gap-3">
+        <div className="absolute bottom-4 right-4 flex items-center gap-2">
           <BtnRemove job={jobSelected} onRemove={() => onClose()} />
           {jobSelected.preference === 'dislike' && <BtnLike job={jobSelected} onClose={() => onClose()} />}
           {jobSelected.preference === 'like' && <BtnDislike job={jobSelected} onClose={() => onClose()} />}

@@ -78,7 +78,20 @@ export default function JobsStepper() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center text-center w-full bg-gray-100 p-4 rounded-lg shadow dark:bg-neutral-900">
+      <div
+        className={`
+          w-full
+          p-4
+          flex
+          items-center
+          text-center
+          bg-gray-100
+          dark:bg-neutral-900
+          rounded-lg
+          shadow
+          dark:shadow-xl
+        `}
+      >
         {/* Stepper previous button */}
         <div className="flex justify-between">
           <BtnLoading

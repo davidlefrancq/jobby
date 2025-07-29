@@ -65,27 +65,28 @@ export default function DarkModeToggleBtn() {
         w-[32px]
 
         font-medium
-        text-gray-500
-        focus:text-gray-800
-        hover:text-gray-800
+        text-gray-600
+        focus:text-neutral-800
+        hover:text-neutral-200
         dark:text-neutral-200
-        dark:hover:text-white
-        dark:focus:text-white
+        dark:hover:text-neutral-800
+        dark:focus:text-neutral-200
 
         border
         border-gray-500
-        focus:border-gray-800
-        hover:border-gray-800
+        focus:border-neutral-800
+        hover:border-neutral-200
         dark:border-neutral-200
-        dark:focus:border-white
-        dark:hover:border-white
+        dark:hover:border-neutral-800
+        dark:focus:border-neutral-200
+
         
         bg-white
-        hover:bg-gray-200
-        focus:bg-gray-200
+        hover:bg-neutral-800
+        focus:bg-white
         dark:bg-neutral-800
-        dark:hover:bg-neutral-700
-        dark:focus:bg-neutral-700
+        dark:hover:bg-neutral-200
+        dark:focus:bg-neutral-800
 
         transition-all
         hover:scale-125

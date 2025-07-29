@@ -183,7 +183,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
         {/* Show generation time if inGenerateMotivationEmailDateStart is set */}
         {inGenerateMotivationEmailDateStart && (
           <div className="w-[25%] col-span-1 text-sm text-gray-500 dark:text-neutral-400">
-            <div className="grid grid-row-2 gap-1 items-start justify-start">
+            <div className="grid grid-row-2 gap-2 items-start justify-start">
               <div className="col-span-1 font-semibold">Time start - end:</div>
               <div className="col-span-1">{inGenerateMotivationEmailDateStart.toLocaleTimeString()}
                 {inGenerateMotivationEmailDateEnd && (
@@ -197,7 +197,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
         {/* Generation total duration */}
         {inGenerateMotivationEmailDateStart && (
           <div className="w-[25%] col-span-1 text-sm text-gray-500 dark:text-neutral-400">
-            <div className="grid grid-row-2 gap-1 items-start justify-start">
+            <div className="grid grid-row-2 gap-2 items-start justify-start">
               <div className="col-span-1 font-semibold">Duration:</div>
               <div className="col-span-1">{DatetimeTool.formatDuration(Math.round(executionTimeCounter))}</div>
             </div>

@@ -10,7 +10,7 @@ interface ToggleProps {
 
 export default function Toggle({ checked, onChange, label }: ToggleProps) {
   return (
-    <label className="flex items-center gap-3 cursor-pointer select-none">
+    <label className="flex items-center gap-2 cursor-pointer select-none">
       {label && <span className="text-sm">{label}</span>}
       <div
         role="switch"
