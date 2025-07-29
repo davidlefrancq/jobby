@@ -215,7 +215,7 @@ export default function JobMotivationLetter({ job }: JobMotivationLetterProps) {
             // width="125px"
           />
 
-          {/* BtnLoading for save textarea value if différente of job.motivation_letter */}
+          {/* BtnLoading for save textarea value if different from job.motivation_letter */}
           <BtnLoading
             title="Save"
             loading={inSaveMotivationLetter} // Replace with actual loading state if needed
