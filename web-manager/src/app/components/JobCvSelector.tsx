@@ -118,9 +118,9 @@ export default function JobCvSelector({ job }: JobCvSelectorProps) {
   }, []);
 
   return (
-    <div className="grid grid-cols-3 gap-4 bg-white dark:bg-neutral-900 rounded-md shadow-md">
+    <div className="grid grid-cols-3 gap-4 bg-white dark:bg-neutral-900 rounded-md">
       <select
-        className="col-span-2 dark:bg-neutral-800 dark:text-neutral-200 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full"
+        className="col-span-2 dark:bg-neutral-800 dark:text-neutral-200 bg-white text-gray-700 border border-gray-400 dark:border-neutral-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full"
         value={cvSelected || ''}
         onChange={(e) => {
           if (e.target.value !== cvSelected) {

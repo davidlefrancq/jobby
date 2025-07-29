@@ -168,7 +168,7 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
     <div className="flex flex-col gap-2">
       {/* Textarea for edit job.motivation_email */}
       <textarea
-        className="w-full h-[100px] p-2 border border-gray-300 rounded-md dark:bg-neutral-800 dark:border-neutral-700"
+        className="w-full h-[100px] p-2 border border-gray-400 rounded-md dark:bg-neutral-800 dark:border-neutral-200"
         placeholder="Edit motivation email here..."
         value={motivationEmail || ''}
         onChange={(e) => {

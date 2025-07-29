@@ -39,10 +39,8 @@ export default function JobTabsMenu({ children, items }: JobTabsMenuProps) {
                 hs-tab-active:border-blue-600
                 hover:text-blue-600 
                 hover:border-blue-600 
-                focus:ring-1
                 focus:outline-none
                 focus:text-blue-600
-                focus:ring-blue-600
                 
                 bg-white dark:bg-neutral-800
                 rounded-t-sm
