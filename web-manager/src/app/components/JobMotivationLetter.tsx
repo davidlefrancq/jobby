@@ -8,6 +8,7 @@ import { MessageType } from "@/types/MessageType";
 import { addAlert } from "../store/alertsReducer";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { addNotification } from "../store/notificationsReducer";
+import DatetimeTool from "../lib/DatetimeTool";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 const n8nWorkflow = N8NWorkflow.getInstance();
@@ -132,34 +133,6 @@ export default function JobMotivationLetter({ job }: JobMotivationLetterProps) {
   }
 
   /**
-   * FR: Formate la durée en HH:MM:SS
-   * EN: Formats the duration into HH:MM:SS
-   */
-  function formatDuration(totalSeconds: number): string {
-    // FR: Définir les durées en secondes pour chaque unité de temps
-    // EN: Define the durations in seconds for each time unit
-    const secondsInHour = 3600;
-    const secondsInMinute = 60;
-
-    let remainingSeconds = totalSeconds;
-
-    // FR: Calculer les heures, minutes et secondes restantes
-    // EN: Calculate the remaining hours, minutes, and seconds
-    const hours = Math.floor(remainingSeconds / secondsInHour);
-    remainingSeconds %= secondsInHour;
-    const minutes = Math.floor(remainingSeconds / secondsInMinute);
-    const seconds = Math.floor(remainingSeconds % secondsInMinute);
-
-    // FR: Formater les heures, minutes et secondes en HH:MM:SS
-    // EN: Format the hours, minutes, and seconds into HH:MM:SS
-    const timeString = `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-    // FR: Retourner la chaîne formatée
-    // EN: Return the formatted string
-    return timeString;
-  }
-
-  /**
    * FR: Met à jour le compteur d'exécution
    * EN: Updates the execution time counter
    */
@@ -226,7 +199,7 @@ export default function JobMotivationLetter({ job }: JobMotivationLetterProps) {
           <div className="w-[25%] col-span-1 text-sm text-gray-500 dark:text-neutral-400">
             <div className="grid grid-row-2 gap-1 items-start justify-start">
               <div className="col-span-1 font-semibold">Duration:</div>
-              <div className="col-span-1">{formatDuration(Math.round(executionTimeCounter))}</div>
+              <div className="col-span-1">{DatetimeTool.formatDuration(Math.round(executionTimeCounter))}</div>
             </div>
           </div>
         )}
