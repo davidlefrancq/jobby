@@ -15,7 +15,7 @@ export default function ErrorsPanel() {
   if (!alerts || alerts.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-4 items-center">
+    <div className="flex flex-col gap-2 items-center">
       {alerts.map((alert, index) => (
         <AlertMessage
           key={index}

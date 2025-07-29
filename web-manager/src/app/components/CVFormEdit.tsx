@@ -3,7 +3,7 @@ import { ICvEntity, IExperience, IEducation } from "@/types/ICvEntity";
 import { RepositoryFactory } from "../dal/RepositoryFactory";
 import { useAppDispatch, useAppSelector } from "../store";
 import { addAlert } from "../store/alertsReducer";
-import { setCvs, setCvsCounter } from "../store/cvsReducer";
+import { setCvs } from "../store/cvsReducer";
 import FieldEditorStringArrayLight from "./FieldEditor/FieldEditorStringArrayLight";
 import FieldEditorStringLight from "./FieldEditor/FieldEditorStringLight";
 import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
@@ -116,7 +116,6 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
       if (created) {
         const newCvList: ICvEntity[] = [...cvs.filter(cv => cv._id !== created._id), created]; 
         dispatch(setCvs(newCvList));
-        dispatch(setCvsCounter(newCvList.length));
         onClose();
       }
     } catch (error) {
@@ -161,7 +160,6 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
         if (updated) {
           const newCvList: ICvEntity[] = [...cvs.filter(cv => cv._id?.toString() !== updated._id?.toString()), updated];
           dispatch(setCvs(newCvList));
-          dispatch(setCvsCounter(newCvList.length));
           onClose();
         }
       } catch (error) {
@@ -370,7 +368,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
             {experiences.length > 0 && (
               <div>
                 { experiences.length > 0 && (
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {experiences.map((exp, index) => (
                       <div key={index} className="bg-white p-4 rounded shadow">
                         <h4 className="font-semibold">{exp.title}</h4>
@@ -427,7 +425,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               <div>
                 {/* Cards of educations */}
                 {educations.length > 0 && (
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {educations.map((edu, index) => (
                       <div key={index} className="bg-white p-4 rounded shadow">
                         <h4 className="font-semibold">{edu.title}</h4>
@@ -518,7 +516,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               {experiences.length > 0 && (
                 <div className="mt-2 shadow-md rounded-md p-2">
                   <h5 className="text-sm font-semibold">Expériences professionnelles:</h5>
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                       {experiences.map((exp, index) => (
                         <div key={index} className="bg-white p-4 rounded border border-gray-400">
                           <h4 className="font-semibold">{exp.title}</h4>
@@ -541,7 +539,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               {educations.length > 0 && (
                 <div className="mt-2 shadow-md rounded-md p-2">
                   <h5 className="text-sm font-semibold">Formations:</h5>
-                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
                       {educations.map((edu, index) => (
                         <div key={index} className="bg-white p-4 rounded border border-gray-400">
                           <h4 className="font-semibold">{edu.title}</h4>

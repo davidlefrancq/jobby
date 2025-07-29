@@ -5,19 +5,22 @@ import FieldEditorErrorPanel from "./FieldEditorErrorPanel";
 import { ICompanyDetails, IJobEntity } from "@/types/IJobEntity";
 import BtnLoading from "../Btn/BtnLoading";
 import { Save } from "lucide-react";
+import { addAlert } from "@/app/store/alertsReducer";
+import { useAppDispatch } from "@/app/store";
 
-interface FieldEditorCompanyProps {
+interface FieldEditorCompanySirenProps {
   job: IJobEntity;
   isEditMode: boolean;
   saveFunction?: (value: Partial<IJobEntity>) => Promise<void>;
 }
 
-export default function FieldEditorCompany({ job, isEditMode, saveFunction }: FieldEditorCompanyProps) {
+export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction }: FieldEditorCompanySirenProps) {
+  const dispatch = useAppDispatch();
+
   const ref = useRef<HTMLDivElement>(null);
 
-  const [inputCompany, setInputCompany] = useState<string | null>(job.company || null);
   const [inputSiren, setInputSiren] = useState<string | null>(job.company_details?.siren || null);
-  const [isEditing, setIsEditing] = useState(isEditMode);
+  const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [inSaving, setInSaving] = useState(false);
 
@@ -38,19 +41,21 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
         if (/^\d+$/.test(sirenValue)) {
           const value = parseInt(sirenValue);
           if (isNaN(value)) {
-            console.error("SIREN is not a number:", e.target.value);
             setError("SIREN must be a number");
           } else {
             setInputSiren(value.toString());
             setError(null);
           }
         } else {
-          console.error("SIREN is not a valid number:", e.target.value);
           setError("SIREN must be a number");
         }
       }
     } catch (error) {
-      console.error(error);
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        type: 'error',
+        message: `Failed to process SIREN input. Error: ${String(error)}`,
+      }));
       setError("SIREN must be a number.");
     }    
   }
@@ -78,15 +83,13 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
       else {
         try {
           const inputJob: Partial<IJobEntity> = {}
-
-          // If inputCompany has changed, prepare update it
-          if (inputCompany && inputCompany !== job.company) inputJob.company = inputCompany;
           
           // If inputSiren has changed, prepare to update it
           if (inputSiren && inputSiren !== job.company_details?.siren) {
             const companyDetails = job.company_details || {} as ICompanyDetails;
             companyDetails.siren = inputSiren;
             inputJob.company_details = companyDetails;
+            inputJob._id = job._id;
           }
 
           // Save job company data
@@ -109,16 +112,12 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
 
   const isChanged = (): boolean => {
     let result = false;
-    const originalStingified = JSON.stringify({ company: job.company, siren: job.company_details?.siren || null});
-    const newStringified = JSON.stringify({ company: inputCompany, siren: inputSiren });
+    const originalStingified = JSON.stringify({ siren: job.company_details?.siren || null});
+    const newStringified = JSON.stringify({ siren: inputSiren });
     if (originalStingified !== newStringified) result = true;
     return result
   }
 
-
-  const handleCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputCompany(e.target.value);
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -143,20 +142,13 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
 
   if (isEditMode && isEditing) {
     return (
-      <div ref={ref} className="absolute flex items-center bg-blue-100 dark:bg-neutral-900 shadow-md rounded py-1 px-1">
-        <input
-          type="text"
-          value={inputCompany || ''}
-          onChange={handleCompanyChange}
-          className="border rounded px-2 py-1 w-full mr-1"
-          placeholder="Company name"
-        />
+      <div ref={ref} className="flex items-center shadow-md rounded py-1 px-1">
         <input
           type="text"
           value={inputSiren || ''}
           onChange={handleSirenChange}
-          className="border rounded px-2 py-1 w-full mr-1"
-          placeholder="SIREN (optional)"
+          className="border border-blue-800 rounded px-2 py-1 w-full mr-1"
+          placeholder="SIREN"
         />
         <BtnLoading
           loading={inSaving}
@@ -172,13 +164,31 @@ export default function FieldEditorCompany({ job, isEditMode, saveFunction }: Fi
   }
 
   let className = '';
-  if (isEditMode) className += 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400';
+  if (isEditMode) className += 'cursor-pointer hover:text-blue-700 dark:hover:text-blue-500';
   return (
     <span
       className={className}
       onClick={() => { if (isEditMode) setIsEditing(true); }}
     >
-      {inputCompany || '[N/A]'}
+      {/* {inputSiren || '[N/A]'} */}
+      {inputSiren && inputSiren }
+      {!inputSiren && !isEditMode && <span className="text-gray-500 dark:text-neutral-400">[N/A]</span>}
+      {/* {isEditMode && <span className="ml-1 text-blue-500 dark:text-blue-400 cursor-pointer">Edit Siren</span>} */}
+      {isEditMode && (
+        <button
+          className={`
+            px-2
+            py-1
+            bg-blue-600
+            text-white
+            rounded
+            hover:bg-blue-700
+          `}
+          onClick={() => setIsEditing(true)}
+        >
+          Edit SIREN
+        </button>
+      )}
     </span>
   )
 }

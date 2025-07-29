@@ -14,12 +14,11 @@ import FullscreenModal from "./FullscreenModal";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
-let firstLoad = true;
-
 export default function JobQueueLiked() {
   const dispatch = useAppDispatch()
   const { likedJobs, jobQueueSelected, likedLimit: limit, likedSkip: skip, jobSelected } = useAppSelector(state => state.jobsReducer)
 
+  const isFirstLoad = useRef(true);
   const loaderRef = useRef<HTMLDivElement | null>(null);
   const [isFetching, setIsFetching] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -66,8 +65,8 @@ export default function JobQueueLiked() {
 
   // Load the first batch of jobs
   useEffect(() => {
-    if (firstLoad && jobQueueSelected === JobQueueEnum.Liked) {
-      firstLoad = false;
+    if (isFirstLoad.current && jobQueueSelected === JobQueueEnum.Liked) {
+      isFirstLoad.current = false;
       loadLikedJobsCounter()
       loadLikedJobs().then(() => {}).catch(err => {
         handleAddError(err.message, 'error');

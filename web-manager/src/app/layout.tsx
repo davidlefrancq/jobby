@@ -30,7 +30,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="128x128" />
       </head>
       <body
-        className={`bg-white dark:bg-black ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`bg-white dark:bg-black ${geistSans.variable} ${geistMono.variable} antialiased transform transition-all duration-300`}
       >
         <Providers>
           {children}

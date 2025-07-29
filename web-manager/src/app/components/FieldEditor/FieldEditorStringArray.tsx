@@ -103,7 +103,7 @@ export default function FieldEditorStringArray({ items, legendValue, isEditMode,
 
   if (isEditMode && isEditing) {
     return (
-      <div ref={ref} className="flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 max-w-xl shadow-md">
+      <div ref={ref} className="flex flex-wrap items-center gap-2 bg-blue-50 px-2 py-2 max-w-xl shadow-md">
         <div className="text-sm text-gray-600 w-full">
           <input
             ref={inputRef}
@@ -126,7 +126,7 @@ export default function FieldEditorStringArray({ items, legendValue, isEditMode,
         </div>
 
         { itemList.length > 0 &&
-          <div className="flex flex-wrap items-center gap-1 text-xs text-gray-500 mt-2 mb-2 w-full">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-2 mb-2 w-full">
             {itemList.map((item, idx) => (
               <span key={idx} className="bg-blue-200 text-blue-800 rounded-full px-3 py-1 text-sm flex items-center">
                 {item}

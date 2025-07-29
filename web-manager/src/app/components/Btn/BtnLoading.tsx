@@ -28,8 +28,8 @@ export default function BtnLoading({
     }
   }
 
-  let btnClassName = `text-white text-center items-center focus:ring-4 font-medium text-sm px-2.5 py-2.5 focus:outline-none caret-transparent ${rounded} transition-all duration-200 ease-in-out `;
-  const notAllowed = 'bg-gray-500 cursor-not-allowed';
+  let btnClassName = `text-white text-center items-center focus:ring-2 focus:outline-none font-medium text-sm px-2.5 py-2.5  caret-transparent ${rounded} transition-all duration-200 ease-in-out `;
+  const notAllowed = 'bg-gray-400 dark:bg-neutral-400 cursor-not-allowed';
   switch (true) {
     case isDisabled:
       btnClassName += notAllowed;
@@ -38,13 +38,12 @@ export default function BtnLoading({
       btnClassName += notAllowed;
       break;
     default:
-      btnClassName += 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-300 cursor-pointer';
+      btnClassName += 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300 cursor-pointer';
       break;
   }
 
 
   const btnStyle: CSSProperties = {
-    cursor: 'pointer',
     width,
     height,
     display: 'flex',

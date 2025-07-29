@@ -28,7 +28,7 @@ export default function JobStatus({ job, size = 16, showLegend = false }: JobSta
     for (const [key, legendValue] of Object.entries(INTEREST_OPTIONS_LEGEND)) {
       if (value && value === key && value !== '[N/A]') {
         legend = (
-          <span className="flex items-center gap-1">
+          <span>
             {INTEREST_STATUS[key]}
             {showLegend ? legendValue : null}
           </span>

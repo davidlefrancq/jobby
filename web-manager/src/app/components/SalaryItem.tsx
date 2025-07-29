@@ -8,7 +8,7 @@ interface SalaryItemProps {
 }
 
 export default function SalaryItem({ salary, title }: SalaryItemProps) {
-  if (!salary) return null;
+  if (!salary || (salary.min === 0 && salary.max === 0)) return null;
   const { min, max, currency } = salary;
 
   const separator = (salary: ISalary) => {

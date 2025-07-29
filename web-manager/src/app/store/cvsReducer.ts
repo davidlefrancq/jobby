@@ -1,9 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { ICvEntity } from '@/types/ICvEntity'
+import { CvSorter } from '@/backend/lib/CvSorter';
 
 interface CvsState {
   cvs: ICvEntity[]
-  cvsCounter: number
+  cvsCounter: number // Total number of CVs in DB
+  cvsHasMore: boolean;
+  cvsInLoading: boolean;
   cvsLimit: number
   cvsSkip: number
   selectedCvId: string | null
@@ -12,6 +15,8 @@ interface CvsState {
 const initialState: CvsState = {
   cvs: [],
   cvsCounter: 0,
+  cvsHasMore: true,
+  cvsInLoading: false,
   cvsLimit: 10,
   cvsSkip: 0,
   selectedCvId: null,
@@ -21,8 +26,15 @@ const cvsSlice = createSlice({
   name: 'cvs',
   initialState,
   reducers: {
-    setCvsCounter(state, action: PayloadAction<number>) {
-      state.cvsCounter = Math.round(action.payload)
+    setCvs(state, action: PayloadAction<ICvEntity[]>) {
+      state.cvs = action.payload
+      state.cvsCounter = action.payload.length
+    },
+    setCvsHasMore(state, action: PayloadAction<boolean>) {
+      state.cvsHasMore = action.payload
+    },
+    setCvsInLoading(state, action: PayloadAction<boolean>) {
+      state.cvsInLoading = action.payload
     },
     setCvsLimit(state, action: PayloadAction<number>) {
       state.cvsLimit = Math.round(action.payload)
@@ -30,16 +42,17 @@ const cvsSlice = createSlice({
     setCvsSkip(state, action: PayloadAction<number>) {
       state.cvsSkip = Math.round(action.payload)
     },
-    setCvs(state, action: PayloadAction<ICvEntity[]>) {
-      state.cvs = action.payload
+    setCvsCounter(state, action: PayloadAction<number>) {
+      state.cvsCounter = Math.round(action.payload);
     },
     updateCv(state, action: PayloadAction<ICvEntity>) {
-      const idx = state.cvs.findIndex(cv => cv._id === action.payload._id)
-      if (idx !== -1) state.cvs[idx] = action.payload
+      const cvsWithUpdated = state.cvs.map(cv => cv._id === action.payload._id ? action.payload : cv);
+      const newCvList = [...cvsWithUpdated, action.payload].sort(CvSorter.byUpdatedAt);
+      state.cvs = newCvList;
     },
     removeCv(state, action: PayloadAction<string>) {
-      state.cvs = state.cvs.filter(cv => cv._id?.toString() !== action.payload)
-      state.cvsCounter = Math.max(0, state.cvsCounter - 1) // Ensure counter does not go negative
+      const newCvList = state.cvs.filter(cv => cv._id?.toString() !== action.payload);
+      state.cvs = newCvList;
     },
     setSelectedCvId(state, action: PayloadAction<string | null>) {
       state.selectedCvId = action.payload
@@ -47,6 +60,8 @@ const cvsSlice = createSlice({
     clearCvs(state) {
       state.cvs = []
       state.cvsCounter = 0
+      state.cvsHasMore = true
+      state.cvsInLoading = false
       state.cvsLimit = 10
       state.cvsSkip = 0
       state.selectedCvId = null
@@ -55,10 +70,12 @@ const cvsSlice = createSlice({
 })
 
 export const {
+  setCvs,
   setCvsCounter,
+  setCvsHasMore,
+  setCvsInLoading,
   setCvsLimit,
   setCvsSkip,
-  setCvs,
   updateCv,
   removeCv,
   setSelectedCvId,

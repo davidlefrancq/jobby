@@ -24,7 +24,7 @@ function Salary({ job }: {job: IJobEntity}) {
     maximumFractionDigits: 0
   };
   return (
-    <span className="text-sm text-gray-500">
+    <span className="text-sm text-gray-600 dark:text-neutral-200">
       { min ? min.toLocaleString('fr-FR', options) : null}
       { min && max ? ' - ' : null}
       { max ? max.toLocaleString('fr-FR', options) : null}
@@ -35,29 +35,44 @@ function Salary({ job }: {job: IJobEntity}) {
 export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
   const date = job.date ? new Date(job.date) : null;
   return (
-    <div className="relative w-full mx-auto flex items-center justify-center min-h-[40vh] px-4 mb-6">
+    <div className="relative w-full mx-auto flex items-center justify-center min-h-[40vh] px-4">
       {/* Bouton NOPE gauche */}
       <button
         onClick={() => onDislike(job)}
-        className="absolute sm:left-0 lg:left-12 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-red-600 transition group"
+        className={`
+          absolute
+          sm:left-0
+          lg:left-12
+          flex
+          flex-col
+          items-center
+          px-4
+          py-2
+          text-gray-500
+          hover:text-red-600
+          dark:text-neutral-400
+          dark:hover:text-red-400
+          transition
+          group
+        `}
         style={{ cursor: 'pointer' }}
       >
-        <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-red-400">
+        <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-red-400 dark:border-neutral-700">
           <span className="text-2xl">✕</span>
         </div>
         <span className="text-sm mt-2">NOPE</span>
       </button>
 
       {/* Job Card */}
-      <div className="bg-white rounded-xl p-8 shadow-lg w-full max-w-7/10 text-center">
+      <div className="bg-white rounded-xl p-8 shadow-lg w-full max-w-7/10 text-center dark:bg-neutral-900 dark:text-white">
         <div className="text-left">
           {/* Job title and company */}
           <h2 className="text-xl font-bold">{job.title}</h2>
-          <div className="text-gray-700 font-medium">{job.company}</div>
+          <div className="text-gray-600 font-medium dark:text-neutral-200">{job.company}</div>
           {/* Details */}
-          <div className="flex text-gray-500 text-sm">
+          <div className="flex text-gray-600 text-sm dark:text-neutral-200">
             {/* Language */}
-            {job.language ? <LanguageFlag language={job.language} cssClassStyle='mr-1' />: null}
+            {job.language ? <LanguageFlag language={job.language} cssStyle='mr-1' />: null}
             {/* Location */}
             <span title='Location'>{job.location}</span>
             {/* Contract Type */}
@@ -75,7 +90,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             </span>
           </div>
           {/* Descripttion */}
-          <div className="mt-4 text-gray-700 text-justify">
+          <div className="mt-4 text-gray-600 text-justify dark:text-neutral-200">
             {job.description}
           </div>
           <div className="pt-4 pb-2">
@@ -83,7 +98,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             {job.technologies && job.technologies.length > 0 ? (
               <>
                 {job.technologies.map((tech, index) => (
-                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-600 mr-2 mb-2 dark:bg-neutral-700 dark:text-neutral-200">
                     #{tech}
                   </span>
                 ))}
@@ -93,7 +108,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             {job.methodologies && job.methodologies.length > 0 ? (
               <>
                 {job.methodologies.map((method, index) => (
-                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  <span key={index} className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-600 mr-2 mb-2 dark:bg-neutral-700 dark:text-neutral-200">
                     #{method}
                   </span>
                 ))}
@@ -107,10 +122,10 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
                 {job.source ? new URL(job.source).hostname : "Lien non disponible"}
               </Link>
             </div>
-          ) : <span className="text-gray-400">No source.</span>}
+          ) : <span className="text-gray-400 dark:text-neutral-300">No source.</span>}
           {/* Mongo job id */}
           <div className="grid grid-flow-col justify-items-end">
-            <span className="text-gray-400">{job._id && job._id.toString()}</span>
+            <span className="text-gray-600 dark:text-neutral-200">{job._id && job._id.toString()}</span>
           </div>
         </div>
       </div>
@@ -118,10 +133,36 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
       {/* Bouton LIKE droite */}
       <button
         onClick={() => onLike(job)}
-        className="absolute sm:right-0 lg:right-12 flex flex-col items-center px-4 py-2 text-gray-500 hover:text-green-600 transition group"
+        className={`
+          absolute
+          sm:right-0
+          lg:right-12
+          flex
+          flex-col
+          items-center
+          px-4
+          py-2
+          text-gray-600
+          hover:text-green-600
+          dark:text-neutral-200
+          dark:hover:text-green-400
+          transition
+          group
+        `}
         style={{ cursor: 'pointer' }}
       >
-        <div className="w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center group-hover:border-green-400">
+        <div className={`
+          w-12
+          h-12
+          border
+          border-gray-400
+          rounded-full
+          flex
+          items-center
+          justify-center
+          group-hover:border-green-600
+          dark:group-hover:border-green-400
+        `}>
           <span className="text-2xl">♥</span>
         </div>
         <span className="text-sm mt-2">LIKE</span>

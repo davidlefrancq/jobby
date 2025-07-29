@@ -60,7 +60,7 @@ export default function FieldEditorStringArrayLight({ className, items, legendVa
     }
   }, [items]);
 
-  let style = "flex flex-wrap items-center gap-1 bg-blue-50 px-2 py-2 shadow-md";
+  let style = "flex flex-wrap items-center gap-2 bg-blue-50 px-2 py-2 shadow-md";
   if (className) {
     style += ` ${className}`;
   }
@@ -88,7 +88,7 @@ export default function FieldEditorStringArrayLight({ className, items, legendVa
       </div>
 
       { itemList.length > 0 &&
-        <div className="flex flex-wrap items-center gap-1 text-xs text-gray-500 mt-2 mb-2 w-full">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mt-2 mb-2 w-full">
           {itemList.map((item, idx) => (
             <span key={idx} className="text-sm bg-gray-200 text-gray-800 rounded-full px-3 py-1 text-sm flex items-center">
               #{item}

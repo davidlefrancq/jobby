@@ -36,15 +36,15 @@ export default function AlertMessage({ alert, onRemove }: IAlertItemProps) {
           exit={{ opacity: 0, y: -50 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
         >
-          <div className={`w-full max-w-2xl mx-auto mb-1 ${styles.bg} ${styles.text} rounded-lg gap-3 shadow-md `}>
-            <div className={`w-full max-w-2xl mx-auto px-4 py-3 flex items-start justify-between gap-3 relative`}>
-              <div className="flex flex-1 items-start gap-3">
+          <div className={`w-full max-w-2xl mx-auto mb-1 ${styles.bg} ${styles.text} rounded-lg gap-2 shadow-md `}>
+            <div className={`w-full max-w-2xl mx-auto px-4 py-3 flex items-start justify-between gap-2 relative`}>
+              <div className="flex flex-1 items-start gap-2">
                 <AlertCircle className={`w-5 h-5 mt-0 ${styles.iconColor}`} />
                 <div className="text-sm font-medium">{message}</div>
               </div>
 
               <div className="flex mt-0.5 mr-6">
-                <span className="text-xs text-gray-500 whitespace-nowrap">
+                <span className="text-xs text-gray-600 whitespace-nowrap">
                   {new Date(date).toLocaleString()}
                 </span>
               </div>

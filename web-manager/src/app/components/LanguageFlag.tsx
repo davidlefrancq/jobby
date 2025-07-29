@@ -19,21 +19,26 @@ const englishWords = [
 ]
 
 interface FlagProps {
-  cssClassStyle?: string;
+  cssStyle?: string;
 }
 
-const FrFlag = ({ cssClassStyle }: FlagProps) => {
+const FrFlag = ({ cssStyle }: FlagProps) => {
   let className = 'w-5 h-5';
-  if (cssClassStyle) className += ` ${cssClassStyle}`;
+  if (cssStyle && cssStyle.includes('w-')) className = className.replace('w-5 ', '');
+  if (cssStyle && cssStyle.includes('h-')) className = className.replace('h-5', '');
+  if (cssStyle) className += ` ${cssStyle}`;
   return <svg className={className} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
     <circle cx="256" cy="256" fill="#f0f0f0" r="256"/>
     <path d="m512 256c0-110.071-69.472-203.906-166.957-240.077v480.155c97.485-36.172 166.957-130.007 166.957-240.078z" fill="#d80027"/>
     <path d="m0 256c0 110.071 69.473 203.906 166.957 240.077v-480.154c-97.484 36.171-166.957 130.006-166.957 240.077z" fill="#0052b4"/>
   </svg>
 }
-const EnFlag = ({ cssClassStyle }: FlagProps) => {
+const EnFlag = ({ cssStyle }: FlagProps) => {
   let className = 'w-5 h-5';
-  if (cssClassStyle) className += ` ${cssClassStyle}`;
+  if (cssStyle && cssStyle.includes('w-')) className = className.replace('w-5 ', '');
+  if (cssStyle && cssStyle.includes('h-')) className = className.replace('h-5', '');
+  
+  if (cssStyle) className += ` ${cssStyle}`;
   return <svg className={className} viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
     <circle cx="256" cy="256" fill="#f0f0f0" r="256"/>
     <g fill="#0052b4">
@@ -58,22 +63,22 @@ const EnFlag = ({ cssClassStyle }: FlagProps) => {
 
 interface LanguageFlagProps {
   language: string;
-  cssClassStyle?: string;
+  cssStyle?: string;
 }
 
-export default function LanguageFlag({ language, cssClassStyle }: LanguageFlagProps) {
+export default function LanguageFlag({ language, cssStyle }: LanguageFlagProps) {
   const isFrench = frenchWords.some(word => language.toLowerCase().includes(word)) || language.toLowerCase() === 'fr';
   const isEnglish = englishWords.some(word => language.toLowerCase().includes(word)) || language.toLowerCase() === 'en';
   
   const flags: JSX.Element[] = [];
-  if (isFrench) flags.push(<FrFlag key="fr" cssClassStyle={cssClassStyle} />);
-  if (isEnglish) flags.push(<EnFlag key="en" cssClassStyle={cssClassStyle} />);
+  if (isFrench) flags.push(<FrFlag key="fr" cssStyle={cssStyle} />);
+  if (isEnglish) flags.push(<EnFlag key="en" cssStyle={cssStyle} />);
 
   // Default case if no flags match
   if (flags.length === 0 && language) flags.push(<span key="default" className="text-gray-500">{language}</span>);
 
   return (
-    <span title={language} className={`${cssClassStyle ?? ''} flex gap-1`}>
+    <span title={language} className={`${cssStyle ?? ''} flex gap-2`}>
       {flags.length > 0 ? flags : null}
     </span>
   );

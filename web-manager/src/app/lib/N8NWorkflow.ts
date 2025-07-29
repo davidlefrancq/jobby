@@ -23,7 +23,6 @@ export class N8NWorkflow {
   
   private started = {
     FranceTravail: false,
-    GoogleAlerts: false,
     LinkedIn: false,
     CompaniesDetails: false,
     CompanyDetails: false,
@@ -85,18 +84,6 @@ export class N8NWorkflow {
       const { error } = await this.runWorkflow(url);
       if (error) response.error = error;
       this.started.FranceTravail = false;
-    }
-    return response;
-  }
-
-  private startGoogleAlertsWorkflow = async () => {
-    const response: WorkflowResponse = { error: null };
-    if (!this.started.GoogleAlerts) {
-      this.started.GoogleAlerts = true;
-      const { url } = N8N_WEBHOOKS.GoogleAlerts;
-      const { error } = await this.runWorkflow(url);
-      if (error) response.error = error;
-      this.started.GoogleAlerts = false;
     }
     return response;
   }
@@ -211,10 +198,6 @@ export class N8NWorkflow {
         case N8N_WORKFLOW_NAMES.FranceTravail:
           const ftResponse = await this.startFrancetTravailWorkflow();
           if (ftResponse.error) setError(ftResponse.error);
-          break;
-        case N8N_WORKFLOW_NAMES.GoogleAlerts:
-          const gaResponse = await this.startGoogleAlertsWorkflow();
-          if (gaResponse.error) setError(gaResponse.error);
           break;
         case N8N_WORKFLOW_NAMES.LinkedIn:
           const liResponse = await this.startLinkedInWorkflow();
