@@ -11,6 +11,7 @@ jest.spyOn(ApiError.prototype, 'log').mockImplementation(async () => {});
 
 const data_valid: IJobEntity = {
   title: 'DevOps Engineer',
+  abstract: 'This is a job description for a DevOps Engineer position at Google.',
   collective_agreement: "Bureaux d'études techniques SYNTEC (1486)",
   company: "Google",
   company_details: {
@@ -116,6 +117,7 @@ describe('JobSanitizer Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_valid);
     expect(sanitizedJob).toBeDefined();
     expect(sanitizedJob.title).toBe(data_valid.title);
+    expect(sanitizedJob.abstract).toBe(data_valid.abstract);
     expect(sanitizedJob.company).toBe(data_valid.company);
     expect(sanitizedJob.collective_agreement).toBe(data_valid.collective_agreement);
     
@@ -211,6 +213,12 @@ describe('JobSanitizer Empty Data Tests', () => {
     const data_with_empty_title = { ...data_valid, title: '' };
     const sanitizedJob = JobSanitizer.sanitize(data_with_empty_title);
     expect(sanitizedJob.title).toBe('unknown');
+  });
+  // Test sanitize with empty abstract
+  it('should sanitize job data with empty abstract', () => {
+    const data_with_empty_abstract = { ...data_valid, abstract: '' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_abstract);
+    expect(sanitizedJob.abstract).toBe(null);
   });
   // Test sanitize with empty company
   it('should sanitize job data with empty company', () => {
@@ -397,6 +405,12 @@ describe('JobSanitizer Invalid Data Tests', () => {
     const data_with_invalid_title = { ...data_valid, title: 123 } as unknown as IJobEntity;
     const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_title);
     expect(sanitizedJob.title).toBe('unknown');
+  });
+  // Test sanitize with invalid abstract
+  it('should sanitize job data with invalid abstract', () => {
+    const data_with_invalid_abstract = { ...data_valid, abstract: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_abstract);
+    expect(sanitizedJob.abstract).toBe(null);
   });
   // Test sanitize with invalid collective_agreement
   it('should sanitize job data with invalid collective_agreement', () => {
@@ -607,6 +621,12 @@ describe('JobSanitizer Hacked Data Tests', () => {
     const data_with_hacked_title = { ...data_valid, title: '<script>alert("XSS")</script>' };
     const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_title);
     expect(sanitizedJob.title).toBe('unknown');
+  });
+  // Test sanitize with hacked abstract
+  it('should sanitize job data with hacked abstract', () => {
+    const data_with_hacked_abstract = { ...data_valid, abstract: '<script>alert("XSS")</script>' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_abstract);
+    expect(sanitizedJob.abstract).toBe(null);
   });
   // Test sanitize with hacked collective_agreement
   it('should sanitize job data with hacked collective_agreement', () => {

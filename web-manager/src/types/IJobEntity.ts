@@ -75,6 +75,7 @@ export interface ICompanyDetails {
 
 export interface IJobEntity {
   _id?: Types.ObjectId;
+  abstract: string | null;
   collective_agreement: string | null;
   company: string | null;
   company_details: ICompanyDetails | null;

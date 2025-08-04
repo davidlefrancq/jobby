@@ -260,6 +260,12 @@ export class JobSanitizer {
   public static partialSanitize(input: Partial<IJob>): Partial<IJob> {
     const output: Partial<IJob> = {};
 
+    if (input.abstract !== undefined) {
+      output.abstract = (input.abstract && typeof input.abstract === 'string')
+        ? this.sanitizeString(input.abstract)
+        : null;
+    }
+
     if (input.collective_agreement !== undefined) {
       output.collective_agreement = (input.collective_agreement && typeof input.collective_agreement === 'string')
         ? this.sanitizeString(input.collective_agreement)
@@ -453,6 +459,7 @@ export class JobSanitizer {
     const output: Partial<IJob> = this.partialSanitize(input);
 
     const response: IJobEntity = {
+      abstract: output.abstract || null,
       collective_agreement: output.collective_agreement || null,
       company: output.company || null,
       company_details: output.company_details || null,
