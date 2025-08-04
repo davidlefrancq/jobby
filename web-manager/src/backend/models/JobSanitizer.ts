@@ -337,6 +337,12 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.metadata !== undefined) {
+      output.metadata = (input.metadata && typeof input.metadata === 'string')
+        ? this.sanitizeString(input.metadata)
+        : null;
+    }
+
     if (input.methodologies !== undefined) {
       output.methodologies = Array.isArray(input.methodologies)
         ? this.sanitizeStringArray(input.methodologies)
@@ -361,9 +367,21 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.original_mail_id !== undefined) {
+      output.original_mail_id = (input.original_mail_id && typeof input.original_mail_id === 'string')
+        ? this.sanitizeString(input.original_mail_id)
+        : null;
+    }
+
     if (input.preference !== undefined) {
       output.preference = input.preference && typeof input.preference === 'string'
         ? this.sanitizePreference(input.preference)
+        : null;
+    }
+
+    if (input.processing_stage !== undefined) {
+      output.processing_stage = (input.processing_stage && typeof input.processing_stage === 'string')
+        ? this.sanitizeString(input.processing_stage)
         : null;
     }
 
@@ -447,6 +465,7 @@ export class JobSanitizer {
       language: output.language || null,
       level: output.level || null,
       location: output.location || null,
+      metadata: output.metadata || null,
       methodologies: output.methodologies || null,
       motivation_letter: output.motivation_letter || null,
       motivation_email: output.motivation_email || null,
@@ -454,7 +473,9 @@ export class JobSanitizer {
       motivation_email_subject: output.motivation_email_subject || null,
       motivation_email_to: output.motivation_email_to || null,
       original_job_id: output.original_job_id || null,
+      original_mail_id: output.original_mail_id || null,
       preference: output.preference || null,
+      processing_stage: output.processing_stage || null,
       salary: output.salary || null,
       source: output.source || null,
       technologies: output.technologies || null,

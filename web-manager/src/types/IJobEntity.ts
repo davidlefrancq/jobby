@@ -87,6 +87,7 @@ export interface IJobEntity {
   language: string | null;
   level: string | null;
   location: string | null;
+  metadata: string | null;
   methodologies: string[] | null;
   motivation_letter: string | null;
   motivation_email: string | null;
@@ -94,7 +95,9 @@ export interface IJobEntity {
   motivation_email_to: string | null;
   motivation_email_draft_url: string | null;
   original_job_id: string | null;
+  original_mail_id: string | null;
   preference: JobPreference | null;
+  processing_stage: string | null; // Read ProcessingStage type to see different values
   salary: ISalary | null;
   source: string | null;
   technologies: string[] | null;
