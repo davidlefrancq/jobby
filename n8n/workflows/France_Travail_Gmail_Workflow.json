@@ -270,7 +270,7 @@
     },
     {
       "parameters": {
-        "path": "france-travail-email-workflow",
+        "path": "france-travail-gmail",
         "responseMode": "lastNode",
         "responseData": "noData",
         "options": {}
@@ -921,7 +921,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "3634b847-58f6-4134-9d18-7c813545bb58",
+  "versionId": "89301da7-c168-4788-bc1a-dc655466fc0a",
   "meta": {
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
     "templateCredsSetupCompleted": true
