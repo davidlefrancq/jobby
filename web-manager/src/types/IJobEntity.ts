@@ -97,6 +97,9 @@ export interface IJobEntity {
   motivation_email_draft_url: string | null;
   original_job_id: string | null;
   original_mail_id: string | null;
+  outdated: boolean;
+  outdated_reason: string | null;
+  outdated_date: Date | null;
   preference: JobPreference | null;
   processing_stage: string | null; // Read ProcessingStage type to see different values
   salary: ISalary | null;

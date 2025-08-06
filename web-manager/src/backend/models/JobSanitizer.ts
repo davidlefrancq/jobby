@@ -379,6 +379,38 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.outdated !== undefined) {
+      output.outdated = (typeof input.outdated === 'boolean')
+        ? input.outdated
+        : false;
+    }
+
+    if (input.outdated_reason !== undefined) {
+      output.outdated_reason = (input.outdated_reason && typeof input.outdated_reason === 'string')
+        ? this.sanitizeString(input.outdated_reason)
+        : null;
+    }
+
+    if (input.outdated_date !== undefined) {
+      let outdated_date: Date | null = null;
+      // Check if the input is a string
+      if (input.outdated_date && typeof input.outdated_date === 'string') {
+        const sanitized_outdated_date = this.sanitizeString(input.outdated_date);
+        // Check if the date is valid
+        const d = new Date(sanitized_outdated_date);
+        if (!isNaN(d.getTime())) {
+          outdated_date = d;
+        }
+      }
+      // Check if the input is a Date object
+      else if (input.outdated_date instanceof Date) {
+        if (!isNaN(input.outdated_date.getTime())) {
+          outdated_date = input.outdated_date;
+        }
+      }
+      output.outdated_date = outdated_date;
+    }
+
     if (input.preference !== undefined) {
       output.preference = input.preference && typeof input.preference === 'string'
         ? this.sanitizePreference(input.preference)
@@ -481,6 +513,9 @@ export class JobSanitizer {
       motivation_email_to: output.motivation_email_to || null,
       original_job_id: output.original_job_id || null,
       original_mail_id: output.original_mail_id || null,
+      outdated: output.outdated || false,
+      outdated_reason: output.outdated_reason || null,
+      outdated_date: output.outdated_date || null,
       preference: output.preference || null,
       processing_stage: output.processing_stage || null,
       salary: output.salary || null,
