@@ -306,7 +306,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return { json: { _id: \"68909b25fb176ec4f36cd34e\" }};"
+        "jsCode": "return { json: { _id: \"68909b24fb176ec4f36cd34c\" }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -360,6 +360,60 @@
       ],
       "id": "923bde16-cf83-4889-93d9-cdf49b88e44f",
       "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "$input.item.json.outdated = true;\n$input.item.json.outdated_reason = $json.error.status;\nif ($json.error.code) $input.item.json.outdated_reason += ':'+$json.error.code\n$input.item.json.outdated_date = new Date();\n\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1260,
+        700
+      ],
+      "id": "55f34bc8-3fe7-46fb-ad08-f4b2b2182c84",
+      "name": "Failed"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1420,
+        700
+      ],
+      "id": "3485303d-f3d3-4549-a3f2-50bfcebf5579",
+      "name": "Error Merge"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "_id",
+        "fields": "outdated,outdated_reason,outdated_date",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        -1080,
+        700
+      ],
+      "id": "cac1e652-cb59-4955-8f8d-8f7a98e49893",
+      "name": "Failed Update",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
     }
   ],
   "pinData": {},
@@ -395,7 +449,13 @@
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "Error Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
       ]
     },
     "Job Data Extractor": {
@@ -475,6 +535,11 @@
             "node": "Merge",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Error Merge",
+            "type": "main",
+            "index": 0
           }
         ],
         []
@@ -524,6 +589,28 @@
           }
         ]
       ]
+    },
+    "Error Merge": {
+      "main": [
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Failed": {
+      "main": [
+        [
+          {
+            "node": "Failed Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -535,7 +622,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "3c9b7a0e-3894-46bc-b20c-a1fa22968a16",
+  "versionId": "cddeddb8-71b1-432a-b0fd-e4afcce97f11",
   "meta": {
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
     "templateCredsSetupCompleted": true

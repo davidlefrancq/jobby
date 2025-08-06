@@ -246,30 +246,6 @@
     },
     {
       "parameters": {
-        "operation": "insert",
-        "collection": "jobs",
-        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,content,technologies,methodologies,level,source,original_job_id,original_mail_id,processing_stage,interest_indicator,createdAt,",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.1,
-      "position": [
-        1660,
-        480
-      ],
-      "id": "fd5244b5-36ac-42e7-a36e-56cd1188a898",
-      "name": "MongoDB",
-      "alwaysOutputData": true,
-      "credentials": {
-        "mongoDb": {
-          "id": "EkVdtE5MEWwZdbTY",
-          "name": "MongoDB account"
-        }
-      },
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
         "path": "france-travail-gmail",
         "responseMode": "lastNode",
         "responseData": "noData",
@@ -503,43 +479,6 @@
     },
     {
       "parameters": {
-        "collection": "jobs",
-        "options": {},
-        "query": "={\"source\": \"{{ $json.source }}\"}"
-      },
-      "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.2,
-      "position": [
-        480,
-        380
-      ],
-      "id": "d9f49c00-260d-4a5c-9510-50f7bc5c7362",
-      "name": "MongoDB1",
-      "alwaysOutputData": true,
-      "credentials": {
-        "mongoDb": {
-          "id": "EkVdtE5MEWwZdbTY",
-          "name": "MongoDB account"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.processing_stage = 'initialized';\n}\n\nreturn $input.all();"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1300,
-        480
-      ],
-      "id": "08507433-da58-4fb3-854f-3486e6698cc0",
-      "name": "Set processing_stage",
-      "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
         "content": "## Data extractor",
         "height": 480,
         "width": 680
@@ -601,6 +540,67 @@
       ],
       "id": "a55bb8ea-045c-48bb-9cdf-a3bc13b2f148",
       "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.collective_agreement = null;\n  item.json.company_details = null;\n  item.json.cv_id = null;\n  item.json.motivation_letter = null;\n  item.json.motivation_email = null;\n  item.json.motivation_email_draft_url = null;\n  item.json.motivation_email_subject = null;\n  item.json.motivation_email_to = null;\n  item.json.outdated = false;\n  item.json.outdated_reason = null;\n  item.json.outdated_date = null;\n  item.json.preference = null;\n  item.json.processing_stage = 'initialized';\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        480
+      ],
+      "id": "08507433-da58-4fb3-854f-3486e6698cc0",
+      "name": "Default Values",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={\"source\": \"{{ $json.source }}\"}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        380
+      ],
+      "id": "d9f49c00-260d-4a5c-9510-50f7bc5c7362",
+      "name": "DB - Get Job",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,content,technologies,methodologies,level,source,original_job_id,original_mail_id,processing_stage,interest_indicator,createdAt,collective_agreement,company_details,cv_id,motivation_letter,motivation_email,motivation_email_draft_url,motivation_email_subject,motivation_email_to,outdated,outdated_reason,outdated_date,preference,processing_stage",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1660,
+        480
+      ],
+      "id": "fd5244b5-36ac-42e7-a36e-56cd1188a898",
+      "name": "DB - Save Job",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
     }
   ],
   "pinData": {},
@@ -718,7 +718,7 @@
             "index": 1
           },
           {
-            "node": "MongoDB1",
+            "node": "DB - Get Job",
             "type": "main",
             "index": 0
           }
@@ -733,29 +733,11 @@
         []
       ]
     },
-    "MongoDB": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Items1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Loop Over Items1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "CreatedAt": {
       "main": [
         [
           {
-            "node": "MongoDB",
+            "node": "DB - Save Job",
             "type": "main",
             "index": 0
           }
@@ -773,7 +755,7 @@
       "main": [
         [
           {
-            "node": "Set processing_stage",
+            "node": "Default Values",
             "type": "main",
             "index": 0
           }
@@ -801,13 +783,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "If FranceTravail",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "FT Job Splitter": {
@@ -870,18 +846,19 @@
         ]
       ]
     },
-    "MongoDB1": {
+    "If FranceTravail": {
       "main": [
         [
           {
-            "node": "Combine",
+            "node": "FT Job Splitter",
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
-    "Set processing_stage": {
+    "Default Values": {
       "main": [
         [
           {
@@ -899,16 +876,33 @@
         ]
       ]
     },
-    "If FranceTravail": {
+    "DB - Get Job": {
       "main": [
         [
           {
-            "node": "FT Job Splitter",
+            "node": "Combine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB - Save Job": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
             "type": "main",
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -921,7 +915,7 @@
     "errorWorkflow": "4oyLsKPXUj8PChjg",
     "timeSavedPerExecution": 15
   },
-  "versionId": "89301da7-c168-4788-bc1a-dc655466fc0a",
+  "versionId": "b87cd222-dafe-4c04-990a-40092f87d1d7",
   "meta": {
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
     "templateCredsSetupCompleted": true
