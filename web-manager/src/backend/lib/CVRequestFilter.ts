@@ -8,7 +8,7 @@ export class CVRequestFilter {
     const filter: FilterQuery<ICvEntity> = {};
     const query = req.query || {};
 
-    // Extracr preference filter
+    // Extracr title filter
     if (query.title) {
       if (typeof query.title === 'string') {
         const titleSanitized = sanitizeHtml(query.title);

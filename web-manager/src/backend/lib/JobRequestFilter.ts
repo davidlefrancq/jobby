@@ -18,6 +18,25 @@ export class JobRequestFilter {
       }
     }
 
+    // Extract processing_stage filter
+    if (query.processing_stage) {
+      if (typeof query.processing_stage === 'string') {
+        const processingStageSanitized = sanitizeHtml(query.processing_stage);
+        const processingStage = processingStageSanitized.toLowerCase();
+        if (processingStage === 'null') filter.processing_stage = null;
+        else filter.processing_stage = processingStage;
+      }
+    }
+
+    // Extract outdated filter
+    if (query.outdated) {
+      if (query.outdated.toLocaleString().toLowerCase() === 'true') {
+        filter.outdated = true;
+      } else if (query.outdated.toLocaleString().toLowerCase() === 'false') {
+        filter.outdated = false;
+      }
+    }
+
     return filter;
   }
 }
