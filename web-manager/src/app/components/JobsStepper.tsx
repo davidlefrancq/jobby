@@ -110,7 +110,17 @@ export default function JobsStepper() {
         </div>
         
         {/* Stepper start/next button */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
+          {/* Skip button */}
+          <BtnLoading
+            title={`Skip`}
+            loading={isStartedWorkflows}
+            onClick={nextStepHandler}
+            width="80px"
+            rounded="rounded-sm"
+            isDisabled={isStartedWorkflows}
+          />
+
           {/* Start Button */}
           {currentStep === 0 && (
             <BtnLoading
@@ -139,16 +149,6 @@ export default function JobsStepper() {
 
       {/* N8N Workflow Panel */}
       <div className={`p-8 ${currentStep === 0 ? "mt-4" : "hidden"} transition-all duration-300`}>
-        {/* Skip button */}
-        {!isStartedWorkflows && <div className="flex justify-center mb-4">
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            onClick={nextStepHandler}
-          >
-            Skip
-          </button>
-        </div>}
-        {/* N8N Workflow Panel */}
         <N8NWorkflowPanel />
       </div>
 
