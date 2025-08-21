@@ -23,6 +23,7 @@ export default function CompanyModal({ data, onClose }: IDisplayBannerProps) {
           {data.logo ? (
             <Image
               src={data.logo}
+              priority={false}
               alt="Logo de l’entreprise"
               className="h-12 w-12 object-contain mr-4"
             />
