@@ -20,7 +20,7 @@ export default function JobStatus({ job, size = 16, showLegend = false }: JobSta
     '🔴': <StatusDot status="error" size={size} />,
   }
   
-  const interestValue = INTEREST_OPTIONS.includes(job.interest_indicator || '') ? job.interest_indicator : '[N/A]';
+  const interestValue = INTEREST_OPTIONS.includes(job.interest_indicator || '') ? job.interest_indicator : '🔴';
 
   const render = (value: string | null) => {
     let legend: ReactElement = <>{INTEREST_OPTIONS_LEGEND['[N/A]']}</>

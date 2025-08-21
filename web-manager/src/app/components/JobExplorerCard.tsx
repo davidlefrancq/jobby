@@ -234,7 +234,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             ]}
           >
             <div className="min-h-[150px] mt-2 text-gray-800 dark:text-neutral-400 text-justify">
-              {job.description ? job.description : 'No description available.'}
+              {job.abstract ? job.abstract : 'No description available.'}
             </div>
             <div className="min-h-[150px] text-gray-800 dark:text-neutral-400">
               <JobCvSelector job={job} />

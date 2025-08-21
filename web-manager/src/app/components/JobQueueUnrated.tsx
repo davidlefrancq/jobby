@@ -190,7 +190,7 @@ export default function JobQueueUnrated() {
           )}
         </AnimatePresence>
 
-        {!hasMore && (
+        {!hasMore && jobs.length === 0 && (
           <AnimatePresence mode="wait">
             <motion.div
               key={'no-more-jobs'}

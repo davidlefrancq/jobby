@@ -1,12 +1,14 @@
-export type JobRunStatus =
-  | 'initialized'
-  | 'data_processing'
-  | 'data_ok'
-  | 'data_error'
-  | 'ai_processing'
-  | 'ai_ok'
-  | 'ai_error'
-  | 'skipped'
-  | 'outdated';
+/**
+ * Represents the status of a job during its workflow lifecycle.
+ */
+export type JobWorkflowStatusType = null | 'processing' | 'ok' | 'error' | 'skipped'
 
-export interface IJobStatus { id: string; title: string, createdAt: Date | undefined, status: JobRunStatus; }
+export interface IJobStatus {
+  id: string
+  title: string
+  createdAt: Date | undefined
+  initialized: boolean
+  outdated: boolean
+  data_status: JobWorkflowStatusType
+  ai_status: JobWorkflowStatusType
+}

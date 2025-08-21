@@ -59,10 +59,10 @@ export default function JobsStepper() {
 
   {/* Mails - update status */}
   useEffect(() => {
-    if (franceTravailStatus === "error" || linkedInStatus === "error") handleStepChange(0, "error");
-    else if (franceTravailStatus === "success" && linkedInStatus === "success") handleStepChange(0, "success");
-    else if (isStartedWorkflows && (franceTravailStatus !== "success" || linkedInStatus !== "success")) handleStepChange(0, "processing");
-  }, [isStartedWorkflows, franceTravailStatus, linkedInStatus]);
+    if (franceTravailStatus === "error") handleStepChange(0, "error");
+    else if (franceTravailStatus === "success") handleStepChange(0, "success");
+    else if (isStartedWorkflows) handleStepChange(0, "processing");
+  }, [isStartedWorkflows, franceTravailStatus]);
 
   {/* Assessment - update status with "like" or "dislike" */}
   useEffect(() => {
@@ -112,14 +112,16 @@ export default function JobsStepper() {
         {/* Stepper start/next button */}
         <div className="flex items-center gap-2">
           {/* Skip button */}
-          <BtnLoading
-            title={`Skip`}
-            loading={isStartedWorkflows}
-            onClick={nextStepHandler}
-            width="80px"
-            rounded="rounded-sm"
-            isDisabled={isStartedWorkflows}
-          />
+          {!isStartedWorkflows && 
+            <BtnLoading
+              title={`Skip`}
+              loading={isStartedWorkflows}
+              onClick={nextStepHandler}
+              width="80px"
+              rounded="rounded-sm"
+              isDisabled={isStartedWorkflows}
+            />
+          }
 
           {/* Start Button */}
           {currentStep === 0 && (
