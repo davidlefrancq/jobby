@@ -95,7 +95,8 @@ export default function N8NWorkflowFranceTravail() {
 
   const computeTotalSteps = (jobCount: number) => {
     // 1 (Gmail) + jobCount * 2 (Data + AI)
-    return 1 + jobCount * 2;
+    // Total steps: Gmail workflow + (Data + AI per job)
+    return GMAIL_WORKFLOW_STEPS + jobCount * STEPS_PER_JOB;
   }
 
   const incrementProgress = () => {
