@@ -155,11 +155,11 @@ export default function MenuSidebar() {
               <li>
                 <Link
                   href="#"
-                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.Steps ? activeStyle : normalStyle}`}
+                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.steps ? activeStyle : normalStyle}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    dispatch(selectMenuTarget(MenuTargetEnum.Steps))
+                    dispatch(selectMenuTarget(MenuTargetEnum.steps))
                   }}
                 >
                   <Route />
@@ -171,11 +171,11 @@ export default function MenuSidebar() {
               <li>
                 <Link
                   href="#"
-                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.CVs ? activeStyle : normalStyle}`}
+                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.cvs ? activeStyle : normalStyle}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    dispatch(selectMenuTarget(MenuTargetEnum.CVs))
+                    dispatch(selectMenuTarget(MenuTargetEnum.cvs))
                   }}
                 >
                   <FileText />
@@ -193,12 +193,12 @@ export default function MenuSidebar() {
               <li>
                 <Link
                   href="#"
-                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.Jobs && jobQueueSelected === JobQueueEnum.Unrated ? activeStyle : normalStyle}`}
+                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.jobs && jobQueueSelected === JobQueueEnum.unrated ? activeStyle : normalStyle}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    dispatch(setJobQueueSelected(JobQueueEnum.Unrated))
-                    dispatch(selectMenuTarget(MenuTargetEnum.Jobs))
+                    dispatch(setJobQueueSelected(JobQueueEnum.unrated))
+                    dispatch(selectMenuTarget(MenuTargetEnum.jobs))
                   }}
                 >
                   <MessageCircleQuestionIcon />
@@ -215,12 +215,12 @@ export default function MenuSidebar() {
               <li>
                 <Link
                   href="#"
-                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.Jobs && jobQueueSelected === JobQueueEnum.Liked ? activeStyle : normalStyle}`}
+                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.jobs && jobQueueSelected === JobQueueEnum.liked ? activeStyle : normalStyle}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    dispatch(setJobQueueSelected(JobQueueEnum.Liked))
-                    dispatch(selectMenuTarget(MenuTargetEnum.Jobs))
+                    dispatch(setJobQueueSelected(JobQueueEnum.liked))
+                    dispatch(selectMenuTarget(MenuTargetEnum.jobs))
                   }}
                 >
                   <ThumbsUp />
@@ -237,12 +237,12 @@ export default function MenuSidebar() {
               <li>
                 <Link
                   href="#"
-                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.Jobs && jobQueueSelected === JobQueueEnum.Disliked ? activeStyle : normalStyle}`}
+                  className={`flex items-center gap-x-2 py-2 px-2.5 ${target === MenuTargetEnum.jobs && jobQueueSelected === JobQueueEnum.disliked ? activeStyle : normalStyle}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    dispatch(setJobQueueSelected(JobQueueEnum.Disliked))
-                    dispatch(selectMenuTarget(MenuTargetEnum.Jobs))
+                    dispatch(setJobQueueSelected(JobQueueEnum.disliked))
+                    dispatch(selectMenuTarget(MenuTargetEnum.jobs))
                   }}
                 >
                   <ThumbsDown />

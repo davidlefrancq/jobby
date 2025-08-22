@@ -132,9 +132,9 @@ export default function HomePage() {
           
           <ErrorsPanel />
 
-          {target === MenuTargetEnum.Steps && <JobsStepper />}
-          {target === MenuTargetEnum.Jobs && <JobBoard />}
-          {target === MenuTargetEnum.CVs && <CVPanel />}
+          {target === MenuTargetEnum.steps && <JobsStepper />}
+          {target === MenuTargetEnum.jobs && <JobBoard />}
+          {target === MenuTargetEnum.cvs && <CVPanel />}
           
           {!isAliveApi && showApiError && (
             <div className="bg-gray-100 dark:bg-neutral-800 text-red-500 text-center mt-4">

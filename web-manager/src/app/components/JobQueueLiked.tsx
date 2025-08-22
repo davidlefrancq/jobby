@@ -65,7 +65,7 @@ export default function JobQueueLiked() {
 
   // Load the first batch of jobs
   useEffect(() => {
-    if (isFirstLoad.current && jobQueueSelected === JobQueueEnum.Liked) {
+    if (isFirstLoad.current && jobQueueSelected === JobQueueEnum.liked) {
       isFirstLoad.current = false;
       loadLikedJobsCounter()
       loadLikedJobs().then(() => {}).catch(err => {
@@ -76,7 +76,7 @@ export default function JobQueueLiked() {
 
   // Load more jobs
   useEffect(() => {
-    if (jobQueueSelected !== JobQueueEnum.Liked || !loaderRef.current || !hasMore || isFetching) return;
+    if (jobQueueSelected !== JobQueueEnum.liked || !loaderRef.current || !hasMore || isFetching) return;
 
     const observer = new IntersectionObserver(
       entries => {
@@ -95,7 +95,7 @@ export default function JobQueueLiked() {
   }, [loaderRef, hasMore, isFetching, skip]);
 
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 mt-1 ${jobQueueSelected === JobQueueEnum.Liked ? '' : 'hidden'}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 mt-1 ${jobQueueSelected === JobQueueEnum.liked ? '' : 'hidden'}`}>
       
       <JobTable jobs={likedJobs} onView={(job: IJobEntity) => dispatch(setJobSelected(job))} />
 

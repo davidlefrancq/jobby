@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 export enum MenuTargetEnum {
-  CVs = 'cvs',
-  Jobs = 'jobs',
-  Steps = 'steps',
+  cvs = 'cvs',
+  jobs = 'jobs',
+  steps = 'steps',
 }
 
 interface MenuState {
@@ -11,7 +11,7 @@ interface MenuState {
 }
 
 const initialState: MenuState = {
-  target: MenuTargetEnum.Steps, // Default target can be set to any of the MenuTargetEnum values
+  target: MenuTargetEnum.steps, // Default target can be set to any of the MenuTargetEnum values
 }
 
 const menuSlice = createSlice({

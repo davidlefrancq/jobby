@@ -28,17 +28,17 @@ export default function MenuActionBar() {
       {/* Jobs Button */}
       <Btn
         title="Jobs"
-        isActive={target === MenuTargetEnum.Jobs}
+        isActive={target === MenuTargetEnum.jobs}
         width={'80px'}
-        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.Jobs))}
+        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.jobs))}
       />
 
       {/* CVs Button */}
       <Btn
         title="CVs"
-        isActive={target === MenuTargetEnum.CVs}
+        isActive={target === MenuTargetEnum.cvs}
         width={'80px'}
-        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.CVs))}
+        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.cvs))}
       />
 
       {/* Worflows Button */}

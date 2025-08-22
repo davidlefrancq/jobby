@@ -169,7 +169,7 @@ export default function JobQueueUnrated() {
   }, [unratedCounter]);
 
   return (      
-    <div className={`container mx-auto ${jobQueueSelected === JobQueueEnum.Unrated ? '' : 'hidden'}`}>
+    <div className={`container mx-auto ${jobQueueSelected === JobQueueEnum.unrated ? '' : 'hidden'}`}>
       <div className={`grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 ${hasMore ? 'overflow-x-hidden' : ''} min-h[calc(100vh-4rem)]`}>
 
         <AnimatePresence mode="wait">
