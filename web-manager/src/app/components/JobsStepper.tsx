@@ -7,6 +7,7 @@ import JobQueueUnrated from "./JobQueueUnrated";
 import JobExplorer from "./JobExplorer";
 import N8NWorkflowPanel from "./N8NWorkflowPanel";
 import BtnLoading from "./Btn/BtnLoading";
+import { CircleArrowLeft, CircleArrowRight, CircleChevronRight, CirclePlay } from "lucide-react";
 
 export default function JobsStepper() {
   const dispatch = useAppDispatch()
@@ -15,9 +16,9 @@ export default function JobsStepper() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
-    { label: "Mails", status: "active" },
-    { label: "Assessment", status: "default" }, // Like/Dislike
-    { label: "Jobs", status: "default" },
+    { label: "Données", status: "active" },
+    { label: "Évaluation", status: "default" }, // Like/Dislike
+    { label: "Offres", status: "default" },
   ]);
 
   const handleStepChange = (index: number, status: "default" | "active" | "success" | "error" | "processing") => {
@@ -95,7 +96,7 @@ export default function JobsStepper() {
         {/* Stepper previous button */}
         <div className="flex justify-between">
           <BtnLoading
-            title={`Previous`}
+            title={<CircleArrowLeft size={24} />}
             loading={steps[currentStep].status === "processing"}
             onClick={previousStepHandler}
             width="80px"
@@ -112,39 +113,45 @@ export default function JobsStepper() {
         {/* Stepper start/next button */}
         <div className="flex items-center gap-2">
           {/* Skip button */}
-          {!isStartedWorkflows && 
-            <BtnLoading
-              title={`Skip`}
-              loading={isStartedWorkflows}
-              onClick={nextStepHandler}
-              width="80px"
-              rounded="rounded-sm"
-              isDisabled={isStartedWorkflows}
-            />
-          }
+          {currentStep < steps.length - 1 && !isStartedWorkflows && (
+            <span title="Skip">
+              <BtnLoading
+                title={<CircleChevronRight size={24} />}
+                loading={isStartedWorkflows}
+                onClick={nextStepHandler}
+                width="80px"
+                rounded="rounded-sm"
+                isDisabled={isStartedWorkflows}
+              />
+            </span>
+          )}
 
           {/* Start Button */}
           {currentStep === 0 && (
-            <BtnLoading
-              title={`Start`}
-              loading={steps[currentStep].status === "processing"}
-              onClick={startEmailWorkflowsHandler}
-              width="80px"
-              rounded="rounded-sm"
-              isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
-            />
+            <span title="Start">
+              <BtnLoading
+                title={<CirclePlay size={24} />}
+                loading={steps[currentStep].status === "processing"}
+                onClick={startEmailWorkflowsHandler}
+                width="80px"
+                rounded="rounded-sm"
+                isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
+              />
+            </span>
           )}
 
           {/* Next Button */}
           {currentStep > 0 && (
-            <BtnLoading
-              title={`Next`}
-              loading={steps[currentStep].status === "processing"}
-              onClick={nextStepHandler}
-              width="80px"
-              rounded="rounded-sm"
-              isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")}
-            />
+            <span title="Next">
+              <BtnLoading
+                title={<CircleArrowRight size={24} />}
+                loading={steps[currentStep].status === "processing"}
+                onClick={nextStepHandler}
+                width="80px"
+                rounded="rounded-sm"
+                isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")}
+              />
+            </span>
           )}
         </div>
       </div>
