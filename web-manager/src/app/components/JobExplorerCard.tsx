@@ -120,9 +120,9 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
           bg-white
           dark:bg-neutral-800
           border
-          border-gray-200
-          dark:border-none
-          shadow-md
+          border-gray-100
+          dark:border-neutral-900
+          shadow-sm
           rounded-xl
         `}
       >
