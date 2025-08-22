@@ -1,7 +1,7 @@
 'use client';
 
 export interface IconProps {
-  size?: '2' | '4' | '6 '| '10' | '12' | '14' | '24';
+  size?: '2' | '4' | '6' | '10' | '12' | '14' | '24';
   color?: string;
 }
 
