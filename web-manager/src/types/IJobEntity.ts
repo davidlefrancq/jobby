@@ -101,7 +101,7 @@ export interface IJobEntity {
   outdated_reason: string | null;
   outdated_date: Date | null;
   preference: JobPreference | null;
-  processing_stage: string | null; // Read ProcessingStage type to see different values
+  processing_stage: ProcessingStageType | null; // Read ProcessingStage type to see different values
   salary: ISalary | null;
   source: string | null;
   technologies: string[] | null;
