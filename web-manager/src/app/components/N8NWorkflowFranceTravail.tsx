@@ -17,6 +17,9 @@ import CircleIconGreen from "./Icon/CircleIconGreen";
 import { CircleIcon } from "./Icon/CircleIcon";
 import CircleIconBlue from "./Icon/CircleIconBlue";
 
+const GMAIL_WORKFLOW_STEPS = 1;
+const STEPS_PER_JOB = 2;
+
 const jobRepository = JobRepository.getInstance();
 const n8nWorkflow = N8NWorkflow.getInstance();
 
@@ -95,7 +98,7 @@ export default function N8NWorkflowFranceTravail() {
 
   const computeTotalSteps = (jobCount: number) => {
     // 1 (Gmail) + jobCount * 2 (Data + AI)
-    // Total steps: Gmail workflow + (Data + AI per job)
+    // Total steps: Gmail workflow + Jobs * (Data + AI per job)
     return GMAIL_WORKFLOW_STEPS + jobCount * STEPS_PER_JOB;
   }
 
