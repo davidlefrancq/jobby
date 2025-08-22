@@ -93,7 +93,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
           <div className="mt-4 text-gray-600 text-justify dark:text-neutral-200">
             {job.abstract}
             {job.outdated
-              ? <div className="flew text-center justify-center p-2 border rounded-md text-red-500">Outdated</div>
+              ? <div className="flex text-center justify-center p-2 border rounded-md text-red-500">Outdated</div>
               : ''
             }
           </div>
