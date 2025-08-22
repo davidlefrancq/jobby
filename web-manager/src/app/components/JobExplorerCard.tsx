@@ -287,11 +287,11 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             rounded-b-xl
           `}
         >
-          <div className="flex-auto mt-1 mb-1 text-sm text-gray-800 dark:text-neutral-200">
+          <div className="flex-1/4 mt-1 mb-1 text-sm text-gray-800 dark:text-neutral-200">
             {/* Job date */}
             {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
           </div>
-          <div className="flex-auto mt-1 mb-1 text-sm text-center text-gray-800 dark:text-neutral-200">
+          <div className="flex-1/2 mt-1 mb-1 text-sm text-center text-gray-800 dark:text-neutral-200">
             {/* Job ID */}
             <div>{job._id?.toString()}</div>
             {job.original_job_id && (
@@ -300,14 +300,14 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               </div>
             )}
           </div>
-          <div className="flex gap-2 mt-1 mb-1 text-sm text-right text-gray-800 dark:text-neutral-200">
+          <div className="flex flex-1/4 justify-end gap-2 mt-1 mb-1 text-sm text-right text-gray-800 dark:text-neutral-200">
             {/* Dislike Button */}
             <JobDislikeBtn job={job} />
             {/* Original job url */}
             {job.original_job_id && job.source
               ? <button
                   className={`
-                    min-w-[150px]
+                    min-w-[55px]
                     px-4
                     py-2
                     bg-blue-600
@@ -320,10 +320,10 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
                     focus:ring-opacity-50
                   `}
                   onClick={() => window.open(job.source || '', '_blank')}
+                  title={JobTools.getSourceName(job)}
                 >
                   <span className="flex gap-2 justify-center items-center capitalize">
                     <SquareArrowOutUpRight size={18} />
-                    {JobTools.getSourceName(job)}
                   </span>
                 </button>
               : 'N/A'
