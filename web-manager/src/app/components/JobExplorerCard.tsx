@@ -160,10 +160,10 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
         <div className="h-[400px] ps-4 pe-4 pt-0 pv-auto overflow-auto">
 
           <div className="flex grid-cols-3 gap-2 mb-2">
-            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-gray-100 text-gray-800 dark:text-neutral-200 dark:bg-neutral-900">
               <TruncatedText text={job.company || 'N/A'} length={35} />
             </span>
-            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-gray-100 text-gray-800 dark:text-neutral-200 dark:bg-neutral-900">
               <TruncatedText text={job.location || ''} length={35} />
             </span>
             <span className={`
@@ -172,13 +172,23 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               ${job.company_details?.siren ? 'pl-2 pr-2' : 'px-0 my-0'}
               rounded
               text-sm
-              ${job.company_details?.siren && 'bg-white'}
+              ${job.company_details?.siren && 'bg-gray-100'}
               text-gray-800
               dark:text-neutral-200
-              ${job.company_details?.siren && 'dark:bg-neutral-800'}
+              ${job.company_details?.siren && 'dark:bg-neutral-900'}
             `}>
               {job.company_details?.siren
-                ? job.company_details?.siren
+                ? (
+                  <a
+                    href={`https://annuaire-entreprises.data.gouv.fr/entreprise/${job.company_details.siren}`}
+                    title={'SIREN'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-400 hover:underline"
+                  >
+                    {job.company_details.siren}
+                  </a>
+                )
                 : <FieldEditorCompanySiren job={job} isEditMode={true} saveFunction={updateJobCompany} />
               }
             </span>
@@ -217,8 +227,14 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               )}
               { job.company_details?.website && (
                 <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                  <a href={job.company_details.website} target="_blank" rel="noopener noreferrer">
-                    {job.company_details.website}
+                  <a
+                    href={job.company_details.website}
+                    title={'Company Website'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-400 hover:underline"
+                  >
+                    Site Web
                   </a>
                 </span>
               )}
