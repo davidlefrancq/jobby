@@ -16,7 +16,7 @@ export default function N8NWorkflowJobStatues ({ jobStatuses, target }: N8NWorkf
       <table className="min-w-full">
         <thead>
           <tr>
-            <th className="px-4 py-2 text-lef w-[220px]">Job ID</th>
+            <th className="px-4 py-2 text-left w-[220px]">Job ID</th>
             <th className="px-4 py-2 text-left">Title</th>
             <th className="px-4 py-2 text-left w-[160px]">Created At</th>
             <th className="px-4 py-2 text-left w-[50px]">Data</th>
