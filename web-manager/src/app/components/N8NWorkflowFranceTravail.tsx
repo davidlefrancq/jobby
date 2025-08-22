@@ -337,8 +337,8 @@ export default function N8NWorkflowFranceTravail() {
     if (isFinishedGmailWorkflow && !isStartedLoadingJobs) {
       setIsStartedLoadingJobs(true);
       loadJobs().then((jobList) => {
-        // FR: Filtrer les jobs initialized et source_processed
-        // EN: Filter jobs initialized and source_processed
+        // FR: Filtrer les jobs: récupère les jobs initialized et source_processed
+        // EN: Filter jobs: retrieves initialized and source_processed jobs
         jobList = jobList.filter(job =>
           !job.outdated && (
             job.processing_stage === ProcessingStageEnum.initialized ||
