@@ -12,6 +12,7 @@ import {
   ISalary,
   JobPreference,
 } from '@/types/IJobEntity';
+import { ProcessingStageType } from '@/types/ProcessingStageType';
 
 /**
  * EN: Tool class to sanitize a Job object (and its sub-documents) before saving.
@@ -419,7 +420,7 @@ export class JobSanitizer {
 
     if (input.processing_stage !== undefined) {
       output.processing_stage = (input.processing_stage && typeof input.processing_stage === 'string')
-        ? this.sanitizeString(input.processing_stage)
+        ? this.sanitizeString(input.processing_stage) as ProcessingStageType
         : null;
     }
 

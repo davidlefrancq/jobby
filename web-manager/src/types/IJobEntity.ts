@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { ProcessingStageType } from "./ProcessingStageType";
 
 export const JOB_LIKED = 'like';
 export const JOB_DISLIKED = 'dislike';
