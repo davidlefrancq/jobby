@@ -1,0 +1,436 @@
+{
+  "name": "France Travail AI Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2500,
+        620
+      ],
+      "id": "8a6c3288-7c95-4de8-b64e-a467aeaabe87",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Pole Emploi Data Processing",
+        "height": 520,
+        "width": 1120
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2120,
+        400
+      ],
+      "id": "9477f40f-6946-4666-b061-b4d3ab85ad49",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "_id",
+        "fields": "=teleworking,contract_type,salary,language,level,abstract,technologies,methodologies,interest_indicator,interest_indicator_justification,processing_stage",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        -760,
+        520
+      ],
+      "id": "bf94bdca-892b-475d-b47f-7302504a4e86",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "france-travail-ai",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2500,
+        480
+      ],
+      "id": "8aa5b70e-df45-4f44-9f1a-9c019742b6e3",
+      "name": "Webhook",
+      "webhookId": "4d87b5ed-d42b-4b46-96d4-d57bcf949971"
+    },
+    {
+      "parameters": {
+        "content": "## Save in database",
+        "height": 520,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        400
+      ],
+      "id": "bc5c2654-0144-46d0-b02d-628e4782e044",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={\"_id\": \"{{$json._id}}\", \"processing_stage\": \"source_processed\"}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2040,
+        520
+      ],
+      "id": "36dbd6e8-c39e-4f83-8af4-898c4ae1ca1d",
+      "name": "MongoDB1",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Load data from DB",
+        "height": 420,
+        "width": 420,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2080,
+        460
+      ],
+      "id": "45d41d55-652a-4ea7-9d87-204b083eb6cc",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "jsCode": "return { json: { _id: \"68909b25fb176ec4f36cd34e\" }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2320,
+        620
+      ],
+      "id": "3b0ff7bc-0376-4cd8-887e-90defaba46d9",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let id = null;\n\nif ($json.query && $json.query._id && $json.query._id.length > 0) {\n  id = $json.query._id;\n}\n\nif (!id) {\n  if ($json.body) {\n    if ($json.body._id) id = $json.body._id\n    else {\n      const data = JSON.parse($json.body);\n      if (data && data._id && data._id.length > 0) {\n        id = data._id;\n      }\n    }\n  }\n}\n\nif (!id || id.length <= 0) {\n  throw new Error('Bad input.');\n}\n\nreturn { json: { _id: id }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2320,
+        480
+      ],
+      "id": "6ca3a4ac-04f1-45a2-9287-c79e755af931",
+      "name": "Data"
+    },
+    {
+      "parameters": {
+        "content": "## Data processing",
+        "height": 420,
+        "width": 580,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1620,
+        460
+      ],
+      "id": "306aa70c-281d-4ac5-9155-4f0ed08bbeb0",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un assistant IA expert en analyse d’opportunités d’emploi tech.\n\nTu reçois ci-dessous une description d'offre d'emploi sous forme de contenu JSON. La description doit être résumée, concise, pertinente de mon point de vue de recherche d'emploi. Mets le focus sur les infos disponibles, pas sur ce qu'il manque.\n\nTa tâche est d'analyser ce contenu et de retourner uniquement un objet JSON conforme à la structure cible. Tu dois impérativement ignorer toute introduction, explication ou commentaire.\n\nContenu : \n- description : {{ $json.description }}\n- metadata : {{ $json.metadata }}\n\nRetour attendu :\n- uniquement un objet JSON\n- _id: {{ $json._id }}\n- teleworking: true si le télétravail est mentionné sinon false.\n- pour salary: { \"min\": 0, \"max\": 0, \"currency\": \"EUR\" }, min et/ou max doivent être mis à jour si une ou plusieurs valeurs de salaire sont détectées.\n- pour abstract: résumé concis de l'offre d'emploi (contexte, environnement de travail, mission). Ne menstionne pas le salaire ou le type de contract.\n- pour methodologies: liste dans un tableau JSON (`string[]`) les éléments méthodologiques de gestion et de conception comme \"Agile\", \"Waterfall\", \"POO\", etc. Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n- pour technologies: liste dans un tableau JSON (`string[]`) les technologies mentionnées dans l’annonce (ex: \"Java\", \"React\", \"ERP\"). Même s’il n’y en a pas, retourne un tableau vide (`[]`).\n- pour level: \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\"\n- pour interest_indicator: \"🟢 Pertinant pour le developpemnt logiciel\" | \"🟡 Poste informatique à vérifier\" | \"🔴 Inintéressant car hors sujet\" mais tu conserves uniquement l'émoji 🟢 | 🟡 | 🔴.\n- pour interest_indicator_justification: tu dois donner les raisons de la valeur de \"interest_indicator\".\n- pour language: tu dois identifier de manière concise la langue utiliser dans la description de l'annonce.\n- contract_type: mets les toutes les informations que tu trouve de type CDI, CDD, Interim, freelance, temp plein, temp partiel, 35 heures, 39 heures, etc.\n- pour toute valeur abscente, conforme toi au type pour mettre \"\" ou [] ou false.\nComme une API, réponds strictement conforme à cette structure :\n{\n  \"_id\": \"{{ $json._id }}\"\n  \"teleworking\": true | false,\n  \"contract_type\": string,\n  \"language\": string,\n  \"salary\": {\n    \"min\": 0,\n    \"max\": 0,\n    \"currency\": \"EUR\"\n  },\n  \"level\": \"junior\" | \"intermediate\" | \"senior\" | \"lead\" | \"\",\n  \"abstract\": string,\n  \"technologies\": string[],\n  \"methodologies\": string[],\n  \"interest_indicator\": 🟢 | 🟡 | 🔴\n  \"interest_indicator_justification\": string\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -1560,
+        520
+      ],
+      "id": "69969b2f-7f05-4a97-a747-14d207a9ba24",
+      "name": "AI Agent  for Pole Emploi",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"_id\": {\n      \"type\": \"string\"\n    },\n    \"teleworking\": {\n      \"type\": \"boolean\",\n      \"default\": false\n    },\n    \"contract_type\": {\n      \"type\": \"string\"\n    },\n    \"language\": {\n      \"type\": \"string\",\n      \"default\": \"french\"\n    },\n    \"salary\": {\n      \"type\": \"object\",\n      \"required\": [\"min\", \"max\", \"currency\"],\n      \"properties\": {\n        \"min\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"max\": {\n          \"type\": \"number\",\n          \"minimum\": 0\n        },\n        \"currency\": {\n          \"type\": \"string\",\n          \"enum\": [\"EUR\", \"GBP\", \"USD\", \"CHF\", \"\"]\n        }\n      }\n    },\n    \"level\": {\n      \"type\": \"string\",\n      \"enum\": [\"junior\", \"intermediate\", \"senior\", \"lead\", \"\"]\n    },\n    \"abstract\": {\n      \"type\": \"string\"\n    },\n    \"technologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"methodologies\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"default\": []\n    },\n    \"interest_indicator\": {\n      \"type\": \"string\",\n      \"enum\": [\"🟢\", \"🟡\", \"🔴\"],\n      \"default\": \"🟡\"\n    },\n    \"interest_indicator_justification\": {\n      \"type\": \"string\"   \n    }\n  }\n}\n",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -1440,
+        740
+      ],
+      "id": "836b7a9b-07b9-405d-ab32-c433e7e7be7e",
+      "name": "Structured Output Parser",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": "mistral-small:latest",
+        "options": {
+          "keepAlive": "10m"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1480,
+        900
+      ],
+      "id": "c7240b56-82ed-4695-892b-eb5128905329",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "8wRs8JzjQgAfnmvC",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "06f6c782-b3ef-4be5-9365-3662bc0e75dc",
+              "leftValue": "={{ $json.processing_stage }}",
+              "rightValue": "source_processed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1880,
+        520
+      ],
+      "id": "4c0ef84f-6c4b-4253-b59c-fe70ff84bcbb",
+      "name": "If source_processed"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sanitizeHtml = require('sanitize-html');\n\nconst response = []\nfor (const item of $input.all()) {\n  const dataForUpdate = { json: {} };\n  // id\n  dataForUpdate.json._id = item.json.output._id ? sanitizeHtml(item.json.output._id) : '';\n  // teleworking\n  dataForUpdate.json.teleworking = item.json.output.teleworking === true;\n  // contract_type\n  dataForUpdate.json.contract_type = item.json.output.contract_type ? sanitizeHtml(item.json.output.contract_type) : '';\n  // salary\n  if (item.json.output.salary) {\n    const salary = { min: 0, max: 0, currency: \"\" }\n    if (item.json.output.salary.min) salary.min = parseInt(item.json.output.salary.min);\n    if (item.json.output.salary.max) salary.max = parseInt(item.json.output.salary.max);\n    if (item.json.output.salary.currency) salary.currency = sanitizeHtml(item.json.output.salary.currency);\n    dataForUpdate.json.salary = salary;\n  }\n  // language\n  dataForUpdate.json.language = item.json.output.language ? sanitizeHtml(item.json.output.language) : '';\n  // level\n  dataForUpdate.json.level = item.json.output.level ? sanitizeHtml(item.json.output.level) : '';\n  // abstract\n  dataForUpdate.json.abstract = item.json.output.abstract ? sanitizeHtml(item.json.output.abstract) : '';\n  // technologies\n  if (Array.isArray(item.json.output.technologies)) {\n    const technologies = [];\n    for (const tech of item.json.output.technologies) {\n      const t = sanitizeHtml(tech);\n      if (t) technologies.push(t);\n    }\n    dataForUpdate.json.technologies = technologies;\n  }\n  // methodologies\n  if (Array.isArray(item.json.output.methodologies)) {\n    const methodologies = [];\n    for (const meth of item.json.output.methodologies) {\n      const m = sanitizeHtml(meth);\n      if (m) methodologies.push(m);\n    }\n    dataForUpdate.json.methodologies = methodologies;\n  }\n  // interest_indicator\n  dataForUpdate.json.interest_indicator = item.json.output.interest_indicator ? sanitizeHtml(item.json.output.interest_indicator) : '';\n  // interest_indicator_justification\n  dataForUpdate.json.interest_indicator_justification = item.json.output.interest_indicator_justification ? sanitizeHtml(item.json.output.interest_indicator_justification) : '';\n  // processing_stage\n  dataForUpdate.json.processing_stage = item.json.output.processing_stage ? sanitizeHtml(item.json.output.processing_stage) : 'ai_processed';\n  response.push(dataForUpdate)\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        520
+      ],
+      "id": "03687632-8da4-4090-a765-f4c3f32650ac",
+      "name": "Sanitize"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.processing_stage = \"ai_processed\";\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1180,
+        520
+      ],
+      "id": "2ab2ba81-8bbc-45b8-b994-9ebe8cc05a53",
+      "name": "Set processing_stage"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "MongoDB1": {
+      "main": [
+        [
+          {
+            "node": "If source_processed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent  for Pole Emploi": {
+      "main": [
+        [
+          {
+            "node": "Set processing_stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent  for Pole Emploi",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent  for Pole Emploi",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If source_processed": {
+      "main": [
+        [
+          {
+            "node": "AI Agent  for Pole Emploi",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Sanitize": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set processing_stage": {
+      "main": [
+        [
+          {
+            "node": "Sanitize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 900,
+    "errorWorkflow": "4oyLsKPXUj8PChjg",
+    "timeSavedPerExecution": 15
+  },
+  "versionId": "e7348366-6cae-4382-b3ae-e15ecb3f5129",
+  "meta": {
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
+    "templateCredsSetupCompleted": true
+  },
+  "id": "216Qn1PJPNXzirsh",
+  "tags": []
+}

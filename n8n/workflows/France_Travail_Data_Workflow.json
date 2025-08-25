@@ -1,0 +1,632 @@
+{
+  "name": "France Travail Data Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2500,
+        620
+      ],
+      "id": "54c383b6-4ee7-41cf-8fbf-e01025720573",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Pole Emploi Data Processing",
+        "height": 520,
+        "width": 1360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2120,
+        400
+      ],
+      "id": "e16ec524-1340-416c-9a0f-66ab1b770a55",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "_id",
+        "fields": "title,date,company,location,description,content,metadata,processing_stage",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        -380,
+        520
+      ],
+      "id": "a2f06575-ee9b-4c88-b7ac-332f92cffe34",
+      "name": "MongoDB",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "france-travail-data",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -2500,
+        480
+      ],
+      "id": "bf36d292-f409-4204-a3a9-4c5a9355bb40",
+      "name": "Webhook",
+      "webhookId": "6d997c3d-b8ee-4c11-93f2-fdc83b5904ff"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.source }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1580,
+        520
+      ],
+      "id": "f06bed9a-6849-4dcd-a686-98dc812f5b5a",
+      "name": "Job Page Request",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const { parseDocument } = require(\"htmlparser2\");\nconst { findOne, textContent, findAll } = require(\"domutils\");\n\nfunction getTitle(html) {\n  const m = html.match(/<span\\s+itemprop=\"title\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDate(html) {\n  const m = html.match(\n    /(?:Actualisé|Publié) le\\s+(\\d{1,2}\\s+[A-Za-zÀ-ÿ]+\\s+\\d{4})/i\n  );\n  return m && m[1] ? m[1] : null;\n}\n\nfunction toIsoDate(frDate) {\n  if (!frDate) return null;\n  // ex. \"07 mai 2025\"\n  const parts = frDate.split(' ');\n  const j = parts[0].padStart(2,'0');\n  const moisMap = {\n    janvier: '01', février: '02', mars: '03', avril: '04',\n    mai: '05', juin: '06', juillet: '07', août: '08',\n    septembre: '09', octobre: '10', novembre: '11', décembre: '12'\n  };\n  const m = moisMap[parts[1].toLowerCase()];\n  const a = parts[2];\n  return m ? `${a}-${m}-${j}` : null;\n}\n\nfunction getCompany(html) {\n  // 1) Schéma Organization\n  let m = html.match(\n    /<span\\s+itemtype=\"http:\\/\\/schema\\.org\\/Organization\"[\\s\\S]*?<span[^>]*itemprop=\"name\"[^>]*content=\"([^\"]+)\"/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  // 2) Section Employeur\n  m = html.match(\n    /<h2 class=\"t5 subtitle\">\\s*Employeur\\s*<\\/h2>[\\s\\S]*?<h3 class=\"t4 title\">\\s*([^<]+)\\s*<\\/h3>/i\n  );\n  if (m && m[1]) return m[1].trim();\n\n  return null;\n}\n\nfunction extractEmployerInfo(dom) {\n  // Recherche de tous les h2 \"Employeur\"\n  const h2EmployeurNodes = findAll(\n    (el) =>\n      el.name === \"h2\" &&\n      el.attribs?.class === \"t5 subtitle\" &&\n      textContent(el).trim().toLowerCase() === \"employeur\",\n    dom.children,\n    true\n  );\n\n  for (const h2 of h2EmployeurNodes) {\n    let current = h2.next;\n\n    while (current) {\n      // On cherche le h3.t4.title\n      if (\n        current.name === \"div\" &&\n        current.attribs?.class?.includes(\"media\")\n      ) {\n        const h3 = findAll(\n          (el) => el.name === \"h3\" && el.attribs?.class === \"t4 title\",\n          [current],\n          true\n        )[0];\n\n        const p = findAll(\n          (el) => el.name === \"p\" && el.attribs?.class === \"italic\",\n          [current],\n          true\n        )[0];\n\n        return {\n          employer: h3 ? textContent(h3).trim() : null,\n          description: p ? textContent(p).trim() : null,\n        };\n      }\n\n      current = current.next;\n    }\n  }\n\n  return null;\n}\n\nfunction cleanLabel(raw) {\n  return raw\n    .normalize(\"NFKD\")                          // décompose accents\n    .replace(/['\"`«»’‘”“]/g, \"\")               // supprime les apostrophes, guillemets, typographiques\n    .replace(/[^\\w\\s-]/g, \"\")                  // supprime ponctuation sauf tirets/espaces\n    .replace(/\\s+/g, \" \")                      // remplace multiples espaces par un seul\n    .replace(/[:：–—\\.\\s-]+$/g, \"\")            // supprime les fins de ligne avec ponctuation\n    .trim()                                   // nettoie les bords\n    .replace(/\\s+/g, \"_\")                   // espaces → underscore\n    .toLowerCase();\n}\n\nfunction extractDynamicAdditionalInfo(dom) {\n  const infoSection = findAll(\n    (el) =>\n      el.name === \"h2\" &&\n      el.attribs?.class === \"t5 subtitle\" &&\n      textContent(el).trim().toLowerCase().includes(\"informations complémentaires\"),\n    dom.children,\n    true\n  )[0];\n\n  if (!infoSection) return null;\n\n  let current = infoSection.next;\n  while (current && current.name !== \"ul\") {\n    current = current.next;\n  }\n\n  if (!current) return null;\n\n  const items = findAll((el) => el.name === \"li\", [current], true);\n\n  const result = {};\n  for (const li of items) {\n    const span = findAll((el) => el.name === \"span\", [li], true)[0];\n\n    if (span) {\n      const rawText = textContent(li).trim();\n      const value = textContent(span).trim();\n\n      const label = cleanLabel(\n        rawText.replace(value, \"\")\n      );\n\n      result[label] = value;\n    }\n  }\n\n  return result;\n}\n\nfunction getLocation(html) {\n  const m = html.match(/<span\\s+class=\"location\">([^<]+)<\\/span>/);\n  return m ? m[1].trim() : null;\n}\n\nfunction getDescription(html) {\n  const m = html.match(\n    /<div\\s+itemprop=\"description\"[^>]*>([\\s\\S]*?)<\\/div>/\n  );\n  return m\n    ? m[1].replace(/<[^>]+>/g, '').trim()\n    : null;\n}\n\nfunction getJobId(html) {\n  const m = html.match(/Offre n°\\s*<span[^>]*>([A-Za-z0-9]+)<\\/span>/);\n  return m ? m[1] : null;\n}\n\nfunction getJobDetails(dom){\n  const details = []\n  const rows = findAll(el => el.name === 'dl', dom.children, true);\n  for (const row of rows) {\n    const cells = row.children.filter(el => el.name === 'dt' || el.name === 'dd');\n    if (cells.length >= 2) {\n      const key = textContent(cells[0]).trim().replace(/\\s+/g, ' ');\n      const value = textContent(cells[1]).trim().replace(/\\s+/g, ' ');\n      if (key && key !== '' && value && value !== '') details.push({ key, value })\n    }\n  }\n  return details\n}\n\nconst response = { json: {} }\nif ($json.data) {\n  const html = $json.data;\n  const dom = parseDocument(html);\n  \n  const title = getTitle(html)\n  const date = toIsoDate(getDate(html));\n  const company = getCompany(html);\n  const content = html;\n  const location = getLocation(html);\n  const description = getDescription(html);\n  const details = getJobDetails(dom)\n  const additionalInfo = extractDynamicAdditionalInfo(dom);\n  const companyInfo = extractEmployerInfo(dom)\n  const metadata = JSON.stringify({ details, additionalInfo, companyInfo })\n  const jobId = getJobId(html);\n  const source = jobId ? `https://candidat.francetravail.fr/offres/recherche/detail/${jobId}` : null;\n  response.json = { title, date, company, content, location, description, metadata, source };\n}\n\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1260,
+        520
+      ],
+      "id": "e3874ed6-5ee3-4025-83ec-bf5f8d990a3f",
+      "name": "Job Data Extractor",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Save in database",
+        "height": 520,
+        "width": 520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        400
+      ],
+      "id": "ac965a21-937c-441d-a922-077c063f2383",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2380388e-48fe-42df-bc3e-b34073f38226",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "08056162-5ccd-4818-bfce-7780586bf06d",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1420,
+        520
+      ],
+      "id": "ecf02b06-19ae-4169-a52a-e8ac06582229",
+      "name": "If data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8902a81e-e8ec-4ab6-8c7d-62f711b37064",
+              "leftValue": "$json.source",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b863205e-a016-49b5-b363-9fa6cea1cb1b",
+              "leftValue": "$json.source",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -940,
+        520
+      ],
+      "id": "5c88e423-2600-40f6-ab05-9362bd78174f",
+      "name": "If source",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sanitizeHtml = require('sanitize-html');\n\nconst response = []\nfor (const item of $input.all()) {\n  const dataForUpdate = { json: {} };\n  // id\n  dataForUpdate.json._id = item.json._id ? sanitizeHtml(item.json._id) : '';\n  // title\n  dataForUpdate.json.title = item.json.title ? sanitizeHtml(item.json.title) : '';\n  // date\n  dataForUpdate.json.date = item.json.date ? sanitizeHtml(item.json.date) : '';\n  // company\n  dataForUpdate.json.company = item.json.company ? sanitizeHtml(item.json.company) : '';\n  // location\n  dataForUpdate.json.location = item.json.location ? sanitizeHtml(item.json.location) : '';\n  // description\n  dataForUpdate.json.description = item.json.description ? sanitizeHtml(item.json.description) : '';\n  // content\n  dataForUpdate.json.content = item.json.content ? sanitizeHtml(item.json.content) : '';\n  // metadata\n  dataForUpdate.json.metadata = item.json.metadata ? sanitizeHtml(item.json.metadata) : null;\n  // processing_stage\n  dataForUpdate.json.processing_stage = item.json.processing_stage ? sanitizeHtml(item.json.processing_stage) : 'source_processed';\n  response.push(dataForUpdate)\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -540,
+        520
+      ],
+      "id": "5a5401b9-d20f-4741-a868-5d7e429e80fe",
+      "name": "Sanitize"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={\"_id\": \"{{$json._id}}\", \"processing_stage\": \"initialized\"}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2040,
+        520
+      ],
+      "id": "fdbb0a91-6e8e-4f95-91b1-8ccb72bf6c73",
+      "name": "MongoDB1",
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Check if already exists in DB",
+        "height": 420,
+        "width": 420,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2080,
+        460
+      ],
+      "id": "260be542-b234-42be-8e39-5c78bf3d99af",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Get data from source url",
+        "height": 420,
+        "width": 820,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1620,
+        460
+      ],
+      "id": "168d32e9-2003-4a73-a46a-a9d6b83939a2",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "06f6c782-b3ef-4be5-9365-3662bc0e75dc",
+              "leftValue": "={{ $json.processing_stage }}",
+              "rightValue": "initialized",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1880,
+        520
+      ],
+      "id": "d770c9bf-e777-4064-a2d7-a2f45952e217",
+      "name": "If initialized"
+    },
+    {
+      "parameters": {
+        "jsCode": "return { json: { _id: \"68909b24fb176ec4f36cd34c\" }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2320,
+        620
+      ],
+      "id": "ec5c1940-3eef-4182-a319-a1a722d31ed4",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let id = null;\n\nif ($json.query && $json.query._id && $json.query._id.length > 0) {\n  id = $json.query._id;\n}\n\nif (!id) {\n  if ($json.body) {\n    if ($json.body._id) id = $json.body._id\n    else {\n      const data = JSON.parse($json.body);\n      if (data && data._id && data._id.length > 0) {\n        id = data._id;\n      }\n    }\n  }\n}\n\nif (!id || id.length <= 0) {\n  throw new Error('Bad input.');\n}\n\nreturn { json: { _id: id }};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2320,
+        480
+      ],
+      "id": "5a356375-b70a-4f8a-a191-0d516071fa80",
+      "name": "Data"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const response = { json: {} };\n\nif ($json.source) {\n  response.json = $json\n  response.json.processing_stage = 'source_processed';\n  if (response.json.title === null) response.json.title = \"\";\n  if (response.json.date === null) response.json.date = \"\";\n  if (response.json.company === null) response.json.company = \"\";\n  if (response.json.location === null) response.json.location = \"\";\n  if (response.json.description === null) response.json.description = \"\";\n}\n\nreturn response;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1100,
+        520
+      ],
+      "id": "3195c211-c064-46e8-a552-f2f2f996c294",
+      "name": "Data normalizer",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -700,
+        520
+      ],
+      "id": "923bde16-cf83-4889-93d9-cdf49b88e44f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "$input.item.json.outdated = true;\n$input.item.json.outdated_reason = $json.error.status;\nif ($json.error.code) $input.item.json.outdated_reason += ':'+$json.error.code\n$input.item.json.outdated_date = new Date();\n\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1260,
+        700
+      ],
+      "id": "55f34bc8-3fe7-46fb-ad08-f4b2b2182c84",
+      "name": "Failed"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1420,
+        700
+      ],
+      "id": "3485303d-f3d3-4549-a3f2-50bfcebf5579",
+      "name": "Error Merge"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "jobs",
+        "updateKey": "_id",
+        "fields": "outdated,outdated_reason,outdated_date",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        -1080,
+        700
+      ],
+      "id": "cac1e652-cb59-4955-8f8d-8f7a98e49893",
+      "name": "Failed Update",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Page Request": {
+      "main": [
+        [
+          {
+            "node": "If data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Job Data Extractor": {
+      "main": [
+        [
+          {
+            "node": "Data normalizer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "If data": {
+      "main": [
+        [
+          {
+            "node": "Job Data Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If source": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        []
+      ]
+    },
+    "Sanitize": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB1": {
+      "main": [
+        [
+          {
+            "node": "If initialized",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If initialized": {
+      "main": [
+        [
+          {
+            "node": "Job Page Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Error Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data normalizer": {
+      "main": [
+        [
+          {
+            "node": "If source",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Sanitize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Merge": {
+      "main": [
+        [
+          {
+            "node": "Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Failed": {
+      "main": [
+        [
+          {
+            "node": "Failed Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 900,
+    "errorWorkflow": "4oyLsKPXUj8PChjg",
+    "timeSavedPerExecution": 15
+  },
+  "versionId": "cddeddb8-71b1-432a-b0fd-e4afcce97f11",
+  "meta": {
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
+    "templateCredsSetupCompleted": true
+  },
+  "id": "xZSs4eJUeDQWfN6D",
+  "tags": []
+}

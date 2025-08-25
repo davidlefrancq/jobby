@@ -11,6 +11,7 @@ jest.spyOn(ApiError.prototype, 'log').mockImplementation(async () => {});
 
 const data_valid: IJobEntity = {
   title: 'DevOps Engineer',
+  abstract: 'This is a job description for a DevOps Engineer position at Google.',
   collective_agreement: "Bureaux d'études techniques SYNTEC (1486)",
   company: "Google",
   company_details: {
@@ -81,12 +82,14 @@ const data_valid: IJobEntity = {
   },
   content: "This is a job description for a DevOps Engineer position at Google.",
   contract_type: 'Full-time',
+  cv_id: 'cv_id',
   date: '2025-05-01',
   description: 'Test job',
   interest_indicator: '🟢',
   language: 'English',
   level: 'senior',
   location: 'Paris - France',
+  metadata: 'metadata',
   methodologies: ['Agile', 'Scrum'],
   motivation_letter: "This is a motivation letter for the job.",
   motivation_email: "This is a motivation email for the job.",
@@ -94,7 +97,12 @@ const data_valid: IJobEntity = {
   motivation_email_to: "address.mail@gmail.com",
   motivation_email_draft_url: "https://drafts.google.com/motivation-email",
   original_job_id: "1234567890",
+  original_mail_id: '1234567890',
+  outdated: false,
+  outdated_reason: 'outdated reason',
+  outdated_date: new Date('2025-05-01'),
   preference: 'like',
+  processing_stage: 'initialized',
   salary: {
     currency: 'EUR',
     min: 3000,
@@ -103,7 +111,6 @@ const data_valid: IJobEntity = {
   source: "https://www.google.com/jobs/devops-engineer",
   technologies: ["Docker", "Kubernetes", "Terraform"],
   teleworking: false,
-  cv_id: null,
 }
 
 // Test JobSanitizer with valid data
@@ -113,6 +120,7 @@ describe('JobSanitizer Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_valid);
     expect(sanitizedJob).toBeDefined();
     expect(sanitizedJob.title).toBe(data_valid.title);
+    expect(sanitizedJob.abstract).toBe(data_valid.abstract);
     expect(sanitizedJob.company).toBe(data_valid.company);
     expect(sanitizedJob.collective_agreement).toBe(data_valid.collective_agreement);
     
@@ -174,6 +182,7 @@ describe('JobSanitizer Tests', () => {
     // Check other job fields
     expect(sanitizedJob.content).toBe(data_valid.content);
     expect(sanitizedJob.contract_type).toBe(data_valid.contract_type);
+    expect(sanitizedJob.cv_id).toBe(data_valid.cv_id);
     expect(sanitizedJob.date).toBe(data_valid.date);
     expect(sanitizedJob.description).toBe(data_valid.description);
     expect(sanitizedJob.interest_indicator).toBe(data_valid.interest_indicator);
@@ -187,13 +196,19 @@ describe('JobSanitizer Tests', () => {
     expect(sanitizedJob.motivation_email_to).toBe(data_valid.motivation_email_to);
     expect(sanitizedJob.motivation_email_draft_url).toBe(data_valid.motivation_email_draft_url);
     expect(sanitizedJob.original_job_id).toBe(data_valid.original_job_id);
+    expect(sanitizedJob.original_mail_id).toBe(data_valid.original_mail_id);
+    expect(sanitizedJob.outdated).toBe(data_valid.outdated);
+    expect(sanitizedJob.outdated_reason).toBe(data_valid.outdated_reason);
+    expect(sanitizedJob.outdated_date).toEqual(data_valid.outdated_date);
     expect(sanitizedJob.preference).toBe(data_valid.preference);
+    expect(sanitizedJob.processing_stage).toBe(data_valid.processing_stage);
     expect(sanitizedJob.salary?.currency).toBe(data_valid.salary?.currency);
     expect(sanitizedJob.salary?.min).toBe(data_valid.salary?.min);
     expect(sanitizedJob.salary?.max).toBe(data_valid.salary?.max);
     expect(sanitizedJob.source).toBe(data_valid.source);
     expect(sanitizedJob.technologies).toEqual(data_valid.technologies);
     expect(sanitizedJob.teleworking).toBe(data_valid.teleworking);
+    expect(sanitizedJob.metadata).toBe(data_valid.metadata);
   })
 })
 
@@ -204,6 +219,12 @@ describe('JobSanitizer Empty Data Tests', () => {
     const data_with_empty_title = { ...data_valid, title: '' };
     const sanitizedJob = JobSanitizer.sanitize(data_with_empty_title);
     expect(sanitizedJob.title).toBe('unknown');
+  });
+  // Test sanitize with empty abstract
+  it('should sanitize job data with empty abstract', () => {
+    const data_with_empty_abstract = { ...data_valid, abstract: '' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_abstract);
+    expect(sanitizedJob.abstract).toBe(null);
   });
   // Test sanitize with empty company
   it('should sanitize job data with empty company', () => {
@@ -323,6 +344,24 @@ describe('JobSanitizer Empty Data Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_with_empty_original_job_id);
     expect(sanitizedJob.original_job_id).toBe(null);
   });
+  // Test sanitize with empty outdated
+  it('should sanitize job data with empty outdated', () => {
+    const data_with_empty_outdated = { ...data_valid, outdated: '' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_outdated);
+    expect(sanitizedJob.outdated).toBe(false);
+  });
+  // Test sanitize with empty outdated_reason
+  it('should sanitize job data with empty outdated_reason', () => {
+    const data_with_empty_outdated_reason = { ...data_valid, outdated_reason: '' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_outdated_reason);
+    expect(sanitizedJob.outdated_reason).toBe(null);
+  });
+  // Test sanitize with empty outdated_date
+  it('should sanitize job data with empty outdated_date', () => {
+    const data_with_empty_outdated_date = { ...data_valid, outdated_date: '' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_outdated_date);
+    expect(sanitizedJob.outdated_date).toBe(null);
+  });
   // Test sanitize with empty preference
   it('should sanitize job data with empty preference', () => {
     const data_with_empty_preference = { ...data_valid, preference: '' } as unknown as IJobEntity;
@@ -357,6 +396,30 @@ describe('JobSanitizer Empty Data Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_with_empty_teleworking);
     expect(sanitizedJob.teleworking).toBe(false);
   });
+  // Test sanitize with empty cv_id
+  it('should sanitize job data with empty cv_id', () => {
+    const data_with_empty_cv_id = { ...data_valid, cv_id: '' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_cv_id);
+    expect(sanitizedJob.cv_id).toBe(null);
+  });
+  // Test sanitize with empty metadata
+  it('should sanitize job data with empty metadata', () => {
+    const data_with_empty_metadata = { ...data_valid, metadata: '' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_metadata);
+    expect(sanitizedJob.metadata).toBe(null);
+  });
+  // Test sanitize with empty original_mail_id
+  it('should sanitize job data with empty original_mail_id', () => {
+    const data_with_empty_original_mail_id = { ...data_valid, original_mail_id: '' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_original_mail_id);
+    expect(sanitizedJob.original_mail_id).toBe(null);
+  });
+  // Test sanitize with empty processing_stage
+  it('should sanitize job data with empty processing_stage', () => {
+    const data_with_empty_processing_stage = { ...data_valid, processing_stage: '' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_empty_processing_stage);
+    expect(sanitizedJob.processing_stage).toBe(null);
+  });
 })
 
 // Test JobSanitizer with invalid data
@@ -366,6 +429,12 @@ describe('JobSanitizer Invalid Data Tests', () => {
     const data_with_invalid_title = { ...data_valid, title: 123 } as unknown as IJobEntity;
     const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_title);
     expect(sanitizedJob.title).toBe('unknown');
+  });
+  // Test sanitize with invalid abstract
+  it('should sanitize job data with invalid abstract', () => {
+    const data_with_invalid_abstract = { ...data_valid, abstract: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_abstract);
+    expect(sanitizedJob.abstract).toBe(null);
   });
   // Test sanitize with invalid collective_agreement
   it('should sanitize job data with invalid collective_agreement', () => {
@@ -505,6 +574,24 @@ describe('JobSanitizer Invalid Data Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_original_job_id);
     expect(sanitizedJob.original_job_id).toBe(null);
   });
+  // Test sanitize with invalid outdated
+  it('should sanitize job data with invalid outdated', () => {
+    const data_with_invalid_outdated = { ...data_valid, outdated: 'not-a-boolean' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_outdated);
+    expect(sanitizedJob.outdated).toBe(false);
+  });
+  // Test sanitize with invalid outdated_reason
+  it('should sanitize job data with invalid outdated_reason', () => {
+    const data_with_invalid_outdated_reason = { ...data_valid, outdated_reason: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_outdated_reason);
+    expect(sanitizedJob.outdated_reason).toBe(null);
+  });
+  // Test sanitize with invalid outdated_date
+  it('should sanitize job data with invalid outdated_date', () => {
+    const data_with_invalid_outdated_date = { ...data_valid, outdated_date: 'invalid-date' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_outdated_date);
+    expect(sanitizedJob.outdated_date).toBe(null);
+  });
   // Test sanitize with invalid preference
   it('should sanitize job data with invalid preference', () => {
     const data_with_invalid_preference = { ...data_valid, preference: 123 } as unknown as IJobEntity;
@@ -543,6 +630,30 @@ describe('JobSanitizer Invalid Data Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_teleworking);
     expect(sanitizedJob.teleworking).toBe(false);
   });
+  // Test sanitize with invalid cv_id
+  it('should sanitize job data with invalid cv_id', () => {
+    const data_with_invalid_cv_id = { ...data_valid, cv_id: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_cv_id);
+    expect(sanitizedJob.cv_id).toBe(null);
+  });
+  // Test sanitize with invalid metadata
+  it('should sanitize job data with invalid metadata', () => {
+    const data_with_invalid_metadata = { ...data_valid, metadata: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_metadata);
+    expect(sanitizedJob.metadata).toBe(null);
+  });
+  // Test sanitize with invalid original_mail_id
+  it('should sanitize job data with invalid original_mail_id', () => {
+    const data_with_invalid_original_mail_id = { ...data_valid, original_mail_id: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_original_mail_id);
+    expect(sanitizedJob.original_mail_id).toBe(null);
+  });
+  // Test sanitize with invalid processing_stage
+  it('should sanitize job data with invalid processing_stage', () => {
+    const data_with_invalid_processing_stage = { ...data_valid, processing_stage: 123 } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_invalid_processing_stage);
+    expect(sanitizedJob.processing_stage).toBe(null);
+  });
 })
 
 // Test JobSanitizer with hacked data
@@ -552,6 +663,12 @@ describe('JobSanitizer Hacked Data Tests', () => {
     const data_with_hacked_title = { ...data_valid, title: '<script>alert("XSS")</script>' };
     const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_title);
     expect(sanitizedJob.title).toBe('unknown');
+  });
+  // Test sanitize with hacked abstract
+  it('should sanitize job data with hacked abstract', () => {
+    const data_with_hacked_abstract = { ...data_valid, abstract: '<script>alert("XSS")</script>' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_abstract);
+    expect(sanitizedJob.abstract).toBe(null);
   });
   // Test sanitize with hacked collective_agreement
   it('should sanitize job data with hacked collective_agreement', () => {
@@ -752,6 +869,24 @@ describe('JobSanitizer Hacked Data Tests', () => {
     const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_original_job_id);
     expect(sanitizedJob.original_job_id).toBe(null);
   });
+  // Test sanitize with hacked outdated
+  it('should sanitize job data with hacked outdated', () => {
+    const data_with_hacked_outdated = { ...data_valid, outdated: '<script>alert("XSS")</script>' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_outdated);
+    expect(sanitizedJob.outdated).toBe(false);
+  });
+  // Test sanitize with hacked outdated_reason
+  it('should sanitize job data with hacked outdated_reason', () => {
+    const data_with_hacked_outdated_reason = { ...data_valid, outdated_reason: '<script>alert("XSS")</script>' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_outdated_reason);
+    expect(sanitizedJob.outdated_reason).toBe(null);
+  });
+  // Test sanitize with hacked outdated_date
+  it('should sanitize job data with hacked outdated_date', () => {
+    const data_with_hacked_outdated_date = { ...data_valid, outdated_date: '<script>alert("XSS")</script>' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_outdated_date);
+    expect(sanitizedJob.outdated_date).toBe(null);
+  });
   // Test sanitize with hacked preference
   it('should sanitize job data with hacked preference', () => {
     const data_with_hacked_preference = { ...data_valid, preference: '<script>alert("XSS")</script>' } as unknown as IJobEntity;
@@ -789,5 +924,29 @@ describe('JobSanitizer Hacked Data Tests', () => {
     const data_with_hacked_teleworking = { ...data_valid, teleworking: '<script>alert("XSS")</script>' } as unknown as IJobEntity;
     const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_teleworking);
     expect(sanitizedJob.teleworking).toBe(false);
+  });
+  // Test sanitize with hacked cv_id
+  it('should sanitize job data with hacked cv_id', () => {
+    const data_with_hacked_cv_id = { ...data_valid, cv_id: '<script>alert("XSS")</script>' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_cv_id);
+    expect(sanitizedJob.cv_id).toBe(null);
+  });
+  // Test sanitize with hacked metadata
+  it('should sanitize job data with hacked metadata', () => {
+    const data_with_hacked_metadata = { ...data_valid, metadata: '<script>alert("XSS")</script>' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_metadata);
+    expect(sanitizedJob.metadata).toBe(null);
+  });
+  // Test sanitize with hacked original_mail_id
+  it('should sanitize job data with hacked original_mail_id', () => {
+    const data_with_hacked_original_mail_id = { ...data_valid, original_mail_id: '<script>alert("XSS")</script>' };
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_original_mail_id);
+    expect(sanitizedJob.original_mail_id).toBe(null);
+  });
+  // Test sanitize with hacked processing_stage
+  it('should sanitize job data with hacked processing_stage', () => {
+    const data_with_hacked_processing_stage = { ...data_valid, processing_stage: '<script>alert("XSS")</script>' } as unknown as IJobEntity;
+    const sanitizedJob = JobSanitizer.sanitize(data_with_hacked_processing_stage);
+    expect(sanitizedJob.processing_stage).toBe(null);
   });
 })

@@ -12,6 +12,7 @@ import {
   ISalary,
   JobPreference,
 } from '@/types/IJobEntity';
+import { ProcessingStageType } from '@/types/ProcessingStageType';
 
 /**
  * EN: Tool class to sanitize a Job object (and its sub-documents) before saving.
@@ -260,6 +261,12 @@ export class JobSanitizer {
   public static partialSanitize(input: Partial<IJob>): Partial<IJob> {
     const output: Partial<IJob> = {};
 
+    if (input.abstract !== undefined) {
+      output.abstract = (input.abstract && typeof input.abstract === 'string')
+        ? this.sanitizeString(input.abstract)
+        : null;
+    }
+
     if (input.collective_agreement !== undefined) {
       output.collective_agreement = (input.collective_agreement && typeof input.collective_agreement === 'string')
         ? this.sanitizeString(input.collective_agreement)
@@ -337,6 +344,12 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.metadata !== undefined) {
+      output.metadata = (input.metadata && typeof input.metadata === 'string')
+        ? this.sanitizeString(input.metadata)
+        : null;
+    }
+
     if (input.methodologies !== undefined) {
       output.methodologies = Array.isArray(input.methodologies)
         ? this.sanitizeStringArray(input.methodologies)
@@ -361,9 +374,53 @@ export class JobSanitizer {
         : null;
     }
 
+    if (input.original_mail_id !== undefined) {
+      output.original_mail_id = (input.original_mail_id && typeof input.original_mail_id === 'string')
+        ? this.sanitizeString(input.original_mail_id)
+        : null;
+    }
+
+    if (input.outdated !== undefined) {
+      output.outdated = (typeof input.outdated === 'boolean')
+        ? input.outdated
+        : false;
+    }
+
+    if (input.outdated_reason !== undefined) {
+      output.outdated_reason = (input.outdated_reason && typeof input.outdated_reason === 'string')
+        ? this.sanitizeString(input.outdated_reason)
+        : null;
+    }
+
+    if (input.outdated_date !== undefined) {
+      let outdated_date: Date | null = null;
+      // Check if the input is a string
+      if (input.outdated_date && typeof input.outdated_date === 'string') {
+        const sanitized_outdated_date = this.sanitizeString(input.outdated_date);
+        // Check if the date is valid
+        const d = new Date(sanitized_outdated_date);
+        if (!isNaN(d.getTime())) {
+          outdated_date = d;
+        }
+      }
+      // Check if the input is a Date object
+      else if (input.outdated_date instanceof Date) {
+        if (!isNaN(input.outdated_date.getTime())) {
+          outdated_date = input.outdated_date;
+        }
+      }
+      output.outdated_date = outdated_date;
+    }
+
     if (input.preference !== undefined) {
       output.preference = input.preference && typeof input.preference === 'string'
         ? this.sanitizePreference(input.preference)
+        : null;
+    }
+
+    if (input.processing_stage !== undefined) {
+      output.processing_stage = (input.processing_stage && typeof input.processing_stage === 'string')
+        ? this.sanitizeString(input.processing_stage) as ProcessingStageType
         : null;
     }
 
@@ -435,6 +492,7 @@ export class JobSanitizer {
     const output: Partial<IJob> = this.partialSanitize(input);
 
     const response: IJobEntity = {
+      abstract: output.abstract || null,
       collective_agreement: output.collective_agreement || null,
       company: output.company || null,
       company_details: output.company_details || null,
@@ -447,6 +505,7 @@ export class JobSanitizer {
       language: output.language || null,
       level: output.level || null,
       location: output.location || null,
+      metadata: output.metadata || null,
       methodologies: output.methodologies || null,
       motivation_letter: output.motivation_letter || null,
       motivation_email: output.motivation_email || null,
@@ -454,7 +513,12 @@ export class JobSanitizer {
       motivation_email_subject: output.motivation_email_subject || null,
       motivation_email_to: output.motivation_email_to || null,
       original_job_id: output.original_job_id || null,
+      original_mail_id: output.original_mail_id || null,
+      outdated: output.outdated || false,
+      outdated_reason: output.outdated_reason || null,
+      outdated_date: output.outdated_date || null,
       preference: output.preference || null,
+      processing_stage: output.processing_stage || null,
       salary: output.salary || null,
       source: output.source || null,
       technologies: output.technologies || null,

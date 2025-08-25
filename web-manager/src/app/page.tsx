@@ -61,9 +61,9 @@ export default function HomePage() {
       >
         <header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full text-sm py-3">
           <nav className="max-w-[85rem] w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between">
-            <a className="flex-none font-semibold text-xl text-black focus:outline-hidden focus:opacity-80 dark:text-white" href="#" aria-label="Jobby">
-              <Image src={png_jobby} alt="Job Board Logo" className="h-14 w-14 rounded-full" />
-              <h1>Jobby</h1>
+            <a className="flex-none font-semibold text-xl text-black focus:outline-hidden focus:opacity-80 dark:text-white" href="#" aria-label="JobBy">
+              <Image src={png_jobby} priority={true} alt="Job Board Logo" className="h-14 w-14 rounded-full" />
+              <h1>JobBy</h1>
             </a>
 
             <div className="flex flex-row items-center gap-2 mt-2 sm:justify-end sm:mt-0 sm:ps-5">
@@ -94,6 +94,7 @@ export default function HomePage() {
                       src="/n8n.png"
                       width={30}
                       height={30}
+                      priority={false}
                       alt="Picture of the author"
                       className={`
                         transition-all
@@ -131,9 +132,9 @@ export default function HomePage() {
           
           <ErrorsPanel />
 
-          {target === MenuTargetEnum.Steps && <JobsStepper />}
-          {target === MenuTargetEnum.Jobs && <JobBoard />}
-          {target === MenuTargetEnum.CVs && <CVPanel />}
+          {target === MenuTargetEnum.steps && <JobsStepper />}
+          {target === MenuTargetEnum.jobs && <JobBoard />}
+          {target === MenuTargetEnum.cvs && <CVPanel />}
           
           {!isAliveApi && showApiError && (
             <div className="bg-gray-100 dark:bg-neutral-800 text-red-500 text-center mt-4">

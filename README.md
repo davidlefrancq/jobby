@@ -1,6 +1,6 @@
-# Jobby - Plateforme d'automatisation et d'intelligence artificielle
+# JobBy - Plateforme d'automatisation et d'intelligence artificielle
 
-Jobby est une plateforme complète d'automatisation utilisant [n8n](https://n8n.io/) pour l'orchestration de workflows, intégrée avec une IA locale via Ollama, une interface web Next.js, et un système de monitoring complet. L'ensemble est orchestré via Docker Compose pour faciliter le déploiement et la gestion.8n - Automatisation & Agent IA locale avec Docker & Ollama
+JobBy est une plateforme complète d'automatisation utilisant [n8n](https://n8n.io/) pour l'orchestration de workflows, intégrée avec une IA locale via Ollama, une interface web Next.js, et un système de monitoring complet. L'ensemble est orchestré via Docker Compose pour faciliter le déploiement et la gestion.8n - Automatisation & Agent IA locale avec Docker & Ollama
 
 Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via Docker Compose. L'objectif est de gérer facilement un environnement n8n auto-hébergé à l’aide de commandes `npm`.
 
@@ -22,7 +22,7 @@ Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via 
 
 ## Architecture
 
-Jobby est composé de plusieurs services interconnectés :
+JobBy est composé de plusieurs services interconnectés :
 
 - **n8n** : Orchestrateur de workflows (port 5678)
 - **Next.js** : Interface web de gestion des jobs (port 3000)
@@ -64,7 +64,7 @@ Jobby est composé de plusieurs services interconnectés :
 
 3. **Accès aux interfaces**
    - **n8n** : http://localhost:5678/ (suivre les instructions d'initialisation)
-   - **Interface Jobby** : http://localhost:3000/
+   - **Interface JobBy** : http://localhost:3000/
    - **Grafana** : http://localhost:5601/ (admin/admin)
    - **API Puppeteer** : http://localhost:3200/
 
@@ -100,7 +100,7 @@ Les modèles sont persistés dans le volume Docker `ollama_models` pour éviter 
 
 ## Services additionnels
 
-### Interface Web Jobby (Next.js)
+### Interface Web JobBy (Next.js)
 - **URL** : http://localhost:3000/
 - Interface de gestion des jobs et workflows
 - Connexion directe à MongoDB pour la persistance des données

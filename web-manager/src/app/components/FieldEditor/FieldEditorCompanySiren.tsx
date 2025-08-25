@@ -147,7 +147,7 @@ export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction 
           type="text"
           value={inputSiren || ''}
           onChange={handleSirenChange}
-          className="border border-blue-800 rounded px-2 py-1 w-full mr-1"
+          className="px-2 py-0 w-full mr-1 border border-blue-800 dark:text-neutral-800 rounded"
           placeholder="SIREN"
         />
         <BtnLoading
@@ -172,7 +172,9 @@ export default function FieldEditorCompanySiren({ job, isEditMode, saveFunction 
     >
       {/* {inputSiren || '[N/A]'} */}
       {inputSiren && inputSiren }
-      {!inputSiren && !isEditMode && <span className="text-gray-500 dark:text-neutral-400">[N/A]</span>}
+      {!inputSiren && !isEditMode && (
+        <span className="text-gray-500 dark:text-neutral-400">[N/A]</span>
+      )}
       {/* {isEditMode && <span className="ml-1 text-blue-500 dark:text-blue-400 cursor-pointer">Edit Siren</span>} */}
       {isEditMode && (
         <button

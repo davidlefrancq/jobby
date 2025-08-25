@@ -9,37 +9,37 @@ export default function JobQueueMenu() {
   const { jobQueueSelected } = useAppSelector(state => state.jobsReducer)
 
   const handleBtnUnrated = () => {
-    dispatch(setJobQueueSelected(JobQueueEnum.Unrated))
+    dispatch(setJobQueueSelected(JobQueueEnum.unrated))
   }
 
   const handleBtnLiked = () => {
-    dispatch(setJobQueueSelected(JobQueueEnum.Liked))
+    dispatch(setJobQueueSelected(JobQueueEnum.liked))
   }
 
   const handleBtnDisliked = () => {
-    dispatch(setJobQueueSelected(JobQueueEnum.Disliked))
+    dispatch(setJobQueueSelected(JobQueueEnum.disliked))
   }
 
   return (
     <div className="flex flex-row items-center justify-center w-full h-full space-x-4">
       <button
-        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 caret-transparent ${jobQueueSelected === JobQueueEnum.Unrated ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
+        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 caret-transparent ${jobQueueSelected === JobQueueEnum.unrated ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
         onClick={handleBtnUnrated}
-        disabled={jobQueueSelected === JobQueueEnum.Unrated}
+        disabled={jobQueueSelected === JobQueueEnum.unrated}
       >
         Unrated
       </button>
       <button
-        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 caret-transparent ${jobQueueSelected === JobQueueEnum.Liked ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
+        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 caret-transparent ${jobQueueSelected === JobQueueEnum.liked ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
         onClick={handleBtnLiked}
-        disabled={jobQueueSelected === JobQueueEnum.Liked}
+        disabled={jobQueueSelected === JobQueueEnum.liked}
       >
         Liked
       </button>
       <button
-        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 caret-transparent ${jobQueueSelected === JobQueueEnum.Disliked ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
+        className={`px-4 py-2 text-white rounded hover:bg-blue-600 w-1/2 sm:w-1/2 lg:w-1/4 xl:w-1/6 caret-transparent ${jobQueueSelected === JobQueueEnum.disliked ? 'bg-blue-600' : 'bg-blue-500 cursor-pointer'}`}
         onClick={handleBtnDisliked}
-        disabled={jobQueueSelected === JobQueueEnum.Disliked}
+        disabled={jobQueueSelected === JobQueueEnum.disliked}
       >
         Disliked
       </button>

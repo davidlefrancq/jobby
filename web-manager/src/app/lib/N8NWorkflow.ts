@@ -4,9 +4,7 @@ import {
 } from "@/constants/n8n-webhooks";
 
 const ERROR_MISSING_WEBHOOK = 'Missing webhook URL.';
-const ERROR_UNKNOWN_WORKFLOW = 'Unknown workflow.';
 const ERROR_WORKFLOW_EXECUTION = 'Error executing workflow.';
-const ERROR_WORKFLOW_EXECUTION_DETAILS = `${ERROR_WORKFLOW_EXECUTION} Details:`;
 
 type WorkflowResponse = {
   error: string | null;
@@ -22,7 +20,9 @@ export class N8NWorkflow {
   private static instance: N8NWorkflow | null = null;
   
   private started = {
-    FranceTravail: false,
+    FranceTravailGmail: false,
+    FranceTravailData: false,
+    FranceTravailAI: false,
     LinkedIn: false,
     CompaniesDetails: false,
     CompanyDetails: false,
@@ -54,7 +54,7 @@ export class N8NWorkflow {
     return mapper[url] ?? null;
   }
 
-  private runWorkflow = async (url: string) => {
+  private runGetWorkflow = async (url: string) => {
     if (!url) throw new Error(ERROR_MISSING_WEBHOOK);
     let errMsg: string | null = null;
     
@@ -76,38 +76,82 @@ export class N8NWorkflow {
     return { error: errMsg };
   }
 
-  private startFrancetTravailWorkflow = async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private runPostWorkflow = async (url: string, body: Record<string, any>) => {
+    if (!url) throw new Error(ERROR_MISSING_WEBHOOK);
+    let errMsg: string | null = null;
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) errMsg = `Error ${res.status}: ${res.statusText}`;
+    } catch (err) {
+      const workflowName = N8NWorkflow.getN8NWorkflowName(url);
+      errMsg = `${ERROR_WORKFLOW_EXECUTION} For ${workflowName} workflow:`;
+      if (err instanceof Error) errMsg += ` ${err.message}`;
+      else if (typeof err === 'string') errMsg += ` ${err}`;
+      else errMsg += ` ${String(err)}`;
+    }
+    return { error: errMsg };
+  }
+
+  public startFranceTravailGmailWorkflow = async () => {
     const response: WorkflowResponse = { error: null };
-    if (!this.started.FranceTravail) {
-      this.started.FranceTravail = true;
-      const { url } = N8N_WEBHOOKS.FranceTravail;
-      const { error } = await this.runWorkflow(url);
+    if (!this.started.FranceTravailGmail) {
+      this.started.FranceTravailGmail = true;
+      const { url } = N8N_WEBHOOKS.FranceTravailGmail;
+      const { error } = await this.runGetWorkflow(url);
       if (error) response.error = error;
-      this.started.FranceTravail = false;
+      this.started.FranceTravailGmail = false;
+    } else {
+      response.error = 'Workflow FranceTravailGmail is already running.';
     }
     return response;
   }
 
-  private startLinkedInWorkflow = async () => {
+  public startFranceTravailDataWorkflow = async ({ _id }: { _id: string }) => {
+    const response: WorkflowResponse = { error: null };
+    if (!this.started.FranceTravailData) {
+      this.started.FranceTravailData = true;
+      const { url } = N8N_WEBHOOKS.FranceTravailData;
+      const { error } = await this.runPostWorkflow(url, { _id });
+      if (error) response.error = error;
+      this.started.FranceTravailData = false;
+    } else {
+      response.error = 'Workflow FranceTravailData is already running.';
+    }
+    return response;
+  }
+
+  public startFranceTravailAIWorkflow = async ({ _id }: { _id: string }) => {
+    const response: WorkflowResponse = { error: null };
+    if (!this.started.FranceTravailAI) {
+      this.started.FranceTravailAI = true;
+      const { url } = N8N_WEBHOOKS.FranceTravailAI;
+      const { error } = await this.runPostWorkflow(url, { _id });
+      if (error) response.error = error;
+      this.started.FranceTravailAI = false;
+    } else {
+      response.error = 'Workflow FranceTravailAI is already running.';
+    }
+    return response;
+  }
+
+  public startLinkedInWorkflow = async () => {
     const response: WorkflowResponse = { error: null };
     if (!this.started.LinkedIn) {
       this.started.LinkedIn = true;
       const { url } = N8N_WEBHOOKS.LinkedIn;
-      const { error } = await this.runWorkflow(url);
+      const { error } = await this.runGetWorkflow(url);
       if (error) response.error = error;
       this.started.LinkedIn = false;
-    }
-    return response;
-  }
-
-  private startCompaniesDetailsWorkflow = async () => {
-    const response: WorkflowResponse = { error: null };
-    if (!this.started.CompaniesDetails) {
-      this.started.CompaniesDetails = true;
-      const { url } = N8N_WEBHOOKS.CompaniesDetails;
-      const { error } = await this.runWorkflow(url);
-      if (error) response.error = error;
-      this.started.CompaniesDetails = false;
+    } else {
+      response.error = 'Workflow LinkedIn is already running.';
     }
     return response;
   }
@@ -117,17 +161,11 @@ export class N8NWorkflow {
     if (!this.started.CompanyDetails) {
       this.started.CompanyDetails = true;
       const { url } = N8N_WEBHOOKS.CompanyDetails;
-      const res = await fetch(
-        url,
-        {
-          method: 'POST',
-          body: JSON.stringify({ _id })
-        }
-      );
-      let error: string | null = null;
-      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
+      const { error } = await this.runPostWorkflow(url, { _id });
       if (error) response.error = error;
       this.started.CompanyDetails = false;
+    } else {
+      response.error = `Workflow CompanyDetails is already running.`;
     }
     return response;
   }
@@ -137,17 +175,11 @@ export class N8NWorkflow {
     if (!this.started.CVMotivationLetter) {
       this.started.CVMotivationLetter = true;
       const { url } = N8N_WEBHOOKS.CVMotivationLetter;
-      const res = await fetch(
-        url,
-        {
-          method: 'POST',
-          body: JSON.stringify({ jobId, cvId })
-        }
-      );
-      let error: string | null = null;
-      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
+      const { error } = await this.runPostWorkflow(url, { jobId, cvId });
       if (error) response.error = error;
       this.started.CVMotivationLetter = false;
+    } else {
+      response.error = 'Workflow CVMotivationLetter is already running.';
     }
     return response;
   }
@@ -157,70 +189,12 @@ export class N8NWorkflow {
     if (!this.started.CVMotivationEmail) {
       this.started.CVMotivationEmail = true;
       const { url } = N8N_WEBHOOKS.CVMotivationEmail;
-      const res = await fetch(
-        url,
-        {
-          method: 'POST',
-          body: JSON.stringify({ jobId, cvId })
-        }
-      );
-      let error: string | null = null;
-      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
+      const { error } = await this.runPostWorkflow(url, { jobId, cvId });
       if (error) response.error = error;
       this.started.CVMotivationEmail = false;
+    } else {
+      response.error = 'Workflow CVMotivationEmail is already running.';
     }
     return response;
   }
-
-  public startCVMotivationEmailDraftWorkflow = async ({ jobId, cvId }: { jobId: string, cvId: string }) => {
-    const response: WorkflowResponse = { error: null };
-    if (!this.started.CVMotivationEmailDraft) {
-      this.started.CVMotivationEmailDraft = true;
-      const { url } = N8N_WEBHOOKS.CVMotivationEmailDraft;
-      const res = await fetch(
-        url,
-        {
-          method: 'POST',
-          body: JSON.stringify({ jobId, cvId })
-        }
-      );
-      let error: string | null = null;
-      if (!res.ok) error = `Error ${res.status}: ${res.statusText}`;
-      if (error) response.error = error;
-      this.started.CVMotivationEmailDraft = false;
-    }
-    return response;
-  }
-
-  startWorkflow = async ({ workflow, setError }: StartWorkflowProps) => {
-    try {
-      switch (workflow) {
-        case N8N_WORKFLOW_NAMES.FranceTravail:
-          const ftResponse = await this.startFrancetTravailWorkflow();
-          if (ftResponse.error) setError(ftResponse.error);
-          break;
-        case N8N_WORKFLOW_NAMES.LinkedIn:
-          const liResponse = await this.startLinkedInWorkflow();
-          if (liResponse.error) setError(liResponse.error);
-          break;
-        case N8N_WORKFLOW_NAMES.CompaniesDetails:
-          const cdResponse = await this.startCompaniesDetailsWorkflow();
-          if (cdResponse.error) setError(cdResponse.error);
-          break;
-        default:
-          setError(ERROR_UNKNOWN_WORKFLOW);
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(`${ERROR_WORKFLOW_EXECUTION_DETAILS} ${err.message}`);
-      }
-      else if (typeof err === 'string') {
-        setError(`${ERROR_WORKFLOW_EXECUTION_DETAILS} ${err}`);
-      }
-      else {
-        setError(`${ERROR_WORKFLOW_EXECUTION_DETAILS} ${String(err)}`);
-      }
-    }
-  }
-
 }

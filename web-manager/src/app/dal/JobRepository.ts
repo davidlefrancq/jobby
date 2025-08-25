@@ -96,6 +96,8 @@ export class JobRepository {
 
       if (filter) {
         if (filter.preference) url += `&preference=${filter.preference}`;
+        if (filter.processing_stage) url += `&processing_stage=${filter.processing_stage}`;
+        if (filter.outdated === true || filter.outdated === false) url += `&outdated=${filter.outdated === true ? 'true' : 'false'}`;
       }
 
       const res = await fetch(url, { method: 'GET', headers });

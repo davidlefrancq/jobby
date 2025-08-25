@@ -1,5 +1,5 @@
 export enum JobQueueEnum {
-  Liked = 'liked',
-  Disliked = 'disliked',
-  Unrated = 'unrated',
+  liked = 'liked',
+  disliked = 'disliked',
+  unrated = 'unrated',
 }

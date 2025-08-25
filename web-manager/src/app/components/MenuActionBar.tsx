@@ -28,17 +28,17 @@ export default function MenuActionBar() {
       {/* Jobs Button */}
       <Btn
         title="Jobs"
-        isActive={target === MenuTargetEnum.Jobs}
+        isActive={target === MenuTargetEnum.jobs}
         width={'80px'}
-        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.Jobs))}
+        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.jobs))}
       />
 
       {/* CVs Button */}
       <Btn
         title="CVs"
-        isActive={target === MenuTargetEnum.CVs}
+        isActive={target === MenuTargetEnum.cvs}
         width={'80px'}
-        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.CVs))}
+        onClick={() => dispatch(selectMenuTarget(MenuTargetEnum.cvs))}
       />
 
       {/* Worflows Button */}
@@ -55,7 +55,7 @@ export default function MenuActionBar() {
         target="_blank"
         className="bg-red-400 text-white p-0 rounded-full opacity-75 hover:opacity-100"
       >
-        <Image src={png_n8n} alt="N8N" className="w-10 h-10 rounded-full" />
+        <Image src={png_n8n} priority={false} alt="N8N" className="w-10 h-10 rounded-full" />
       </Link>
 
       {/* Notifications Button */}

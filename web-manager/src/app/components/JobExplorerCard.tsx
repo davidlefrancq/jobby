@@ -120,9 +120,9 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
           bg-white
           dark:bg-neutral-800
           border
-          border-gray-200
-          dark:border-none
-          shadow-md
+          border-gray-100
+          dark:border-neutral-900
+          shadow-sm
           rounded-xl
         `}
       >
@@ -160,10 +160,10 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
         <div className="h-[400px] ps-4 pe-4 pt-0 pv-auto overflow-auto">
 
           <div className="flex grid-cols-3 gap-2 mb-2">
-            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-gray-100 text-gray-800 dark:text-neutral-200 dark:bg-neutral-900">
               <TruncatedText text={job.company || 'N/A'} length={35} />
             </span>
-            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
+            <span className="flex justify-center items-center pl-2 pr-2 rounded text-sm bg-gray-100 text-gray-800 dark:text-neutral-200 dark:bg-neutral-900">
               <TruncatedText text={job.location || ''} length={35} />
             </span>
             <span className={`
@@ -172,13 +172,23 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               ${job.company_details?.siren ? 'pl-2 pr-2' : 'px-0 my-0'}
               rounded
               text-sm
-              ${job.company_details?.siren && 'bg-white'}
+              ${job.company_details?.siren && 'bg-gray-100'}
               text-gray-800
               dark:text-neutral-200
-              ${job.company_details?.siren && 'dark:bg-neutral-800'}
+              ${job.company_details?.siren && 'dark:bg-neutral-900'}
             `}>
               {job.company_details?.siren
-                ? job.company_details?.siren
+                ? (
+                  <a
+                    href={`https://annuaire-entreprises.data.gouv.fr/entreprise/${job.company_details.siren}`}
+                    title={'SIREN'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-400 hover:underline"
+                  >
+                    {job.company_details.siren}
+                  </a>
+                )
                 : <FieldEditorCompanySiren job={job} isEditMode={true} saveFunction={updateJobCompany} />
               }
             </span>
@@ -217,8 +227,14 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               )}
               { job.company_details?.website && (
                 <span className="min-h-8 flex justify-center items-center pl-2 pr-2 rounded text-sm bg-white text-gray-800 dark:text-neutral-200 dark:bg-neutral-800">
-                  <a href={job.company_details.website} target="_blank" rel="noopener noreferrer">
-                    {job.company_details.website}
+                  <a
+                    href={job.company_details.website}
+                    title={'Company Website'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-400 hover:underline"
+                  >
+                    Site Web
                   </a>
                 </span>
               )}
@@ -234,7 +250,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             ]}
           >
             <div className="min-h-[150px] mt-2 text-gray-800 dark:text-neutral-400 text-justify">
-              {job.description ? job.description : 'No description available.'}
+              {job.abstract ? job.abstract : 'No description available.'}
             </div>
             <div className="min-h-[150px] text-gray-800 dark:text-neutral-400">
               <JobCvSelector job={job} />
@@ -271,11 +287,11 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
             rounded-b-xl
           `}
         >
-          <div className="flex-auto mt-1 mb-1 text-sm text-gray-800 dark:text-neutral-200">
+          <div className="flex-1/4 mt-1 mb-1 text-sm text-gray-800 dark:text-neutral-200">
             {/* Job date */}
             {job.date ? new Date(job.date).toLocaleDateString() : 'N/A'}
           </div>
-          <div className="flex-auto mt-1 mb-1 text-sm text-center text-gray-800 dark:text-neutral-200">
+          <div className="flex-1/2 mt-1 mb-1 text-sm text-center text-gray-800 dark:text-neutral-200">
             {/* Job ID */}
             <div>{job._id?.toString()}</div>
             {job.original_job_id && (
@@ -284,14 +300,14 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
               </div>
             )}
           </div>
-          <div className="flex gap-2 mt-1 mb-1 text-sm text-right text-gray-800 dark:text-neutral-200">
+          <div className="flex flex-1/4 justify-end gap-2 mt-1 mb-1 text-sm text-right text-gray-800 dark:text-neutral-200">
             {/* Dislike Button */}
             <JobDislikeBtn job={job} />
             {/* Original job url */}
             {job.original_job_id && job.source
               ? <button
                   className={`
-                    min-w-[150px]
+                    min-w-[55px]
                     px-4
                     py-2
                     bg-blue-600
@@ -304,10 +320,10 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
                     focus:ring-opacity-50
                   `}
                   onClick={() => window.open(job.source || '', '_blank')}
+                  title={JobTools.getSourceName(job)}
                 >
                   <span className="flex gap-2 justify-center items-center capitalize">
                     <SquareArrowOutUpRight size={18} />
-                    {JobTools.getSourceName(job)}
                   </span>
                 </button>
               : 'N/A'

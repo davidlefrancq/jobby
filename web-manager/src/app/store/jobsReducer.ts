@@ -47,7 +47,7 @@ const initialState: JobsState = {
   dislikedSkip: 0,
   dislikedInLoading: false,
   dislikedHasMore: true,
-  jobQueueSelected: JobQueueEnum.Unrated,
+  jobQueueSelected: JobQueueEnum.unrated,
   jobSelected: null,
 }
 

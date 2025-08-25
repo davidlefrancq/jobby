@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { ProcessingStageType } from "./ProcessingStageType";
 
 export const JOB_LIKED = 'like';
 export const JOB_DISLIKED = 'dislike';
@@ -75,6 +76,7 @@ export interface ICompanyDetails {
 
 export interface IJobEntity {
   _id?: Types.ObjectId;
+  abstract: string | null;
   collective_agreement: string | null;
   company: string | null;
   company_details: ICompanyDetails | null;
@@ -87,6 +89,7 @@ export interface IJobEntity {
   language: string | null;
   level: string | null;
   location: string | null;
+  metadata: string | null;
   methodologies: string[] | null;
   motivation_letter: string | null;
   motivation_email: string | null;
@@ -94,7 +97,12 @@ export interface IJobEntity {
   motivation_email_to: string | null;
   motivation_email_draft_url: string | null;
   original_job_id: string | null;
+  original_mail_id: string | null;
+  outdated: boolean;
+  outdated_reason: string | null;
+  outdated_date: Date | null;
   preference: JobPreference | null;
+  processing_stage: ProcessingStageType | null; // Read ProcessingStage type to see different values
   salary: ISalary | null;
   source: string | null;
   technologies: string[] | null;
