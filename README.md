@@ -2,7 +2,7 @@
 
 # JobBy - Plateforme d'automatisation et d'intelligence artificielle
 
-JobBy est une plateforme complète d'automatisation utilisant [n8n](https://n8n.io/) pour l'orchestration de workflows, intégrée avec une IA locale via Ollama, une interface web Next.js, et un système de monitoring complet. L'ensemble est orchestré via Docker Compose pour faciliter le déploiement et la gestion.8n - Automatisation & Agent IA locale avec Docker & Ollama
+JobBy est une plateforme complète d'automatisation utilisant [n8n](https://n8n.io/) pour l'orchestration de workflows, intégrée avec une IA locale via Ollama et une interface web Next.js. L'ensemble est orchestré via Docker Compose pour faciliter son déploiement.
 
 Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via Docker Compose. L'objectif est de gérer facilement un environnement n8n auto-hébergé à l’aide de commandes `npm`.
 
