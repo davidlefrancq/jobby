@@ -65,7 +65,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
       - MONGO_NON_ROOT_USERNAME=${MONGO_DB_USER}
-      - MONGO_NON_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_NON_ROOT_PASSWORD=${MONGO_DB_USER_PASSWORD}
     volumes:
       - mongo_config:/data/configdb
       - mongo_data:/data/db
