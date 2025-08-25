@@ -53,9 +53,25 @@ JobBy est composé de plusieurs services interconnectés :
 ## Initialisation
 
 1. **Configuration des variables d'environnement**
-   - Renommer `.env.local` en `.env` 
-   - Définir les différentes valeurs (mots de passe, utilisateurs MongoDB, etc.)
-   - ⚠️ Ces valeurs sont sensibles - ne les communiquez à personne
+    - Copier le fichier `.env.local` en `.env` :
+       ```bash
+       cp .env.local .env
+       ```
+    - Modifier les valeurs selon vos besoins. Voici les variables à définir :
+       - `MONGO_ROOT_USER` : Nom d'utilisateur root MongoDB
+       - `MONGO_ROOT_PASSWORD` : Mot de passe root MongoDB
+       - `MONGO_DB_NAME` : Nom de la base de données principale
+       - `MONGO_DB_USER` : Nom d'utilisateur non-root pour la base
+       - `MONGO_DB_PASSWORD` : Mot de passe de l'utilisateur non-root
+    - Exemple de contenu du fichier `.env.local` :
+       ```env
+       MONGO_ROOT_USER=root_user
+       MONGO_ROOT_PASSWORD=root_password
+       MONGO_DB_NAME=n8n_db
+       MONGO_DB_USER=db_user
+       MONGO_DB_PASSWORD=db_password
+       ```
+    - ⚠️ Ces valeurs sont sensibles - ne les communiquez à personne
 
 2. **Démarrage des services**
    ```bash
