@@ -6,6 +6,9 @@ JobBy est une plateforme complète d'automatisation utilisant [n8n](https://n8n.
 
 Ce projet utilise [n8n](https://n8n.io/) pour l'automatisation de workflows via Docker Compose. L'objectif est de gérer facilement un environnement n8n auto-hébergé à l’aide de commandes `npm`.
 
+## Code
+La documentation sur l'architecture du code est disponible [ici](./README_CODE_FR.md).
+
 ## Prérequis
 
 ### Matériel
