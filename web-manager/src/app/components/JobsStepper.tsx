@@ -157,7 +157,7 @@ export default function JobsStepper() {
       </div>
 
       {/* N8N Workflow Panel */}
-      <div className={`p-8 ${currentStep === 0 ? "mt-4" : "hidden"} transition-all duration-300`}>
+      <div className={`${currentStep === 0 ? "mt-2" : "hidden"} transition-all duration-300`}>
         <N8NWorkflowPanel />
       </div>
 
