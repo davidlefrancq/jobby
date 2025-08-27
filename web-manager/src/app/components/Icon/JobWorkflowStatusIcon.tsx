@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleChevronDown, CircleX, RouteOff } from "lucide-react";
+import { CaptionsOff, CircleChevronDown, RouteOff } from "lucide-react";
 import { GrowingSpinner } from "../GrowingSpinner";
 import { JobWorkflowStatusType } from "@/app/interfaces/IJobStatus";
 
@@ -18,7 +18,7 @@ function OkIcon() {
 
 function ErrorIcon() {
   return <div className="text-red-500" title="Error">
-    <CircleX size={16} />
+    <CaptionsOff size={16} />
   </div>;
 }
 
