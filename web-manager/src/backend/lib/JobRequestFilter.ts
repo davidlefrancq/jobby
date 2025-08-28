@@ -37,6 +37,16 @@ export class JobRequestFilter {
       }
     }
 
+    // Extrac source filter
+    if (query.source) {
+      if (typeof query.source === 'string') {
+        const sourceSanitized = sanitizeHtml(query.source);
+        const source = sourceSanitized;
+        if (source === 'null') filter.source = null;
+        else filter.source = source;
+      }
+    }
+
     return filter;
   }
 }
