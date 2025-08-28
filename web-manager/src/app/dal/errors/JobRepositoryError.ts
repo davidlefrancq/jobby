@@ -31,6 +31,14 @@ export class GetJobByIdError extends JobRepositoryError {
   }
 }
 
+export class GetJobByOriginalIdError extends JobRepositoryError {
+  constructor(msg?: string) {
+    const message = `Fail while retrieving job by original ID.`;
+    super(message);
+    if (msg) this.log(msg);
+  }
+}
+
 export class CreateJobError extends JobRepositoryError {
   constructor(msg?: string) {
     const message = `Fail while creating job.`;

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { CaptionsOff, CircleChevronDown, CircleDotDashed } from "lucide-react";
 import { GrowingSpinner } from "./GrowingSpinner";
+import { N8NWorkflow } from "../lib/N8NWorkflow";
+
+const n8nWorkflow = N8NWorkflow.getInstance();
 
 interface IN8NWorkflowFranceTravailJobInitProcessingProps {
   jobId: string;
@@ -31,16 +34,22 @@ export default function N8NWorkflowFranceTravailJobInitProcessing({ jobId, start
     if (start && !inProcessing && initStatus === null) {
       setInProcessing(true);
       
-      // TODO: Data processing
-      // Simulate data processing
-      const randomTime = Math.floor(Math.random() * (2800 - 800 + 1)) + 800;
-      setTimeout(() => {
-        // Random result "ok" or "error" or "skipped"
-        // const randomResult: boolean = Math.random() < 0.5;
-        const randomResult: boolean = true;
-        setInitStatus(randomResult);
-        setInProcessing(false);
-      }, randomTime);
+      // Init processing
+      n8nWorkflow
+        .startFranceTravailLoadingJobWorkflow({ originalJobId: jobId })
+        .then((response) => {
+          const { error } = response
+          if (error) setInitStatus(false);
+          else setInitStatus(true);
+        })
+        .catch((error) => {
+          console.error(error);
+          setInitStatus(false);
+        })
+        .finally(() => {
+          setInProcessing(false);
+        });
+
     }
   }, [start, inProcessing]);
 

@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { CircleDotDashed } from "lucide-react";
 import { JobWorkflowStatusType } from "../interfaces/IJobStatus";
 import JobWorkflowStatusIcon from "./Icon/JobWorkflowStatusIcon";
+import { N8NWorkflow } from "../lib/N8NWorkflow";
+import { JobRepository } from "../dal/JobRepository";
+import { FRANCE_TRAVAIL_JOB_BASE_URL } from "@/constants/default";
+import { GetJobByOriginalIdError } from "../dal/errors/JobRepositoryError";
+
+const n8nWorkflow = N8NWorkflow.getInstance();
+const jobRepository = JobRepository.getInstance();
 
 interface IN8NWorkflowFranceTravailJobAIProcessingProps {
   jobId: string;
@@ -35,18 +42,38 @@ export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, initial
       setInProcessing(true);
       setAiStatus("processing");
       
-      // TODO: Data processing
-      // Randaom time 800ms to 2800ms
-      const randomTime = Math.floor(Math.random() * (2800 - 800 + 1)) + 800;
-      // Random result "ok" or "error" or "skipped"
-      // const resultList: JobWorkflowStatusType[] = ["ok", "error", "skipped"]
-      // const randomResult = resultList[Math.floor(Math.random() * 3)];
-      const randomResult = 'ok'; // Forcing "ok" result for AI processing
-      // Simulate data processing
-      setTimeout(() => {
-        setAiStatus(randomResult);
-        setInProcessing(false);
-      }, randomTime);
+      // Get data from DB
+      const source = `${FRANCE_TRAVAIL_JOB_BASE_URL}${jobId}`;
+      jobRepository
+        .getBySource({ source })
+        .then((job) => {
+          if (!job) throw new GetJobByOriginalIdError("Job not found.");
+          if (!job._id) throw new GetJobByOriginalIdError("Job ID not found.");
+
+          // Data processing
+          const { _id } = job;
+          n8nWorkflow
+            .startFranceTravailAIWorkflow({ _id: _id.toString() })
+            .then((response) => {
+              const { error } = response
+              if (error) setAiStatus('error');
+              else setAiStatus('ok');
+            })
+            .catch((error) => {
+              console.error(error);
+              setAiStatus('error');
+            })
+            .finally(() => {
+              setInProcessing(false);
+            });
+        })
+        .catch((error) => {
+          console.error(error);
+          setAiStatus('error');
+        })
+        .finally(() => {
+          setInProcessing(false);
+        });
     }
   }, [start]);
 

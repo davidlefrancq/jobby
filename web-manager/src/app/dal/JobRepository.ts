@@ -98,6 +98,7 @@ export class JobRepository {
         if (filter.preference) url += `&preference=${filter.preference}`;
         if (filter.processing_stage) url += `&processing_stage=${filter.processing_stage}`;
         if (filter.outdated === true || filter.outdated === false) url += `&outdated=${filter.outdated === true ? 'true' : 'false'}`;
+        if (filter.source) url += `&source=${filter.source}`;
       }
 
       const res = await fetch(url, { method: 'GET', headers });
@@ -125,6 +126,19 @@ export class JobRepository {
       else {
         throw new GetJobByIdError(`${res.status}: ${res.statusText}`);
       }
+    } catch (err) {
+      throw new GetJobByIdError(String(err));
+    }
+    return data;
+  }
+
+  public async getBySource({source}: {source: string}): Promise<IJobEntity | null> {
+    if (!source) throw new Error("Source is required");
+
+    let data: IJobEntity | null = null;
+    try {
+      const response = await this.getAll({ filter: { source }, limit: 1, skip: 0 });
+      if (response && response.length > 0) data = response[0];
     } catch (err) {
       throw new GetJobByIdError(String(err));
     }

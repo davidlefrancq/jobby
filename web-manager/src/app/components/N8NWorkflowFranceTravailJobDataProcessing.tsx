@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import { CircleDotDashed } from "lucide-react";
 import { JobWorkflowStatusType } from "../interfaces/IJobStatus";
 import JobWorkflowStatusIcon from "./Icon/JobWorkflowStatusIcon";
+import { N8NWorkflow } from "../lib/N8NWorkflow";
+import { JobRepository } from "../dal/JobRepository";
+import { GetJobByOriginalIdError } from "../dal/errors/JobRepositoryError";
+import { FRANCE_TRAVAIL_JOB_BASE_URL } from "@/constants/default";
+
+const n8nWorkflow = N8NWorkflow.getInstance();
+const jobRepository = JobRepository.getInstance();
 
 interface IN8NWorkflowFranceTravailJobDataProcessingProps {
   jobId: string;
@@ -45,18 +52,38 @@ export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, initi
       setInProcessing(true);
       setDataStatus("processing");
       
-      // TODO: Data processing
-      // Randaom time 800ms to 2800ms
-      const randomTime = Math.floor(Math.random() * (2800 - 800 + 1)) + 800;
-      // Random result "ok" or "error" or "skipped"
-      // const resultList: JobWorkflowStatusType[] = ["ok", "error", "skipped"]
-      // const randomResult = resultList[Math.floor(Math.random() * 3)];
-      const randomResult = 'ok';
-      // Simulate data processing
-      setTimeout(() => {
-        setDataStatus(randomResult);
-        setInProcessing(false);
-      }, randomTime);
+      // Get data from DB
+      const source = `${FRANCE_TRAVAIL_JOB_BASE_URL}${jobId}`;
+      jobRepository
+        .getBySource({ source })
+        .then((job) => {
+          if (!job) throw new GetJobByOriginalIdError("Job not found.");
+          if (!job._id) throw new GetJobByOriginalIdError("Job ID not found.");
+
+          // Data processing
+          const { _id } = job;
+          n8nWorkflow
+            .startFranceTravailDataWorkflow({ _id: _id.toString() })
+            .then((response) => {
+              const { error } = response
+              if (error) setDataStatus('error');
+              else setDataStatus('ok');
+            })
+            .catch((error) => {
+              console.error(error);
+              setDataStatus('error');
+            })
+            .finally(() => {
+              setInProcessing(false);
+            });
+        })
+        .catch((error) => {
+          console.error(error);
+          setDataStatus('error');
+        })
+        .finally(() => {
+          setInProcessing(false);
+        });
     }
   }, [start]);
 
