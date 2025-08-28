@@ -74,8 +74,7 @@ export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, initial
         .finally(() => {
           setInProcessing(false);
         });
-    }
-  }, [start]);
+  }, [start, inProcessing, aiStatus]);
 
   /**
    * FR: Affiche l'icône de statut appropriée en fonction du statut des données.
