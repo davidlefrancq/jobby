@@ -39,8 +39,9 @@ export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, initial
       // Randaom time 800ms to 2800ms
       const randomTime = Math.floor(Math.random() * (2800 - 800 + 1)) + 800;
       // Random result "ok" or "error" or "skipped"
-      const resultList: JobWorkflowStatusType[] = ["ok", "error", "skipped"]
-      const randomResult = resultList[Math.floor(Math.random() * 3)];
+      // const resultList: JobWorkflowStatusType[] = ["ok", "error", "skipped"]
+      // const randomResult = resultList[Math.floor(Math.random() * 3)];
+      const randomResult = 'ok'; // Forcing "ok" result for AI processing
       // Simulate data processing
       setTimeout(() => {
         setAiStatus(randomResult);

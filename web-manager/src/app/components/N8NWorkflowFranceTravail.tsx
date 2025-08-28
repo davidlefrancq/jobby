@@ -118,7 +118,6 @@ export default function N8NWorkflowFranceTravail() {
   };
 
   const loadJobs = async (jobList:IJobEntity[] = [], skip: number = 0): Promise<IJobEntity[]> => {
-    console.log(`Loading jobs... (skip: ${skip})`);
     const limit = 50; // Number of jobs to load per request
     // FR: Récupère les jobs initialisés depuis la base de données.
     // EN: Fetches initialized jobs from the database.
@@ -131,7 +130,6 @@ export default function N8NWorkflowFranceTravail() {
         } else {
           jobList[index] = job;
         }
-        console.log(`${jobList.length} jobs`)
       }
 
       if (result.length < limit) {
@@ -206,7 +204,6 @@ export default function N8NWorkflowFranceTravail() {
             const jobId = job._id.toString();
             setCurrentJobId(jobId);
             const status = jobStatuses[jobId];
-            console.log({ status })
             if (status && status.data_status === null && !status.outdated) {
               // Update the status to processing
               status.data_status = 'processing';

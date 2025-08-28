@@ -19,6 +19,16 @@ export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, initi
   const [inProcessing, setInProcessing] = useState<boolean>(false);
  
   /**
+   * FR: Vérifie si le statut initial change pour "skipped".
+   * EN: Checks if the initial status changes to "skipped".
+   */
+  useEffect(() => {
+    if (initialStatus === 'skipped') {
+      setDataStatus('skipped');
+    }
+  }, [initialStatus]);
+
+  /**
    * FR: Met à jour le statut du traitement des données.
    * EN: Updates the data processing status.
    */
@@ -39,8 +49,9 @@ export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, initi
       // Randaom time 800ms to 2800ms
       const randomTime = Math.floor(Math.random() * (2800 - 800 + 1)) + 800;
       // Random result "ok" or "error" or "skipped"
-      const resultList: JobWorkflowStatusType[] = ["ok", "error", "skipped"]
-      const randomResult = resultList[Math.floor(Math.random() * 3)];
+      // const resultList: JobWorkflowStatusType[] = ["ok", "error", "skipped"]
+      // const randomResult = resultList[Math.floor(Math.random() * 3)];
+      const randomResult = 'ok';
       // Simulate data processing
       setTimeout(() => {
         setDataStatus(randomResult);
