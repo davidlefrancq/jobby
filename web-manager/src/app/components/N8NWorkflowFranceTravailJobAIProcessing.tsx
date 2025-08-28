@@ -74,6 +74,7 @@ export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, initial
         .finally(() => {
           setInProcessing(false);
         });
+    }
   }, [start, inProcessing, aiStatus]);
 
   /**
