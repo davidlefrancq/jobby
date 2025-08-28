@@ -37,7 +37,7 @@ export class JobRequestFilter {
       }
     }
 
-    // Extrac source filter
+    // Extract source filter
     if (query.source) {
       if (typeof query.source === 'string') {
         const sourceSanitized = sanitizeHtml(query.source);
