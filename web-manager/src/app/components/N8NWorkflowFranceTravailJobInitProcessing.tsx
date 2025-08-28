@@ -23,8 +23,7 @@ export default function N8NWorkflowFranceTravailJobInitProcessing({ jobId, start
    * EN: Updates the initialization status.
    */
   useEffect(() => {
-    onUpdate(initStatus, !initStatus);
-  }, [initStatus, inProcessing])
+  }, [initStatus])
 
   /**
    * FR: Démarre l'initialisation.
