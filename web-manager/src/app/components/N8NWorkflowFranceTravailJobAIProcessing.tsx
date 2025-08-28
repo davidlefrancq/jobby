@@ -7,14 +7,15 @@ import JobWorkflowStatusIcon from "./Icon/JobWorkflowStatusIcon";
 
 interface IN8NWorkflowFranceTravailJobAIProcessingProps {
   jobId: string;
+  initialStatus: JobWorkflowStatusType;
   start: boolean;
   onUpdate: (status: JobWorkflowStatusType) => void;
 }
 
-export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, start, onUpdate }: IN8NWorkflowFranceTravailJobAIProcessingProps) {
+export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, initialStatus, start, onUpdate }: IN8NWorkflowFranceTravailJobAIProcessingProps) {
 
   // Initialized job form states
-  const [aiStatus, setAiStatus] = useState<JobWorkflowStatusType>(null);
+  const [aiStatus, setAiStatus] = useState<JobWorkflowStatusType>(initialStatus);
   const [inProcessing, setInProcessing] = useState<boolean>(false);
  
   /**
@@ -54,7 +55,7 @@ export default function N8NWorkflowFranceTravailJobAIProcessing({ jobId, start, 
    */
   return (
     <>
-      {aiStatus
+      {aiStatus !== null
         ? <JobWorkflowStatusIcon status={aiStatus} />
         : <CircleDotDashed size={18} className="text-gray-300 dark:text-gray-600" />
       }

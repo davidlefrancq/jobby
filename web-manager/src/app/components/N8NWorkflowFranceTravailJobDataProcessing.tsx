@@ -7,14 +7,15 @@ import JobWorkflowStatusIcon from "./Icon/JobWorkflowStatusIcon";
 
 interface IN8NWorkflowFranceTravailJobDataProcessingProps {
   jobId: string;
+  initialStatus: JobWorkflowStatusType;
   start: boolean;
   onUpdate: (status: JobWorkflowStatusType) => void;
 }
 
-export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, start, onUpdate }: IN8NWorkflowFranceTravailJobDataProcessingProps) {
+export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, initialStatus, start, onUpdate }: IN8NWorkflowFranceTravailJobDataProcessingProps) {
   
   // Initialized job form states
-  const [dataStatus, setDataStatus] = useState<JobWorkflowStatusType>(null);
+  const [dataStatus, setDataStatus] = useState<JobWorkflowStatusType>(initialStatus);
   const [inProcessing, setInProcessing] = useState<boolean>(false);
  
   /**

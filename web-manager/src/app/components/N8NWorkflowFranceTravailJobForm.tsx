@@ -17,6 +17,7 @@ export default function N8NWorkflowFranceTravailJobForm() {
   const [jobIds, setJobIds] = useState<string[]>([]);
   const [jobStatuses, setJobStatuses] = useState<Record<string, IJobStatus>>({});
   const [start, setStart] = useState<boolean>(false);
+  const [jobIdDataProcessing, setJobIdDataProcessing] = useState<string | null>(null);
   const [jobIdAiProcessing, setJobIdAiProcessing] = useState<string | null>(null);
 
   /**
@@ -75,6 +76,17 @@ export default function N8NWorkflowFranceTravailJobForm() {
     setJobStatuses(newJobStatuses);
   }
 
+  const nextDataProcessing = async () => {
+    if (jobStatuses) {
+      const nextJob = Object.values(jobStatuses).find(job => job.data_status === null);
+      if (nextJob) {
+        setJobIdDataProcessing(nextJob.id);
+      } else {
+        setJobIdDataProcessing(null);
+      }
+    }
+  };
+
   const nextAiProcessing = async () => {
     if (jobStatuses) {
       const nextJob = Object.values(jobStatuses).find(job => job.ai_status === null && job.data_status === 'ok');
@@ -103,15 +115,25 @@ export default function N8NWorkflowFranceTravailJobForm() {
    * EN: Starts the AI processing execution sequentially
    */
   useEffect(() => {
-    // if start and all data processing finished
+
+    // Data processing progression
+    if (start) {
+      const isDataProcessing = Object.values(jobStatuses).some(status => status.data_status === 'processing');
+      // Trigger data processing
+      if (!isDataProcessing) {
+        nextDataProcessing();
+      }
+    }
+
+    // AI processing progression
     if (start && Object.values(jobStatuses).every(status => status.data_status !== null && status.data_status !== 'processing')) {
-      // if not in ai processing
       const isAiProcessing = Object.values(jobStatuses).some(status => status.ai_status === 'processing');
-      // TODO: Trigger AI processing
+      // Trigger AI processing
       if (!isAiProcessing) {
         nextAiProcessing();
       }
     }
+
   }, [start, jobStatuses])
 
   /**
@@ -227,15 +249,17 @@ export default function N8NWorkflowFranceTravailJobForm() {
                   <td className="text-sm text-gray-600">
                     <N8NWorkflowFranceTravailJobDataProcessing
                     jobId={id}
-                    start={start}
+                    initialStatus={jobStatuses[id] ? jobStatuses[id].data_status : null}
+                    start={start && jobIdDataProcessing === id}
                     onUpdate={(status) => handleUpdateJobDataStatus(id, status)}
                   />
                   </td>
                   <td className="text-sm text-gray-600">
-                    {(jobStatuses[id] && jobStatuses[id].data_status !== 'ok')
+                    {(jobStatuses[id] && (jobStatuses[id].data_status === 'skipped' || jobStatuses[id].data_status === 'error'))
                       ? <span title={'Skipped'}><JobWorkflowStatusIcon status={'skipped'} /></span>
                       : <N8NWorkflowFranceTravailJobAIProcessing
                           jobId={id}
+                          initialStatus={jobStatuses[id] ? jobStatuses[id].ai_status : null}
                           start={start && jobIdAiProcessing === id}
                           onUpdate={(status) => handleUpdateJobAIStatus(id, status)}
                         />
