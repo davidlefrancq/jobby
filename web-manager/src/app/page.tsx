@@ -119,7 +119,7 @@ export default function HomePage() {
         </div>
         <div
           className={`
-            sm: col-span-6
+            sm:col-span-6
             lg:col-span-10
             transform
             transition-all
