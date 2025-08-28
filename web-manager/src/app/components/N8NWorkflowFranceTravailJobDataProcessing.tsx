@@ -84,6 +84,7 @@ export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, initi
         .finally(() => {
           setInProcessing(false);
         });
+    }
   }, [start, inProcessing, dataStatus]);
 
   /**
