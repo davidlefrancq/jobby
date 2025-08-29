@@ -134,6 +134,7 @@ export default function JobsStepper() {
                 loading={steps[currentStep].status === "processing"}
                 onClick={startEmailWorkflowsHandler}
                 width="80px"
+                color="green"
                 rounded="rounded-sm"
                 isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
               />
