@@ -1,5 +1,5 @@
 // store/store.ts
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, isPlain } from '@reduxjs/toolkit'
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux'
 import { notificationsReducer } from './notificationsReducer'
 import { alertsReducer } from './alertsReducer'
@@ -9,6 +9,7 @@ import { menuReducer } from './menuReducer'
 import { cvsReducer } from './cvsReducer'
 import { healthReducer } from './healthReducer'
 import { themeReducer } from './themeReducer'
+import { JobStatus } from '../bo/JobStatus'
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,22 @@ export const store = configureStore({
     notificationsReducer,
     themeReducer,
   },
+  middleware: (getDefault) => getDefault({
+    // Serializability check configuration
+    serializableCheck: {
+      isSerializable: (value: unknown): boolean => {
+        if (value instanceof JobStatus) return true;   // allow your BO
+        if (value instanceof Date) return true;        // allow Date
+        // keep RTK defaults for everything elses
+        return (
+          value === null ||
+          typeof value !== 'object' ||
+          Array.isArray(value) ||
+          isPlain(value as object)
+        );
+      },
+    },
+  }),
 })
 
 export type RootState = ReturnType<typeof store.getState>
