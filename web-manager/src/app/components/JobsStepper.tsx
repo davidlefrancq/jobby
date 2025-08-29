@@ -134,6 +134,7 @@ export default function JobsStepper() {
                 loading={steps[currentStep].status === "processing"}
                 onClick={startEmailWorkflowsHandler}
                 width="80px"
+                color="green"
                 rounded="rounded-sm"
                 isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
               />
@@ -157,7 +158,7 @@ export default function JobsStepper() {
       </div>
 
       {/* N8N Workflow Panel */}
-      <div className={`p-8 ${currentStep === 0 ? "mt-4" : "hidden"} transition-all duration-300`}>
+      <div className={`${currentStep === 0 ? "mt-2" : "hidden"} transition-all duration-300`}>
         <N8NWorkflowPanel />
       </div>
 

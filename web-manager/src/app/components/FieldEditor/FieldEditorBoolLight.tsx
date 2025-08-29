@@ -25,7 +25,7 @@ export default function FieldEditorBoolLight ({ className, initialValue, legendV
     setValue(initialValue || false);
   }, [initialValue]);
 
-  let style = "flex items-center bg-blue-50 px-2 py-2 shadow-md";
+  let style = "flex items-center px-2 py-2";
   if (className) {
     style += ` ${className}`;
   }
@@ -36,7 +36,7 @@ export default function FieldEditorBoolLight ({ className, initialValue, legendV
       <Toggle checked={value} onChange={(value: boolean) => setValue(value)} />
 
       {/* Legend */}
-      {legendValue && <div className="ml-2 text-sm text-gray-600 w-full">
+      {legendValue && <div className="ml-2 text-sm text-gray-600 dark:text-gray-400 w-full">
         {legendValue}
       </div>}
     </div>

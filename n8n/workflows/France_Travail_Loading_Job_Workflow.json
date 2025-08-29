@@ -1,0 +1,507 @@
+{
+  "name": "France Travail Loading Job Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        620
+      ],
+      "id": "da8f761b-aac7-4801-88e3-9c5438df28c0",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Check data",
+        "height": 480,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        300
+      ],
+      "id": "37b4e3e3-4416-4158-a4c4-86e79e35e9fe",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "france-travail-loading-job",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        480
+      ],
+      "id": "49150195-4eff-4c6a-bfdd-1c346306efaf",
+      "name": "Webhook",
+      "webhookId": "fec51763-9981-49fe-9c45-b80a7ffba35e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a93d0718-5d47-479a-a300-5889d1896359",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        200,
+        480
+      ],
+      "id": "0f89ca49-5f02-401c-bbae-8dfdab14470b",
+      "name": "If source not empty",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Save in database",
+        "height": 480,
+        "width": 760
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        300
+      ],
+      "id": "d20e2ec6-6d56-41a1-b416-27c6d92dc31b",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.createdAt = new Date().toISOString();\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1480,
+        480
+      ],
+      "id": "b36a409a-f0e1-44c1-9ce6-3994975b079b",
+      "name": "CreatedAt",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const sanitizeHtml = require('sanitize-html');\n\nfor (const item of $input.all()) {\n  // title\n  item.json.title = item.json.title ? sanitizeHtml(item.json.title) : '';\n  // date\n  item.json.date = item.json.date ? sanitizeHtml(item.json.date) : '';\n  // company\n  item.json.company = item.json.company ? sanitizeHtml(item.json.company) : '';\n  // location\n  item.json.location = item.json.location ? sanitizeHtml(item.json.location) : '';\n  // teleworking\n  item.json.teleworking = item.json.teleworking === true ? true : false;\n  // contract_type\n  item.json.contract_type = item.json.contract_type ? sanitizeHtml(item.json.contract_type) : '';\n  // language\n  item.json.language = item.json.language ? sanitizeHtml(item.json.language) : '';\n  // salary\n  if (item.json.salary) {\n    item.json.salary.currency = item.json.salary.currency ? sanitizeHtml(item.json.salary.currency) : '';\n    item.json.salary.min = item.json.salary.min ? parseFloat(item.json.salary.min) : 0;\n    item.json.salary.max = item.json.salary.max ? parseFloat(item.json.salary.max) : 0;\n  }\n  // description\n  item.json.description = item.json.description ? sanitizeHtml(item.json.description) : '';\n  // content\n  item.json.content = item.json.content ? sanitizeHtml(item.json.content) : '';\n  // technologies\n  if (item.json.technologies &&  item.json.technologies.length > 0) {\n    const sanitizedTechnologies = [];\n    for (const tech of item.json.technologies) {\n      const sanitizedTech = sanitizeHtml(tech);\n      sanitizedTechnologies.push(sanitizedTech);\n    }\n    item.json.technologies = sanitizedTechnologies;\n  }\n  // methodologies\n  if (item.json.methodologies &&  item.json.methodologies.length > 0) {\n    const sanitizedMethodologies = [];\n    for (const methodology of item.json.methodologies) {\n      const sanitizedMethodology = sanitizeHtml(methodology);\n      sanitizedMethodologies.push(sanitizedMethodology);\n    }\n    item.json.methodologies = sanitizedMethodologies;\n  }\n  // level\n  item.json.level = item.json.level ? sanitizeHtml(item.json.level) : '';\n  // interest_indicator\n  item.json.interest_indicator = item.json.interest_indicator ? sanitizeHtml(item.json.interest_indicator) : '';\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        480
+      ],
+      "id": "cd369adf-3d5a-4ac2-a1ce-bc12a33e33b4",
+      "name": "Sanitize",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Check if already exists in DB",
+        "height": 480,
+        "width": 640,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        300
+      ],
+      "id": "639dc729-15f7-454f-ac2c-516b6ed5f210",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -40,
+        480
+      ],
+      "id": "a6b6ebe9-aa6a-4b3c-8225-5b909b121b11",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!$json._id) {\n  return $json\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        480
+      ],
+      "id": "8ae6041b-6cf8-4edb-a503-c6b9ee1ec70f",
+      "name": "Check if exist",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        680,
+        480
+      ],
+      "id": "975e2cf5-4d58-4a52-bc2a-33b6cd01657c",
+      "name": "Combine",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Data extractor",
+        "height": 480,
+        "width": 500
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        300
+      ],
+      "id": "cd707aaf-6ed6-4fef-9ed0-3ef05992385c",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.collective_agreement = null;\n  item.json.company_details = null;\n  item.json.cv_id = null;\n  item.json.motivation_letter = null;\n  item.json.motivation_email = null;\n  item.json.motivation_email_draft_url = null;\n  item.json.motivation_email_subject = null;\n  item.json.motivation_email_to = null;\n  item.json.outdated = false;\n  item.json.outdated_reason = null;\n  item.json.outdated_date = null;\n  item.json.preference = null;\n  item.json.processing_stage = 'initialized';\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        480
+      ],
+      "id": "80f4d716-93b4-40e8-bf96-98fa0ac068b1",
+      "name": "Default Values",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "collection": "jobs",
+        "options": {},
+        "query": "={\"source\": \"{{ $json.source }}\"}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        380
+      ],
+      "id": "cfbee1ea-0334-461d-846e-39d78ddf1066",
+      "name": "DB - Get Job",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "jobs",
+        "fields": "title,date,company,location,teleworking,contract_type,language,salary,description,content,technologies,methodologies,level,source,original_job_id,original_mail_id,processing_stage,interest_indicator,createdAt,collective_agreement,company_details,cv_id,motivation_letter,motivation_email,motivation_email_draft_url,motivation_email_subject,motivation_email_to,outdated,outdated_reason,outdated_date,preference,processing_stage",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [
+        1660,
+        480
+      ],
+      "id": "98dff363-612f-491e-9080-8e2f928e5ce0",
+      "name": "DB - Save Job",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "EkVdtE5MEWwZdbTY",
+          "name": "MongoDB account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "let id = null;\n\nif (!id && $json.body && $json.body.id) {\n  id = $json.body.id;\n}\n\nif (!id && $json.body) {\n  if ($json.body && $json.body.length > 0) {\n    const data = JSON.parse($json.body);\n    if (data && data.id && data.id.length > 0) {\n      id = data.id;\n    }\n  }\n}\n\nif (!id || id.length <= 0) {\n  throw new Error('Bad input.');\n}\n\nconst source = `https://candidat.francetravail.fr/offres/recherche/detail/${id}`;\nreturn { json: { source } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        480
+      ],
+      "id": "075894b1-c2d3-4458-b8b0-5d6c1c446d1d",
+      "name": "Check ID"
+    },
+    {
+      "parameters": {
+        "jsCode": "const id = '1429159';\nif (!id) throw new Error('Bad input.')\n\nconst source = `https://candidat.francetravail.fr/offres/recherche/detail/${id}`;\n\nreturn { json: { source } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -380,
+        620
+      ],
+      "id": "2c66f66f-0926-4adf-b222-33ad157de23b",
+      "name": "Test"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If source not empty": {
+      "main": [
+        [
+          {
+            "node": "Combine",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "DB - Get Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "CreatedAt": {
+      "main": [
+        [
+          {
+            "node": "DB - Save Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize": {
+      "main": [
+        [
+          {
+            "node": "Default Values",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If source not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if exist": {
+      "main": [
+        [
+          {
+            "node": "Sanitize",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine": {
+      "main": [
+        [
+          {
+            "node": "Check if exist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Values": {
+      "main": [
+        [
+          {
+            "node": "CreatedAt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB - Get Job": {
+      "main": [
+        [
+          {
+            "node": "Combine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB - Save Job": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check ID": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Paris",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 900,
+    "errorWorkflow": "4oyLsKPXUj8PChjg",
+    "timeSavedPerExecution": 15
+  },
+  "versionId": "05e6d87c-46ec-44fc-a3c5-74068f2f48b1",
+  "meta": {
+    "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273",
+    "templateCredsSetupCompleted": true
+  },
+  "id": "WTZyFziaNtUUY7Uu",
+  "tags": []
+}

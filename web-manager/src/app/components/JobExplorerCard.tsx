@@ -1,6 +1,6 @@
 import { IJobEntity } from "@/types/IJobEntity";
 import TruncatedText from "./TruncatedText";
-import JobStatus from "./JobStatus";
+import JobStatusItem from "./JobStatusItem";
 import LanguageFlag from "./LanguageFlag";
 import SalaryItem from "./SalaryItem";
 import FieldEditorCompanySiren from "./FieldEditor/FieldEditorCompanySiren";
@@ -144,7 +144,7 @@ export default function JobExplorerCard({ job }: JobExplorerCardProps) {
           </h3>
 
           <div className="flex gap-2 mt-1 text-sm text-gray-800 dark:text-neutral-200">
-            <JobStatus job={job} showLegend={false} />
+            <JobStatusItem job={job} showLegend={false} />
             <LanguageFlag language={job.language || ''} cssStyle='w-4 h-4' />
             <TruncatedText text={job.contract_type || '[Contract type N/A]'} length={25} />
             <span className="ml-auto mr-0">

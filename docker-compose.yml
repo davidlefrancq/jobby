@@ -102,8 +102,15 @@ services:
       - "5601:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
     environment:
+      # Grafana admin credentials
+      - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      # Disable anonymous access
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      # Disable user sign up
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - loki
     networks:

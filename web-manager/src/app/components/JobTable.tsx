@@ -5,7 +5,7 @@ import { ArrowDown, ArrowUp } from 'lucide-react';
 import { IJobEntity } from '@/types/IJobEntity';
 import TruncatedText from './TruncatedText';
 import SalaryItem from './SalaryItem';
-import JobStatus from './JobStatus';
+import JobStatusItem from './JobStatusItem';
 import Link from 'next/link';
 import LanguageFlag from './LanguageFlag';
 import { useAppDispatch } from '../store';
@@ -117,7 +117,7 @@ export default function JobTable({ jobs, onView }: JobTableProps) {
           {sortedJobs.map((job, key) => (
             <tr key={key} className="hover:bg-gray-50" onClick={() => onView(job)}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                <JobStatus job={job} showLegend={false} />
+                <JobStatusItem job={job} showLegend={false} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                 <LanguageFlag language={job.language || ''} />

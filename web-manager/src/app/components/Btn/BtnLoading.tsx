@@ -8,6 +8,7 @@ interface BtnLoadingProps {
   loading: boolean;
   width?: string;
   height?: string;
+  color?: 'red' | 'blue' | 'green';
   rounded?: 'rounded-sm' | 'rounded-md' | 'rounded-lg' | 'rounded-xl' | 'rounded-full';
   isDisabled?: boolean;
   onClick: () => void;
@@ -18,6 +19,7 @@ export default function BtnLoading({
   loading,
   width = '150px',
   height = '40px',
+  color = 'blue',
   rounded = 'rounded-full',
   isDisabled = false,
   onClick
@@ -28,7 +30,7 @@ export default function BtnLoading({
     }
   }
 
-  let btnClassName = `text-white text-center items-center focus:ring-2 focus:outline-none font-medium text-sm px-2.5 py-2.5  caret-transparent ${rounded} transition-all duration-200 ease-in-out `;
+  let btnClassName = `text-white text-center items-center focus:ring-2 focus:outline-none font-medium text-sm px-2.5 py-2.5 caret-transparent ${rounded} transition-all duration-200 ease-in-out `;
   const notAllowed = 'bg-gray-400 dark:bg-neutral-400 cursor-not-allowed';
   switch (true) {
     case isDisabled:
@@ -38,7 +40,7 @@ export default function BtnLoading({
       btnClassName += notAllowed;
       break;
     default:
-      btnClassName += 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-300 cursor-pointer';
+      btnClassName += `bg-${color}-600 hover:bg-${color}-700 focus:ring-${color}-300 cursor-pointer`;
       break;
   }
 

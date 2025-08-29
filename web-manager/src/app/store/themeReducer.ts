@@ -1,8 +1,8 @@
-import { ThemeType } from '@/types/ThemeType';
+import { GraphicThemeType } from '@/types/GraphicThemeType';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface ThemeState {
-  theme: ThemeType;
+  theme: GraphicThemeType;
 }
 
 const initialState: ThemeState = {
@@ -13,9 +13,8 @@ const themeSlice = createSlice({
   name: 'theme',
   initialState,
   reducers: {
-    setTheme(state, action: PayloadAction<ThemeType>) {
+    setTheme(state, action: PayloadAction<GraphicThemeType>) {
       state.theme = action.payload;
-      // localStorage.setItem("hs_theme", action.payload);
     },
   },
 })

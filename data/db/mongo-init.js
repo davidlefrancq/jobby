@@ -18,7 +18,7 @@ db.createUser(
 db.createCollection("jobs");
 
 db["jobs"].createIndex(
-  { original_job_id: 1 },
+  { source: 1 },
   { unique: true }
 );
 
