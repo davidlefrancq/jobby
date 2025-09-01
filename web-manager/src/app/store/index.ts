@@ -26,7 +26,7 @@ export const store = configureStore({
     // Serializability check configuration
     serializableCheck: {
       isSerializable: (value: unknown): boolean => {
-        if (value instanceof JobStatus) return true;   // allow your BO
+        if (value instanceof JobStatus) return true;   // allow JobStatus business object
         if (value instanceof Date) return true;        // allow Date
         // keep RTK defaults for everything elses
         return (
