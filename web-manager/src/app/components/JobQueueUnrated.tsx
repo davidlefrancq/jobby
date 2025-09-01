@@ -86,6 +86,7 @@ export default function JobQueueUnrated() {
       dispatch(removeUnratedJob(job._id.toString()));
       dispatch(addLikedJob(job));
       dispatch(setUnratedCounter(unratedCounter - 1));
+      dispatch(setUnratedSkip(unratedSkip - 1));
     } catch (error) {
       console.error(error);
       handleAddError('Failed to like job.', 'error');
@@ -103,6 +104,7 @@ export default function JobQueueUnrated() {
       dispatch(removeUnratedJob(job._id.toString()));
       dispatch(addDislikedJob(job));
       dispatch(setUnratedCounter(unratedCounter - 1));
+      dispatch(setUnratedSkip(unratedSkip - 1));
     } catch (error) {
       console.error(error);
       handleAddError('Failed to dislike job.', 'error');
