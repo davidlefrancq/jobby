@@ -6,6 +6,7 @@ import { addAlert } from '@/app/store/alertsReducer';
 import { 
   setFranceTravailStarted,
   setFranceTravailStatus,
+  setIsFinishedWorkflows,
 } from '@/app/store/n8nReducer';
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { JobRepository } from "../dal/JobRepository";
@@ -404,7 +405,8 @@ export default function N8NWorkflowFranceTravail() {
    */
   useEffect(() => {
     if (isFinishedAIProcessing) {
-     dispatch(setFranceTravailStatus('success'));
+      dispatch(setFranceTravailStatus('success'));
+      dispatch(setIsFinishedWorkflows(true));
     }
   }, [isFinishedAIProcessing])
 

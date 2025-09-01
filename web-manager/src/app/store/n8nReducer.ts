@@ -5,6 +5,7 @@ type WorkflowStatus = '' | 'processing' | 'success' | 'error';
 
 interface N8NState {
   isStartedWorkflows: boolean
+  isFinishedWorkflows: boolean
   linkedInStarted: boolean
   linkedInStatus: WorkflowStatus
   franceTravailStarted: boolean
@@ -17,6 +18,7 @@ interface N8NState {
 
 const initialState: N8NState = {
   isStartedWorkflows: false,
+  isFinishedWorkflows: false,
   linkedInStarted: false,
   linkedInStatus: '',
   franceTravailStarted: false,
@@ -44,6 +46,9 @@ const n8nSlice = createSlice({
     },
     setIsStartedWorkflows(state, action: PayloadAction<boolean>) {
       state.isStartedWorkflows = action.payload
+    },
+    setIsFinishedWorkflows(state, action: PayloadAction<boolean>) {
+      state.isFinishedWorkflows = action.payload
     },
     setLinkedInStarted(state, action: PayloadAction<boolean>) {
       state.linkedInStarted = action.payload
@@ -76,6 +81,7 @@ export const {
   resetMainWorkflows,
   resetCompaniesDetails,
   setIsStartedWorkflows,
+  setIsFinishedWorkflows,
   setLinkedInStarted,
   setLinkedInStatus,
   setFranceTravailStarted,

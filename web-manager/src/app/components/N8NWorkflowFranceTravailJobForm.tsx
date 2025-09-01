@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
-import { Calendar, CalendarOff, CirclePlay, CirclePlus, CircleX, Cpu, Database, PackagePlus, ReceiptText } from "lucide-react";
+import { CalendarOff, CirclePlus, CircleX, Cpu, Database, ExternalLink, PackagePlus } from "lucide-react";
 import { IJobStatus } from "../interfaces/IJobStatus";
 import JobWorkflowStatusIcon from "./Icon/JobWorkflowStatusIcon";
 import N8NWorkflowFranceTravailJobDataProcessing from "./N8NWorkflowFranceTravailJobDataProcessing";
 import N8NWorkflowFranceTravailJobAIProcessing from "./N8NWorkflowFranceTravailJobAIProcessing";
 import N8NWorkflowFranceTravailJobInitProcessing from "./N8NWorkflowFranceTravailJobInitProcessing";
-import { setFranceTravailStatus, setManualJobIds, setManualJobStatuses } from "../store/n8nReducer";
+import { setIsFinishedWorkflows, setFranceTravailStatus, setManualJobIds, setManualJobStatuses } from "../store/n8nReducer";
 import { JobStatusesChecker } from "../lib/JobStatusesChecker";
 import { AppLogger } from "@/errors/AppLogger";
 import { JobStatus } from "../bo/JobStatus";
+import { FRANCE_TRAVAIL_JOB_BASE_URL } from "@/constants/default";
+import Link from "next/link";
 
 const logger = AppLogger.getInstance();
 
@@ -209,14 +211,15 @@ export default function N8NWorkflowFranceTravailJobForm() {
     if (start && manualJobIds.length > 0) {
       if (JobStatusesChecker.isSuccessful(manualJobStatuses)) {
         dispatch(setFranceTravailStatus('success'));
+        dispatch(setIsFinishedWorkflows(true));
         logger.info(`All jobs processed successfully.`);
       }
       else if (JobStatusesChecker.isFailed(manualJobStatuses)) {
         dispatch(setFranceTravailStatus('error'));
+        dispatch(setIsFinishedWorkflows(true));
         logger.info(`Some jobs failed.`);
       }
     }
-
   }, [start, manualJobIds, manualJobStatuses])
 
   /**
@@ -236,6 +239,7 @@ export default function N8NWorkflowFranceTravailJobForm() {
         <input
           type="text"
           className={`
+            w-[190px]
             p-2
             bg-gray-50 border
             border-gray-300
@@ -263,38 +267,13 @@ export default function N8NWorkflowFranceTravailJobForm() {
               bg-blue-500
               hover:text-white hover:bg-blue-600
               border-t border-b border-gray-200
+              rounded-e-lg
               focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700
               dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white
             `}
           >
             &nbsp;
             <CirclePlus size={18} />
-            &nbsp;
-          </button>
-
-          {/* Start processing button */}
-          <button
-            type="button"
-            className={`
-              inline-flex
-              items-center
-              px-4 py-2
-              text-sm font-medium text-white
-              bg-green-500
-              border border-gray-200
-              rounded-e-lg
-              hover:bg-green-600 hover:text-white
-              focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700
-              dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white
-              ${start ? 'opacity-50 cursor-not-allowed' : ''}
-            `}
-            disabled={start || manualJobIds.length === 0}
-            onClick={async () => {
-              setStart(true);
-            }}
-          >
-            &nbsp;
-            <CirclePlay size={18} />
             &nbsp;
           </button>
         </div>
@@ -307,25 +286,37 @@ export default function N8NWorkflowFranceTravailJobForm() {
       <div className="flex flex-wrap gap-2">
         {manualJobIds.map((id) => (
           <div key={id} className="relative border border-gray-300 dark:border-gray-600 rounded-md p-4 w-[248px]">
-            <h3 className="flex items-center gap-1 font-medium text-gray-800 dark:text-gray-200">
-              <ReceiptText size={20} />
-              {id}
-            </h3>
-            <table className="w-full">
+            
+              <Link
+                href={`${FRANCE_TRAVAIL_JOB_BASE_URL}${id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`
+                  absolute left-1 top-1
+                  text-blue-600 hover:text-blue-800
+                  dark:text-blue-400 dark:hover:text-blue-600
+                `}
+              >
+                <h3 className="flex items-center gap-1 font-medium">
+                  <ExternalLink size={18} />
+                  {id}
+                </h3>
+              </Link>
+            <table className="w-full mt-2">
               <thead>
                 <tr>
                   <th className="pt-2 pb-1 text-sm text-gray-600 dark:text-gray-400 w-1/4">
-                    <span title="Initialization">
+                    <span className="flex justify-center" title="Initialization">
                       <PackagePlus size={18} />
                     </span>
                   </th>
                   <th className="pt-2 pb-1 text-sm text-gray-600 dark:text-gray-400 w-1/4">
-                    <span title="Data Processing">
+                    <span className="flex justify-center" title="Data Processing">
                       <Database size={18} />
                     </span>
                   </th>
                   <th className="text-sm text-gray-600 dark:text-gray-400 w-1/4">
-                    <span title="AI Processing">
+                    <span className="flex justify-center" title="AI Processing">
                       <Cpu size={18} />
                     </span>
                   </th>
@@ -334,30 +325,36 @@ export default function N8NWorkflowFranceTravailJobForm() {
               <tbody>
                 <tr>
                   <td className="text-sm text-gray-600">
-                    <N8NWorkflowFranceTravailJobInitProcessing
-                      jobId={id}
-                      start={start && jobIdInitProcessing === id}
-                      onUpdate={(status, outdated) => handleUpdateJobInitStatus(id, status, outdated)}
-                    />
+                    <span className="flex justify-center">
+                      <N8NWorkflowFranceTravailJobInitProcessing
+                        jobId={id}
+                        start={start && jobIdInitProcessing === id}
+                        onUpdate={(status, outdated) => handleUpdateJobInitStatus(id, status, outdated)}
+                      />
+                    </span>
                   </td>
                   <td className="text-sm text-gray-600">
+                    <span className="flex justify-center">
                       <N8NWorkflowFranceTravailJobDataProcessing
-                      jobId={id}
-                      initialStatus={manualJobStatuses[id] ? manualJobStatuses[id].data_status : null}
-                      start={start && jobIdDataProcessing === id}
-                      onUpdate={(status) => handleUpdateJobDataStatus(id, status)}
-                    />
+                        jobId={id}
+                        initialStatus={manualJobStatuses[id] ? manualJobStatuses[id].data_status : null}
+                        start={start && jobIdDataProcessing === id}
+                        onUpdate={(status) => handleUpdateJobDataStatus(id, status)}
+                      />
+                    </span>
                   </td>
                   <td className="text-sm text-gray-600">
-                    {(manualJobStatuses[id] && (manualJobStatuses[id].data_status === 'skipped' || manualJobStatuses[id].data_status === 'error'))
-                      ? <span title={'Skipped'}><JobWorkflowStatusIcon status={'skipped'} /></span>
-                      : <N8NWorkflowFranceTravailJobAIProcessing
-                          jobId={id}
-                          initialStatus={manualJobStatuses[id] ? manualJobStatuses[id].ai_status : null}
-                          start={start && jobIdAiProcessing === id}
-                          onUpdate={(status) => handleUpdateJobAIStatus(id, status)}
-                        />
-                    }
+                    <span className="flex justify-center">
+                      {(manualJobStatuses[id] && (manualJobStatuses[id].data_status === 'skipped' || manualJobStatuses[id].data_status === 'error'))
+                        ? <span title={'Skipped'}><JobWorkflowStatusIcon status={'skipped'} /></span>
+                        : <N8NWorkflowFranceTravailJobAIProcessing
+                            jobId={id}
+                            initialStatus={manualJobStatuses[id] ? manualJobStatuses[id].ai_status : null}
+                            start={start && jobIdAiProcessing === id}
+                            onUpdate={(status) => handleUpdateJobAIStatus(id, status)}
+                          />
+                      }
+                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -366,7 +363,6 @@ export default function N8NWorkflowFranceTravailJobForm() {
             {/* Outdated icon */}
             <div className={`absolute right-1 top-1 rounded-full`}>
               {manualJobStatuses[id] && manualJobStatuses[id].outdated === true && <span title={'Outdated'}><CalendarOff size={16} className="text-red-500" /></span>}
-              {manualJobStatuses[id] && manualJobStatuses[id].outdated === false && <span title={'Up to date'}><Calendar size={16} className="text-green-500" /></span>}
             </div>
 
             {/* Remove job button */}
