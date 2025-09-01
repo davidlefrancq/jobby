@@ -2,6 +2,7 @@ import { ILogPayload } from "@/types/ILogPayload";
 
 const VECTOR_ENDPOINT = process.env.NEXT_PUBLIC_VECTOR_ENDPOINT || 'http://localhost:8687/';
 const VECTOR_IS_ENABLED = process.env.NEXT_PUBLIC_VECTOR_ENABLED ?  process.env.NEXT_PUBLIC_VECTOR_ENABLED.toLowerCase() === 'true' : false;
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 export class AppLogger {
   private static instance: AppLogger;
@@ -46,7 +47,11 @@ export class AppLogger {
   /** Make a log */
   private async log(payload: ILogPayload): Promise<void> {
     if (VECTOR_IS_ENABLED) await this.sendLog(payload);
-    else console.log(payload);
+    else if (IS_DEV && payload.level === 'error') console.error({ log: payload });
+    else if (IS_DEV && payload.level === 'warn') console.warn({ log: payload });
+    else if (IS_DEV) console.log({ log: payload });
+    else if (payload.level === 'error') console.error({ log: payload });
+    else if (payload.level === 'warn') console.warn({ log: payload });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

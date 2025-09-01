@@ -8,7 +8,7 @@ import { MessageType } from "@/types/MessageType";
 import { addAlert } from "../store/alertsReducer";
 import { updateDislikedJob, updateLikedJob, updateUnratedJob } from "../store/jobsReducer";
 import { addNotification } from "../store/notificationsReducer";
-import DatetimeTool from "../lib/DatetimeTool";
+import Timer from "./Annimation/Timer";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 const n8nWorkflow = N8NWorkflow.getInstance();
@@ -24,7 +24,6 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
   const [inGenerateMotivationEmail, setInGenerateMotivationEmail] = useState(false);
   const [inGenerateMotivationEmailDateStart, setInGenerateMotivationEmailDateStart] = useState<Date | null>(null);
   const [inGenerateMotivationEmailDateEnd, setInGenerateMotivationEmailDateEnd] = useState<Date | null>(null);
-  const [executionTimeCounter, setExecutionTimeCounter] = useState(0);
   const [inSaveMotivationEmail, setInSaveMotivationEmail] = useState(false);
 
   /**
@@ -133,30 +132,6 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
   }
 
   /**
-   * FR: Met à jour le compteur d'exécution
-   * EN: Updates the execution time counter
-   */
-  useEffect(() => {
-    // FR: Si la date de début n'est pas définie ou si la date de fin est définie, ne rien faire
-    // EN: If the start date is not set or the end date is set, do nothing
-    if (!inGenerateMotivationEmailDateStart || inGenerateMotivationEmailDateEnd) return;
-
-    // FR: Mettre à jour le compteur d'exécution toutes les secondes
-    // EN: Update the execution time counter every second
-    const interval = setInterval(() => {
-      const endTime = new Date();
-      const duration = (endTime.getTime() - inGenerateMotivationEmailDateStart.getTime()) / 1000;
-      setExecutionTimeCounter(duration);
-    }, 1000);
-
-    // FR: Nettoyer l'intervalle lorsque le composant est démonté ou que les dates changent
-    // EN: Clean up the interval when the component unmounts or the dates change
-    return () => {
-      clearInterval(interval);
-    };
-  }, [inGenerateMotivationEmailDateStart, inGenerateMotivationEmailDateEnd]);
-
-  /**
    * FR: Met à jour l'email de motivation lorsque le job change
    * EN: Updates the motivation email when the job changes
    */
@@ -199,7 +174,9 @@ export default function JobMotivationEmail({ job }: JobMotivationEmailProps) {
           <div className="w-[25%] col-span-1 text-sm text-gray-500 dark:text-neutral-400">
             <div className="grid grid-row-2 gap-2 items-start justify-start">
               <div className="col-span-1 font-semibold">Duration:</div>
-              <div className="col-span-1">{DatetimeTool.formatDuration(Math.round(executionTimeCounter))}</div>
+              <div className="col-span-1">
+                <Timer dateStart={inGenerateMotivationEmailDateStart} dateEnd={inGenerateMotivationEmailDateEnd} />
+              </div>
             </div>
           </div>
         )}

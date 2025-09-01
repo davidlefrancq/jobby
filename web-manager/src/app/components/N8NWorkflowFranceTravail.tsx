@@ -6,6 +6,7 @@ import { addAlert } from '@/app/store/alertsReducer';
 import { 
   setFranceTravailStarted,
   setFranceTravailStatus,
+  setIsFinishedWorkflows,
 } from '@/app/store/n8nReducer';
 import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { JobRepository } from "../dal/JobRepository";
@@ -16,6 +17,7 @@ import N8NWorkflowJobStatues from "./N8NWorkflowJobStatues";
 import CircleIconGreen from "./Icon/CircleIconGreen";
 import { CircleIcon } from "./Icon/CircleIcon";
 import CircleIconBlue from "./Icon/CircleIconBlue";
+import Timer from "./Annimation/Timer";
 
 const GMAIL_WORKFLOW_STEPS = 1;
 const STEPS_PER_JOB = 2;
@@ -26,11 +28,11 @@ const n8nWorkflow = N8NWorkflow.getInstance();
 export default function N8NWorkflowFranceTravail() {
   const dispatch = useAppDispatch()
   const { isStartedWorkflows } = useAppSelector(state => state.n8nReducer)
+  const { autoMode } = useAppSelector(state => state.menuReducer)
 
   // Initialized jobs states
   const [dateStart, setDateStart] = useState<Date | null>(null);
   const [dateEnd, setDateEnd] = useState<Date | null>(null);
-  const [duration, setDuration] = useState<number | null>(null);
   const [jobs, setJobs] = useState<IJobEntity[]>([]);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [isStartedGmailWorkflow, setIsStartedGmailWorkflow] = useState(false);
@@ -106,19 +108,7 @@ export default function N8NWorkflowFranceTravail() {
     setCompletedSteps(prev => prev + 1);
   }
 
-  const updateDuration = () => {
-    if (dateStart && dateEnd) {
-      const durationInSeconds = Math.floor((dateEnd.getTime() - dateStart.getTime()) / 1000);
-      setDuration(durationInSeconds);
-    } else if (dateStart) {
-      setDuration(Math.floor((new Date().getTime() - dateStart.getTime()) / 1000));
-    } else {
-      setDuration(null);
-    }
-  };
-
   const loadJobs = async (jobList:IJobEntity[] = [], skip: number = 0): Promise<IJobEntity[]> => {
-    console.log(`Loading jobs... (skip: ${skip})`);
     const limit = 50; // Number of jobs to load per request
     // FR: Récupère les jobs initialisés depuis la base de données.
     // EN: Fetches initialized jobs from the database.
@@ -131,7 +121,6 @@ export default function N8NWorkflowFranceTravail() {
         } else {
           jobList[index] = job;
         }
-        console.log(`${jobList.length} jobs`)
       }
 
       if (result.length < limit) {
@@ -206,7 +195,6 @@ export default function N8NWorkflowFranceTravail() {
             const jobId = job._id.toString();
             setCurrentJobId(jobId);
             const status = jobStatuses[jobId];
-            console.log({ status })
             if (status && status.data_status === null && !status.outdated) {
               // Update the status to processing
               status.data_status = 'processing';
@@ -327,8 +315,14 @@ export default function N8NWorkflowFranceTravail() {
    */
   useEffect(() => {
     // Start Gmail Workflow
-    if (isStartedWorkflows) workflowFranceTravailGmailHandler().catch(console.error);
-  }, [isStartedWorkflows]);
+    if (isStartedWorkflows && autoMode) workflowFranceTravailGmailHandler().catch((err) => {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: `Failed to start Gmail workflow: ${String(err)}`,
+        type: 'error'
+      }));
+    });
+  }, [isStartedWorkflows, autoMode]);
 
   /**
    * Launch loading jobs
@@ -346,7 +340,13 @@ export default function N8NWorkflowFranceTravail() {
           )
         );
         setJobs(jobList);
-      }).catch(console.error);
+      }).catch((err) => {
+        dispatch(addAlert({
+          date: new Date().toISOString(),
+          message: `Failed to load jobs: ${String(err)}`,
+          type: 'error'
+        }));
+      });
     }
   }, [isFinishedGmailWorkflow]);
 
@@ -355,13 +355,13 @@ export default function N8NWorkflowFranceTravail() {
    * Launch init jobs statues
    */
   useEffect(() => {
-    if (isFinishedLoadingJobs) {
+    if (isFinishedLoadingJobs && !isStartedInitJobStatuses) {
       setIsStartedInitJobStatuses(true);
       initJobStatuses();
       setIsFinishedInitJobStatuses(true);
       incrementProgress();
     }
-  }, [isFinishedLoadingJobs]);
+  }, [isFinishedLoadingJobs, isStartedInitJobStatuses]);
 
   /**
    * Launch Data Workflow
@@ -369,7 +369,13 @@ export default function N8NWorkflowFranceTravail() {
   useEffect(() => {
     // Start Data Workflow
     if (isFinishedInitJobStatuses && isFinishedLoadingJobs) {
-      franceTravailDataWorkflowHandler().catch(console.error)
+      franceTravailDataWorkflowHandler().catch((err) => {
+        dispatch(addAlert({
+          date: new Date().toISOString(),
+          message: `Failed to start Data workflow: ${String(err)}`,
+          type: 'error'
+        }));
+      })
     };
   }, [isFinishedInitJobStatuses, isFinishedLoadingJobs]);
 
@@ -378,16 +384,14 @@ export default function N8NWorkflowFranceTravail() {
    */
   useEffect(() => {
     // Start AI Workflow
-    if (isFinishedDataProcessing) franceTravailAIWorkflowHandler().catch(console.error);
+    if (isFinishedDataProcessing) franceTravailAIWorkflowHandler().catch((err) => {
+      dispatch(addAlert({
+        date: new Date().toISOString(),
+        message: `Failed to start AI workflow: ${String(err)}`,
+        type: 'error'
+      }));
+    });
   }, [isFinishedDataProcessing]);
-
-  /**
-   * EN: Update duration
-   */
-  useEffect(() => {
-    updateDuration();
-  }, [dateStart, dateEnd, progress]);
-
 
   /**
    * Update progress
@@ -401,7 +405,8 @@ export default function N8NWorkflowFranceTravail() {
    */
   useEffect(() => {
     if (isFinishedAIProcessing) {
-     dispatch(setFranceTravailStatus('success'));
+      dispatch(setFranceTravailStatus('success'));
+      dispatch(setIsFinishedWorkflows(true));
     }
   }, [isFinishedAIProcessing])
 
@@ -459,7 +464,7 @@ export default function N8NWorkflowFranceTravail() {
           {`Progress: ${progress}%`}
         </div>
         <div className="italic">
-          {`(${completedSteps}/${totalSteps}${duration !== null ? ` in ${duration} seconds` : ''})`}
+          {dateStart ? <Timer dateStart={dateStart} dateEnd={dateEnd} /> : ''}
         </div>
       </div>
       {/* Jobs list */}

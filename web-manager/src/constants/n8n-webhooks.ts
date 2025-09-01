@@ -1,5 +1,6 @@
 export const N8N_HOME_PAGE = 'http://localhost:5678/';
 export const N8N_LINKEDIN_WEBHOOK = 'http://localhost:5678/webhook/1a900821-b2b8-41d5-80c3-0e41752178e9';
+export const N8N_FRANCETRAVAIL_LOADING_JOB_WEBHOOK = 'http://localhost:5678/webhook/france-travail-loading-job';
 export const N8N_FRANCETRAVAIL_GMAIL_WEBHOOK = 'http://localhost:5678/webhook/france-travail-gmail';
 export const N8N_FRANCETRAVAIL_DATA_WEBHOOK = 'http://localhost:5678/webhook/france-travail-data';
 export const N8N_FRANCETRAVAIL_AI_WEBHOOK = 'http://localhost:5678/webhook/france-travail-ai';
@@ -12,6 +13,7 @@ export const N8N_CV_MOTIVATION_EMAIL_DRAFT_WEBHOOK = 'http://localhost:5678/webh
 
 export enum N8N_WORKFLOW_NAMES {
   LinkedIn = 'LinkedIn',
+  FranceTravailLoadingJob = 'FranceTravailLoadingJob',
   FranceTravailGmail = 'FranceTravailGmail',
   FranceTravailData = 'FranceTravailData',
   FranceTravailAI = 'FranceTravailAI',
@@ -23,13 +25,13 @@ export enum N8N_WORKFLOW_NAMES {
   CVMotivationEmailDraft = 'CVMotivationEmailDraft',
 }
 
-
 type N8NWebhook = {
   name: N8N_WORKFLOW_NAMES;
   url: string;
 };
 type N8NWebhooks = {
   LinkedIn: N8NWebhook;
+  FranceTravailLoadingJob: N8NWebhook;
   FranceTravailGmail: N8NWebhook;
   FranceTravailData: N8NWebhook;
   FranceTravailAI: N8NWebhook;
@@ -44,6 +46,10 @@ export const N8N_WEBHOOKS: N8NWebhooks = {
   LinkedIn: {
     name: N8N_WORKFLOW_NAMES.LinkedIn,
     url: N8N_LINKEDIN_WEBHOOK
+  },
+  FranceTravailLoadingJob: {
+    name: N8N_WORKFLOW_NAMES.FranceTravailLoadingJob,
+    url: N8N_FRANCETRAVAIL_LOADING_JOB_WEBHOOK
   },
   FranceTravailGmail: {
     name: N8N_WORKFLOW_NAMES.FranceTravailGmail,

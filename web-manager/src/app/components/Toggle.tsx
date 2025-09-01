@@ -19,7 +19,7 @@ export default function Toggle({ checked, onChange, label }: ToggleProps) {
         onClick={() => onChange(!checked)}
         onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onChange(!checked)}
         className={`w-10 h-6 rounded-full relative transition-colors ${
-          checked ? 'bg-blue-600' : 'bg-gray-300'
+          checked ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
         }`}
       >
         <motion.div

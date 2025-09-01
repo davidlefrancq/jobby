@@ -7,8 +7,8 @@ export interface IJobStatus {
   id: string
   title: string
   createdAt: Date | undefined
-  initialized: boolean
-  outdated: boolean
+  initialized: null | boolean
+  outdated: null | boolean
   data_status: JobWorkflowStatusType
   ai_status: JobWorkflowStatusType
 }

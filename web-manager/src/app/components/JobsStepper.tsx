@@ -3,16 +3,20 @@ import { Stepper } from "./Stepper";
 import { IStep } from "@/types/IStep";
 import { useAppDispatch, useAppSelector } from "../store";
 import { setIsStartedWorkflows, resetMainWorkflows } from "../store/n8nReducer";
+import { setAutoMode } from "../store/menuReducer";
 import JobQueueUnrated from "./JobQueueUnrated";
 import JobExplorer from "./JobExplorer";
 import N8NWorkflowPanel from "./N8NWorkflowPanel";
 import BtnLoading from "./Btn/BtnLoading";
-import { CircleArrowLeft, CircleArrowRight, CircleChevronRight, CirclePlay } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Play } from "lucide-react";
+import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
+import { JobStatusesChecker } from "../lib/JobStatusesChecker";
 
 export default function JobsStepper() {
   const dispatch = useAppDispatch()
-  const { isStartedWorkflows, franceTravailStatus, linkedInStatus } = useAppSelector(state => state.n8nReducer)
-  const { unratedCounter, unratedInLoading } = useAppSelector(state => state.jobsReducer);
+  const { isStartedWorkflows, isFinishedWorkflows, franceTravailStatus, manualJobIds, manualJobStatuses } = useAppSelector(state => state.n8nReducer)
+  const { unratedCounter, unratedJobs, unratedInLoading } = useAppSelector(state => state.jobsReducer);
+  const { autoMode } = useAppSelector(state => state.menuReducer);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
@@ -55,15 +59,41 @@ export default function JobsStepper() {
   /* Step successful: go to next */
   useEffect(() => {
     const step = steps[currentStep];
-    if (step.status === "success" && currentStep < steps.length - 1) nextStepHandler();
+
+    // When the first step was finished when zero job IDs
+    if (currentStep === 0 && !autoMode && manualJobIds.length === 0) {
+      // If successful, got to next step
+      if (step.status === "success") nextStepHandler();
+    }
   }, [steps]);
 
-  {/* Mails - update status */}
+  {/* Data - update status */}
   useEffect(() => {
     if (franceTravailStatus === "error") handleStepChange(0, "error");
-    else if (franceTravailStatus === "success") handleStepChange(0, "success");
+    else if (franceTravailStatus === "success" && manualJobIds.length === 0) handleStepChange(0, "success");
     else if (isStartedWorkflows) handleStepChange(0, "processing");
-  }, [isStartedWorkflows, franceTravailStatus]);
+    // If workflows are started and not in auto mode
+    if (isStartedWorkflows && !autoMode) {
+      // Check if there are no manual job IDs
+      if (manualJobIds.length === 0) handleStepChange(0, "success");
+      // Check if there are manual job statuses
+      else if (manualJobStatuses) {
+        const isProcessing = Object.values(manualJobStatuses).some(status => status.data_status === 'processing');
+        if (!isProcessing) {
+          // Check if all jobs are completed with success
+          const isSuccessful = JobStatusesChecker.isSuccessful(manualJobStatuses);
+          if (isSuccessful) handleStepChange(0, "success");
+          // Check if all jobs are completed with failure
+          else {
+            const isFailed = JobStatusesChecker.isFailed(manualJobStatuses);
+            if (isFailed) {
+              handleStepChange(0, "error");
+            }
+          }
+        }
+      }
+    }
+  }, [isStartedWorkflows, franceTravailStatus, manualJobIds, manualJobStatuses]);
 
   {/* Assessment - update status with "like" or "dislike" */}
   useEffect(() => {
@@ -96,7 +126,7 @@ export default function JobsStepper() {
         {/* Stepper previous button */}
         <div className="flex justify-between">
           <BtnLoading
-            title={<CircleArrowLeft size={24} />}
+            title={<ChevronsLeft size={24} />}
             loading={steps[currentStep].status === "processing"}
             onClick={previousStepHandler}
             width="80px"
@@ -112,11 +142,23 @@ export default function JobsStepper() {
         
         {/* Stepper start/next button */}
         <div className="flex items-center gap-2">
+
+          {/* Switch Auto/Manual Mode */}
+          {currentStep === 0 && !isStartedWorkflows && 
+            <div className="w-[120px]" title="Auto mode button">
+              <FieldEditorBoolLight
+                initialValue={autoMode}
+                legendValue={autoMode ? "Auto" : "Manual"}
+                saveFunction={(value) => dispatch(setAutoMode(value))}
+              />
+            </div>
+          }
+
           {/* Skip button */}
-          {currentStep < steps.length - 1 && !isStartedWorkflows && (
+          {/* {currentStep < steps.length - 1 && !isStartedWorkflows && (
             <span title="Skip">
               <BtnLoading
-                title={<CircleChevronRight size={24} />}
+                title={<ChevronsRight size={24} />}
                 loading={isStartedWorkflows}
                 onClick={nextStepHandler}
                 width="80px"
@@ -124,16 +166,17 @@ export default function JobsStepper() {
                 isDisabled={isStartedWorkflows}
               />
             </span>
-          )}
+          )} */}
 
           {/* Start Button */}
-          {currentStep === 0 && (
+          {currentStep === 0 && !isFinishedWorkflows && (
             <span title="Start">
               <BtnLoading
-                title={<CirclePlay size={24} />}
+                title={<Play size={24} />}
                 loading={steps[currentStep].status === "processing"}
                 onClick={startEmailWorkflowsHandler}
                 width="80px"
+                color="green"
                 rounded="rounded-sm"
                 isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 && steps[currentStep].status !== "active")}
               />
@@ -144,12 +187,28 @@ export default function JobsStepper() {
           {currentStep > 0 && (
             <span title="Next">
               <BtnLoading
-                title={<CircleArrowRight size={24} />}
+                title={<ChevronsRight size={24} />}
                 loading={steps[currentStep].status === "processing"}
                 onClick={nextStepHandler}
                 width="80px"
+                color={currentStep === 1 && unratedJobs.length === 0 ? "green" : "blue"}
                 rounded="rounded-sm"
                 isDisabled={steps[currentStep].status === "processing" || (currentStep >= steps.length - 1 || steps[currentStep].status === "error")}
+              />
+            </span>
+          )}
+
+          {/* Next Button when isFinishedWorkflows */}
+          {currentStep === 0 && isFinishedWorkflows && (
+            <span title="Next">
+              <BtnLoading
+                title={<ChevronsRight size={24} />}
+                loading={isStartedWorkflows && !isFinishedWorkflows}
+                onClick={nextStepHandler}
+                width="80px"
+                rounded="rounded-sm"
+                color="green"
+                isDisabled={!isFinishedWorkflows}
               />
             </span>
           )}
@@ -157,7 +216,7 @@ export default function JobsStepper() {
       </div>
 
       {/* N8N Workflow Panel */}
-      <div className={`p-8 ${currentStep === 0 ? "mt-4" : "hidden"} transition-all duration-300`}>
+      <div className={`${currentStep === 0 ? "mt-2" : "hidden"} transition-all duration-300`}>
         <N8NWorkflowPanel />
       </div>
 

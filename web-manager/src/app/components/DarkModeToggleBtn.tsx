@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../store";
 import { setTheme } from "../store/themeReducer";
-import { ThemeType } from "@/types/ThemeType";
+import { GraphicThemeType } from "@/types/GraphicThemeType";
+import { LocalStorageManager } from "../lib/LocalStorageManager";
 
 export default function DarkModeToggleBtn() {
   const dispatch = useAppDispatch();
@@ -17,26 +18,23 @@ export default function DarkModeToggleBtn() {
 
   // FR: Mise à jour de l'état isDark, de la classe HTML et du thème dans le store et du localStorage
   // EN: Update isDark state, HTML class, and theme in store and localStorage
-  const updateTheme = (newTheme: ThemeType) => {
+  const updateTheme = (newTheme: GraphicThemeType) => {
     setIsDark(newTheme === "dark");
     updateHtmlClass(newTheme === "dark" ? "dark" : "light");
     dispatch(setTheme(newTheme));
-    localStorage.setItem("hs_theme", newTheme);
+    LocalStorageManager.setGraphicTheme(newTheme);
   }
 
   // FR: Initialisation du thème depuis localStorage
   // EN: Initialize the theme from localStorage
   useEffect(() => {
     if (isFirstLoad.current) {
-      // FR: Mise à jour de l'état isFirstLoad pour éviter l'effet de bord
-      // EN: Update isFirstLoad state to avoid side effects
+      // Update isFirstLoad state to avoid side effects
       isFirstLoad.current = false;
-      // FR: Récupération du thème depuis localStorage ou utilisation du thème par défaut
-      // EN: Retrieve theme from localStorage or use default theme
-      const hs_theme: ThemeType = (localStorage.getItem("hs_theme") ?? "dark") as ThemeType;
-      // FR: Mise à jour du thème
-      // EN: Update the theme
-      updateTheme(hs_theme);
+      // Retrieve theme from localStorage or use default theme
+      const graphicTheme: GraphicThemeType = LocalStorageManager.getGraphicTheme();
+      // Update the theme state
+      updateTheme(graphicTheme);
     }
   }, []);
 

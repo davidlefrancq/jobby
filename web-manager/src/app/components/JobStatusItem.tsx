@@ -5,13 +5,13 @@ import { ReactElement } from "react";
 import StatusDot from "./StatusDot";
 import { INTEREST_OPTIONS, INTEREST_OPTIONS_LEGEND } from "@/constants/job-interest-status";
 
-interface JobStatusProps {
+interface JobStatusItemProps {
   job: IJobEntity;
   size?: number; // size of the status dot in pixels
   showLegend?: boolean; // If true, display the legend with the status
 }
 
-export default function JobStatus({ job, size = 16, showLegend = false }: JobStatusProps) {
+export default function JobStatusItem({ job, size = 16, showLegend = false }: JobStatusItemProps) {
 
   const INTEREST_STATUS: Record<string, ReactElement> = {
     '✅': <StatusDot status="success" size={size} />,

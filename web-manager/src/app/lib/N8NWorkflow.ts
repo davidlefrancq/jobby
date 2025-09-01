@@ -20,6 +20,7 @@ export class N8NWorkflow {
   private static instance: N8NWorkflow | null = null;
   
   private started = {
+    FranceTravailLoadingJob: false,
     FranceTravailGmail: false,
     FranceTravailData: false,
     FranceTravailAI: false,
@@ -98,6 +99,21 @@ export class N8NWorkflow {
       else errMsg += ` ${String(err)}`;
     }
     return { error: errMsg };
+  }
+
+
+  public startFranceTravailLoadingJobWorkflow = async ({ originalJobId }: { originalJobId: string }) => {
+    const response: WorkflowResponse = { error: null };
+    if (!this.started.FranceTravailLoadingJob) {
+      this.started.FranceTravailLoadingJob = true;
+      const { url } = N8N_WEBHOOKS.FranceTravailLoadingJob;
+      const { error } = await this.runPostWorkflow(url, { id: originalJobId });
+      if (error) response.error = error;
+      this.started.FranceTravailLoadingJob = false;
+    } else {
+      response.error = 'Workflow FranceTravailLoadingJob is already running.';
+    }
+    return response;
   }
 
   public startFranceTravailGmailWorkflow = async () => {

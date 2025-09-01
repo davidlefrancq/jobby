@@ -41,7 +41,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="container mx-auto">
+    <div className="w-full">
       <div
         className={`
           grid
@@ -113,13 +113,14 @@ export default function HomePage() {
         </header>
       </div>
 
-      <div className="grid grid-cols-6 gap-0 m-0 p-0">
-        <div className="col-span-1 dark:border-e-neutral-700">
+      <div className="grid sm:grid-cols-6 lg:grid-cols-12 gap-0 m-0 p-0">
+        <div className="sm:col-span-1 lg:col-span-2 dark:border-e-neutral-700">
           <MenuSidebar />
         </div>
         <div
           className={`
-            col-span-5
+            sm:col-span-6
+            lg:col-span-10
             transform
             transition-all
             duration-300

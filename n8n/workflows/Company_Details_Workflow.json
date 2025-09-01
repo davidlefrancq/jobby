@@ -194,7 +194,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "let id = null;\n\nif ($json.query && $json.query._id && $json.query._id.length > 0) {\n  id = $json.query._id;\n}\n\nif (!id) {\n  if ($json.body && $json.body.length > 0) {\n    const data = JSON.parse($json.body);\n    if (data && data._id && data._id.length > 0) {\n      id = data._id;\n    }\n  }\n}\n\nif (!id || id.length <= 0) {\n  throw new Error('Bad input.');\n}\n\nreturn { json: { _id: id }};"
+        "jsCode": "let id = null;\n\nif ($json.query && $json.query._id && $json.query._id.length > 0) {\n  id = $json.query._id;\n}\n\nif (!id && $json.body && $json.body._id) {\n  id = $json.body._id;\n}\n\nif (!id && $json.body) {\n  if ($json.body && $json.body.length > 0) {\n    const data = JSON.parse($json.body);\n    if (data && data._id && data._id.length > 0) {\n      id = data._id;\n    }\n  }\n}\n\nif (!id || id.length <= 0) {\n  throw new Error('Bad input.');\n}\n\nreturn { json: { _id: id }};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -356,7 +356,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "91040478-6964-4724-bd05-258ca5da590c",
+  "versionId": "d7c15e36-203c-47aa-995b-11ba826a2454",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2185c08ba0bd3d9cd7425d520bc9fcd28ce2fdc332ddea29da7bb31748895273"

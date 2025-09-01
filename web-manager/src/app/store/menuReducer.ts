@@ -8,10 +8,12 @@ export enum MenuTargetEnum {
 
 interface MenuState {
   target: MenuTargetEnum | null
+  autoMode: boolean
 }
 
 const initialState: MenuState = {
   target: MenuTargetEnum.steps, // Default target can be set to any of the MenuTargetEnum values
+  autoMode: true
 }
 
 const menuSlice = createSlice({
@@ -24,10 +26,13 @@ const menuSlice = createSlice({
 
     clearMenuTarget(state) {
       state.target = null
+    },
+    setAutoMode(state, action: { payload: boolean }) {
+      state.autoMode = action.payload
     }
   },
 })
 
-export const { selectMenuTarget, clearMenuTarget } = menuSlice.actions
+export const { selectMenuTarget, clearMenuTarget, setAutoMode } = menuSlice.actions
 
 export const menuReducer = menuSlice.reducer

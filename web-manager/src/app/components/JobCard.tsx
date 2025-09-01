@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { IJobEntity } from '@/types/IJobEntity';
 import LanguageFlag from './LanguageFlag';
 import TruncatedText from './TruncatedText';
-import JobStatus from './JobStatus';
+import JobStatusItem from './JobStatusItem';
 import { DEFAULT_CURRENCY } from '@/constants/default';
 
 interface JobCardProps {
@@ -86,7 +86,7 @@ export default function JobCard({ job, onLike, onDislike }: JobCardProps) {
             {job.salary ? <Salary job={job} /> : null}
             {/* Interest Indicator */}
             <span className="ml-auto mr-0">
-              <JobStatus job={job} />
+              <JobStatusItem job={job} />
             </span>
           </div>
           {/* Descripttion */}
