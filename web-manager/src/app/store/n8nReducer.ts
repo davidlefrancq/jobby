@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { IJobStatus } from '../interfaces/IJobStatus';
 
 type WorkflowStatus = '' | 'processing' | 'success' | 'error';
 
@@ -10,6 +11,8 @@ interface N8NState {
   franceTravailStatus: WorkflowStatus
   companiesDetailsStarted: boolean
   companiesDetailsStatus: WorkflowStatus
+  manualJobIds: string[]
+  manualJobStatuses: Record<string, IJobStatus>
 }
 
 const initialState: N8NState = {
@@ -20,6 +23,8 @@ const initialState: N8NState = {
   franceTravailStatus: '',
   companiesDetailsStarted: false,
   companiesDetailsStatus: '',
+  manualJobIds: [],
+  manualJobStatuses: {},
 }
 
 const n8nSlice = createSlice({
@@ -58,6 +63,12 @@ const n8nSlice = createSlice({
     setCompaniesDetailsStatus(state, action: PayloadAction<WorkflowStatus>) {
       state.companiesDetailsStatus = action.payload
     },
+    setManualJobIds(state, action: PayloadAction<string[]>) {
+      state.manualJobIds = action.payload
+    },
+    setManualJobStatuses(state, action: PayloadAction<Record<string, IJobStatus>>) {
+      state.manualJobStatuses = action.payload
+    },
   },
 })
 
@@ -71,6 +82,8 @@ export const {
   setFranceTravailStatus,
   setCompaniesDetailsStarted,
   setCompaniesDetailsStatus,
+  setManualJobIds,
+  setManualJobStatuses,
 } = n8nSlice.actions
 
 export const n8nReducer = n8nSlice.reducer
