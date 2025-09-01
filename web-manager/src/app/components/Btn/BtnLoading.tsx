@@ -62,7 +62,13 @@ export default function BtnLoading({
         ${rounded}
         ${isDisabled
           ? `bg-gray-400 dark:bg-neutral-400`
-          : `bg-${color}-500 hover:bg-${color}-800 focus:ring-${color}-300` 
+          : color === 'red' 
+            ? 'bg-red-500 hover:bg-red-800 focus:ring-red-300'
+            : color === 'blue'
+              ? 'bg-blue-500 hover:bg-blue-800 focus:ring-blue-300'
+              : color === 'green' 
+                ? 'bg-green-500 hover:bg-green-800 focus:ring-green-300'
+                : ''
         }
         text-white text-center items-center
         hover:scale-[1.02] active:scale-95
