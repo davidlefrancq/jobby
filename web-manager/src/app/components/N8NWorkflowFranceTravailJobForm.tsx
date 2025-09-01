@@ -365,8 +365,8 @@ export default function N8NWorkflowFranceTravailJobForm() {
 
             {/* Outdated icon */}
             <div className={`absolute right-1 top-1 rounded-full`}>
-              {manualJobStatuses[id] && manualJobStatuses[id].outdated !== true && <span title={'Outdated'}><CalendarOff size={16} className="text-red-500" /></span>}
-              {manualJobStatuses[id] && manualJobStatuses[id].outdated !== false && <span title={'Up to date'}><Calendar size={16} className="text-green-500" /></span>}
+              {manualJobStatuses[id] && manualJobStatuses[id].outdated === true && <span title={'Outdated'}><CalendarOff size={16} className="text-red-500" /></span>}
+              {manualJobStatuses[id] && manualJobStatuses[id].outdated === false && <span title={'Up to date'}><Calendar size={16} className="text-green-500" /></span>}
             </div>
 
             {/* Remove job button */}
