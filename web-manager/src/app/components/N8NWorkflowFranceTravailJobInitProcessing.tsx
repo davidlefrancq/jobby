@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { CaptionsOff, CircleChevronDown, CircleDotDashed } from "lucide-react";
 import { GrowingSpinner } from "./GrowingSpinner";
 import { N8NWorkflow } from "../lib/N8NWorkflow";
+import { AppLogger } from "@/errors/AppLogger";
 
+const logger = AppLogger.getInstance();
 const n8nWorkflow = N8NWorkflow.getInstance();
 
 interface IN8NWorkflowFranceTravailJobInitProcessingProps {
@@ -23,6 +25,10 @@ export default function N8NWorkflowFranceTravailJobInitProcessing({ jobId, start
    * EN: Updates the initialization status.
    */
   useEffect(() => {
+    logger.info(`Job Init Status updated: ${initStatus}`);
+    if (initStatus !== null) {
+      onUpdate(initStatus, !initStatus);
+    }
   }, [initStatus])
 
   /**
@@ -30,6 +36,7 @@ export default function N8NWorkflowFranceTravailJobInitProcessing({ jobId, start
    * EN: Starts the initialization.
    */
   useEffect(() => {
+    logger.info(`Start: ${start}, In Processing: ${inProcessing}, Init Status: ${initStatus}`);
     if (start && !inProcessing && initStatus === null) {
       setInProcessing(true);
       
@@ -38,11 +45,17 @@ export default function N8NWorkflowFranceTravailJobInitProcessing({ jobId, start
         .startFranceTravailLoadingJobWorkflow({ originalJobId: jobId })
         .then((response) => {
           const { error } = response
-          if (error) setInitStatus(false);
-          else setInitStatus(true);
+          if (error) {
+            setInitStatus(false);
+            logger.error(`Error initializing job ${jobId}: ${String(error)}`);
+          }
+          else {
+            setInitStatus(true);
+            logger.info(`Job ${jobId} initialized with status: ${true}`);
+          }
         })
-        .catch((error) => {
-          console.error(error);
+        .catch((err) => {
+          logger.error(`Failed to initialize job: ${jobId}`, err);
           setInitStatus(false);
         })
         .finally(() => {

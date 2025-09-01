@@ -6,7 +6,7 @@ import Toggle from "../Toggle";
 interface FieldEditorBoolLightProps {
   className?: string;
   initialValue?: boolean;
-  legendValue?: string;
+  legendValue?: React.ReactNode;
   saveFunction?: (value: boolean) => void;
 }
 

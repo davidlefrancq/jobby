@@ -3,16 +3,20 @@ import { Stepper } from "./Stepper";
 import { IStep } from "@/types/IStep";
 import { useAppDispatch, useAppSelector } from "../store";
 import { setIsStartedWorkflows, resetMainWorkflows } from "../store/n8nReducer";
+import { setAutoMode } from "../store/menuReducer";
 import JobQueueUnrated from "./JobQueueUnrated";
 import JobExplorer from "./JobExplorer";
 import N8NWorkflowPanel from "./N8NWorkflowPanel";
 import BtnLoading from "./Btn/BtnLoading";
 import { CircleArrowLeft, CircleArrowRight, CircleChevronRight, CirclePlay } from "lucide-react";
+import FieldEditorBoolLight from "./FieldEditor/FieldEditorBoolLight";
+import { JobStatusesChecker } from "../lib/JobStatusesChecker";
 
 export default function JobsStepper() {
   const dispatch = useAppDispatch()
-  const { isStartedWorkflows, franceTravailStatus, linkedInStatus } = useAppSelector(state => state.n8nReducer)
+  const { isStartedWorkflows, franceTravailStatus, manualJobIds, manualJobStatuses } = useAppSelector(state => state.n8nReducer)
   const { unratedCounter, unratedInLoading } = useAppSelector(state => state.jobsReducer);
+  const { autoMode } = useAppSelector(state => state.menuReducer);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps, setSteps] = useState<IStep[]>([
@@ -58,12 +62,33 @@ export default function JobsStepper() {
     if (step.status === "success" && currentStep < steps.length - 1) nextStepHandler();
   }, [steps]);
 
-  {/* Mails - update status */}
+  {/* Data - update status */}
   useEffect(() => {
     if (franceTravailStatus === "error") handleStepChange(0, "error");
-    else if (franceTravailStatus === "success") handleStepChange(0, "success");
+    else if (franceTravailStatus === "success" && manualJobIds.length === 0) handleStepChange(0, "success");
     else if (isStartedWorkflows) handleStepChange(0, "processing");
-  }, [isStartedWorkflows, franceTravailStatus]);
+    // If workflows are started and not in auto mode
+    if (isStartedWorkflows && !autoMode) {
+      // Check if there are no manual job IDs
+      if (manualJobIds.length === 0) handleStepChange(0, "success");
+      // Check if there are manual job statuses
+      else if (manualJobStatuses) {
+        const isProcessing = Object.values(manualJobStatuses).some(status => status.data_status === 'processing');
+        if (!isProcessing) {
+          // Check if all jobs are completed with success
+          const isSuccessful = JobStatusesChecker.isSuccessful(manualJobStatuses);
+          if (isSuccessful) handleStepChange(0, "success");
+          // Check if all jobs are completed with failure
+          else {
+            const isFailed = JobStatusesChecker.isFailed(manualJobStatuses);
+            if (isFailed) {
+              handleStepChange(0, "error");
+            }
+          }
+        }
+      }
+    }
+  }, [isStartedWorkflows, franceTravailStatus, manualJobIds, manualJobStatuses]);
 
   {/* Assessment - update status with "like" or "dislike" */}
   useEffect(() => {
@@ -112,6 +137,16 @@ export default function JobsStepper() {
         
         {/* Stepper start/next button */}
         <div className="flex items-center gap-2">
+
+          {/* Switch Auto/Manual Mode */}
+          {currentStep === 0 && <div title="Auto mode button">
+            <FieldEditorBoolLight
+              initialValue={autoMode}
+              legendValue={'Auto'}
+              saveFunction={(value) => dispatch(setAutoMode(value))}
+            />
+          </div>}
+
           {/* Skip button */}
           {currentStep < steps.length - 1 && !isStartedWorkflows && (
             <span title="Skip">

@@ -8,7 +8,9 @@ import { N8NWorkflow } from "../lib/N8NWorkflow";
 import { JobRepository } from "../dal/JobRepository";
 import { GetJobByOriginalIdError } from "../dal/errors/JobRepositoryError";
 import { FRANCE_TRAVAIL_JOB_BASE_URL } from "@/constants/default";
+import { AppLogger } from "@/errors/AppLogger";
 
+const logger = AppLogger.getInstance();
 const n8nWorkflow = N8NWorkflow.getInstance();
 const jobRepository = JobRepository.getInstance();
 
@@ -65,20 +67,25 @@ export default function N8NWorkflowFranceTravailJobDataProcessing({ jobId, initi
           n8nWorkflow
             .startFranceTravailDataWorkflow({ _id: _id.toString() })
             .then((response) => {
-              const { error } = response
-              if (error) setDataStatus('error');
-              else setDataStatus('ok');
+              if (!response) {
+                setDataStatus('error');
+              }
+              else {
+                const { error } = response
+                if (error) setDataStatus('error');
+                else setDataStatus('ok');
+              }
             })
-            .catch((error) => {
-              console.error(error);
+            .catch((err) => {
+              logger.error(`Failed to startFranceTravailDataWorkflow for job ID: ${jobId}`, err);
               setDataStatus('error');
             })
             .finally(() => {
               setInProcessing(false);
             });
         })
-        .catch((error) => {
-          console.error(error);
+        .catch((err) => {
+          logger.error(`Failed to get job by source for: ${source}`, err);
           setDataStatus('error');
         })
         .finally(() => {
