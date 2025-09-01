@@ -139,7 +139,7 @@ export default function JobsStepper() {
         <div className="flex items-center gap-2">
 
           {/* Switch Auto/Manual Mode */}
-          {currentStep === 0 && <div title="Auto mode button">
+          {currentStep === 0 && !isStartedWorkflows && <div title="Auto mode button">
             <FieldEditorBoolLight
               initialValue={autoMode}
               legendValue={'Auto'}
