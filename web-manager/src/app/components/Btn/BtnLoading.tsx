@@ -30,8 +30,8 @@ export default function BtnLoading({
     }
   }
 
-  let btnClassName = `text-white text-center items-center focus:ring-2 focus:outline-none font-medium text-sm px-2.5 py-2.5 caret-transparent ${rounded} transition-all duration-200 ease-in-out `;
-  const notAllowed = 'bg-gray-400 dark:bg-neutral-400 cursor-not-allowed';
+  let btnClassName = ''
+  const notAllowed = 'cursor-not-allowed';
   switch (true) {
     case isDisabled:
       btnClassName += notAllowed;
@@ -40,7 +40,7 @@ export default function BtnLoading({
       btnClassName += notAllowed;
       break;
     default:
-      btnClassName += `bg-${color}-600 hover:bg-${color}-700 focus:ring-${color}-300 cursor-pointer`;
+      btnClassName += ''
       break;
   }
 
@@ -48,8 +48,6 @@ export default function BtnLoading({
   const btnStyle: CSSProperties = {
     width,
     height,
-    display: 'flex',
-    justifyContent: 'center',
   }
   if (loading) {
     btnStyle.cursor = '';
@@ -58,7 +56,17 @@ export default function BtnLoading({
   return (
     <button
       type="button"
-      className={btnClassName}
+      className={`
+        flex flex-row justify-center align-middle
+        ${btnClassName}
+        ${rounded}
+        ${isDisabled
+          ? `bg-gray-400 dark:bg-neutral-400`
+          : `bg-${color}-500 hover:bg-${color}-800 focus:ring-${color}-300` 
+        }
+        text-white text-center items-center
+        hover:scale-[1.02] active:scale-95
+      `}
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
