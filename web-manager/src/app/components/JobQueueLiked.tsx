@@ -30,7 +30,7 @@ export default function JobQueueLiked() {
     dispatch(setLikedJobs([...filteredJobs, ...newJobs]));
     dispatch(setLikedSkip(skip + newJobs.length));
     // Disable the loader if there are no more jobs from load
-    if (newJobs.length < limit) {
+    if (newJobs && newJobs.length < limit) {
       setHasMore(false);
     }
   }
