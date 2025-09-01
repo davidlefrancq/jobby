@@ -47,7 +47,9 @@ export class AppLogger {
   /** Make a log */
   private async log(payload: ILogPayload): Promise<void> {
     if (VECTOR_IS_ENABLED) await this.sendLog(payload);
-    if (IS_DEV) console.log({ log: payload });
+    else if (IS_DEV && payload.level === 'error') console.error({ log: payload });
+    else if (IS_DEV && payload.level === 'warn') console.warn({ log: payload });
+    else if (IS_DEV) console.log({ log: payload });
     else if (payload.level === 'error') console.error({ log: payload });
     else if (payload.level === 'warn') console.warn({ log: payload });
   }
