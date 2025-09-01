@@ -83,7 +83,19 @@ Ce projet combine :
 
 ---
 
-## 6. Démarrage rapide
+
+## 6. Diagrammes de séquence (France Travail)
+
+Des scénarios détaillés sont disponibles sous forme de diagrammes Mermaid interactifs :
+
+- [Scénario 1 : Parcours complet réussi (Init → Data → AI → Succès)](docs/sequence%20diagram/N8NWorkflowFranceTravailJobForm-Scenario-01.html)
+- [Scénario 2 : Échec Init → Data & AI "skipped"](docs/sequence%20diagram/N8NWorkflowFranceTravailJobForm-Scenario-02.html)
+- [Scénario 3 : Init OK → Data échoue → AI "skipped"](docs/sequence%20diagram/N8NWorkflowFranceTravailJobForm-Scenario-03.html)
+- [Scénario 4 : Init OK → Data OK → AI échoue](docs/sequence%20diagram/N8NWorkflowFranceTravailJobForm-Scenario-04.html)
+
+---
+
+## 7. Démarrage rapide
 
 1. Préparer la configuration d’environnement :
   - Copier le fichier `.env.local` en `.env` à la racine du projet

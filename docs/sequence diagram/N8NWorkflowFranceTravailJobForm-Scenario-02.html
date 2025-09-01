@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>France Travail Manual Workflow – Sequence Diagram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Mermaid (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f8f9fa;
+    }
+    header {
+      padding: 1rem;
+      border-bottom: 1px solid #ccc;
+      background: #fff;
+      position: sticky;
+      top: 0;
+    }
+    main {
+      padding: 1rem;
+      overflow-x: auto; /* scroll horizontal si besoin */
+    }
+    .mermaid {
+      min-width: 1800px; /* largeur minimum pour agrandir */
+      font-size: 16px; /* texte plus lisible */
+    }
+    /* Optionnel : zoom global */
+    .mermaid svg {
+      width: 100% !important;
+      height: auto !important;
+    }
+  </style>
+  <script>
+    // Initialize Mermaid
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>France Travail – Manual Pipeline</h1>
+    <p>Scenario 2 — Init KO → Data & AI “skipped”</p>
+    <p class="hint">Source components: <code>N8NWorkflowFranceTravailJobForm</code>, <code>N8NWorkflowFranceTravailJobInitProcessing</code>, <code>N8NWorkflowFranceTravailJobDataProcessing</code>, <code>N8NWorkflowFranceTravailJobAIProcessing</code>.</p>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Sequence Diagram</h2>
+      <pre class="mermaid">
+      sequenceDiagram
+        autonumber
+        actor U as User
+        participant F as JobForm
+        participant R as Redux
+        participant I as InitProcessing
+        participant D as DataProcessing
+        participant A as AIProcessing
+        participant JR as JobRepository
+        participant DB as Database
+        participant NW as N8NWorkflow
+        participant N8 as n8n Server
+
+        %% User adds one jobId and starts
+        U->>F: Enter job ID + click "Add"
+        F->>R: Upsert manualJobIds + default statuses
+        U->>F: Click Start processing
+        F->>F: set start=true
+
+        %% Init FAIL or Outdated
+        F->>I: start for jobId
+        I->>NW: startFranceTravailLoadingJobWorkflow(originalJobId)
+        NW->>N8: trigger loading job
+        N8-->>NW: response {error=true OR outdated=true}
+        NW-->>I: result
+        I-->>F: onUpdate(false, outdated=true)
+        F->>R: initialized=false, outdated=true
+        F->>R: data_status='skipped', ai_status='skipped'
+
+        %% No Data (skipped)
+        opt Data skipped due to outdated
+          F->>D: rendered (skipped)
+        end
+
+        %% No AI (skipped)
+        opt AI skipped due to outdated
+          F->>A: rendered (skipped)
+        end
+
+        %% Global error
+        F->>R: setFranceTravailStatus('error')
+      </pre>
+    </div>
+  </main>
+</body>
+</html>
