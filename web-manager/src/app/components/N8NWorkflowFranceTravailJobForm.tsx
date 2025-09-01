@@ -314,11 +314,6 @@ export default function N8NWorkflowFranceTravailJobForm() {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th className="text-sm text-gray-600 dark:text-gray-400 w-1/4">
-                    <span title="Outdated">
-                      <Calendar size={18} />
-                    </span>
-                  </th>
                   <th className="pt-2 pb-1 text-sm text-gray-600 dark:text-gray-400 w-1/4">
                     <span title="Initialization">
                       <PackagePlus size={18} />
@@ -338,10 +333,6 @@ export default function N8NWorkflowFranceTravailJobForm() {
               </thead>
               <tbody>
                 <tr>
-                  <td className="text-sm text-gray-600">
-                    {manualJobStatuses[id] && manualJobStatuses[id].outdated === true && <span title={'Outdated'}><CalendarOff size={16} className="text-red-500" /></span>}
-                    {manualJobStatuses[id] && manualJobStatuses[id].outdated === false && <span title={'Up to date'}><Calendar size={16} className="text-green-500" /></span>}
-                  </td>
                   <td className="text-sm text-gray-600">
                     <N8NWorkflowFranceTravailJobInitProcessing
                       jobId={id}
@@ -372,9 +363,17 @@ export default function N8NWorkflowFranceTravailJobForm() {
               </tbody>
             </table>
 
+            {/* Outdated icon */}
+            <div className={`absolute right-1 top-1 rounded-full`}>
+              {manualJobStatuses[id] && manualJobStatuses[id].outdated !== true && <span title={'Outdated'}><CalendarOff size={16} className="text-red-500" /></span>}
+              {manualJobStatuses[id] && manualJobStatuses[id].outdated !== false && <span title={'Up to date'}><Calendar size={16} className="text-green-500" /></span>}
+            </div>
+
+            {/* Remove job button */}
             <button
               onClick={() => handleRemoveJobId(id)}
-              className="absolute right-1 top-1 text-red-600 hover:text-red-50 hover:bg-red-600 rounded-full"
+              className={`absolute right-1 top-1 rounded-full ${start ? 'hidden' : 'text-red-600 hover:text-red-50 hover:bg-red-600'}`}
+              disabled={start}
             >
               <CircleX size={20} />
             </button>
