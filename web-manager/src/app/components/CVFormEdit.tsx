@@ -365,49 +365,47 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
             />
             
             {/* Cards of experiences */}
-            {experiences.length > 0 && (
+            {experiences && experiences.length > 0 && (
               <div>
-                { experiences.length > 0 && (
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {experiences.map((exp, index) => (
-                      <div key={index} className="bg-white p-4 rounded shadow">
-                        <h4 className="font-semibold">{exp.title}</h4>
-                        <p className="text-xs text-gray-500">{exp.company}</p>
-                        <p className="text-xs text-gray-500">
-                          {exp.dateStart ? new Date(exp.dateStart).toLocaleDateString() : null}
-                          {exp.dateStart && exp.dateEnd ? ' - ' : null}
-                          {exp.dateEnd ? new Date(exp.dateEnd).toLocaleDateString() : null}
-                        </p>
-                        <p className="text-xs text-gray-700 mt-1">
-                          <TruncatedText text={exp.description} length={100} />
-                        </p>
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {experiences.map((exp, index) => (
+                    <div key={index} className="bg-white p-4 rounded shadow">
+                      <h4 className="font-semibold">{exp.title}</h4>
+                      <p className="text-xs text-gray-500">{exp.company}</p>
+                      <p className="text-xs text-gray-500">
+                        {exp.dateStart ? new Date(exp.dateStart).toLocaleDateString() : null}
+                        {exp.dateStart && exp.dateEnd ? ' - ' : null}
+                        {exp.dateEnd ? new Date(exp.dateEnd).toLocaleDateString() : null}
+                      </p>
+                      <p className="text-xs text-gray-700 mt-1">
+                        <TruncatedText text={exp.description} length={100} />
+                      </p>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const newExperiences = experiences.filter((_, i) => i !== index);
-                            setExperiences(newExperiences);
-                          }}
-                          className="mt-2 text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const newExperiences = experiences.filter((_, i) => i !== index);
+                          setExperiences(newExperiences);
+                        }}
+                        className="mt-2 text-red-600 hover:text-red-900"
+                      >
+                        Supprimer
+                      </button>
 
-                        {/* Edit button */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedExperience(exp);
-                          }}
-                          className="ml-2 text-blue-600 hover:text-blue-900"
-                        >
-                          Modifier
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      {/* Edit button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedExperience(exp);
+                        }}
+                        className="ml-2 text-blue-600 hover:text-blue-900"
+                      >
+                        Modifier
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -421,51 +419,49 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               education={selectedEducation}
               saveFunction={handleAddEducation}
             />
-            {educations.length > 0 && (
+            {educations && educations.length > 0 && (
               <div>
                 {/* Cards of educations */}
-                {educations.length > 0 && (
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {educations.map((edu, index) => (
-                      <div key={index} className="bg-white p-4 rounded shadow">
-                        <h4 className="font-semibold">{edu.title}</h4>
-                        <p className="text-xs text-gray-500">{edu.institution}</p>
-                        <p className="text-xs text-gray-500">
-                          {edu.dateStart ? new Date(edu.dateStart).toLocaleDateString() : null}
-                          {edu.dateStart && edu.dateEnd ? ' - ' : null}
-                          {edu.dateEnd ? new Date(edu.dateEnd).toLocaleDateString() : null}
-                        </p>
-                        <p className="text-xs text-gray-700 mt-1">
-                          <TruncatedText text={edu.description} length={100} />
-                        </p>
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {educations.map((edu, index) => (
+                    <div key={index} className="bg-white p-4 rounded shadow">
+                      <h4 className="font-semibold">{edu.title}</h4>
+                      <p className="text-xs text-gray-500">{edu.institution}</p>
+                      <p className="text-xs text-gray-500">
+                        {edu.dateStart ? new Date(edu.dateStart).toLocaleDateString() : null}
+                        {edu.dateStart && edu.dateEnd ? ' - ' : null}
+                        {edu.dateEnd ? new Date(edu.dateEnd).toLocaleDateString() : null}
+                      </p>
+                      <p className="text-xs text-gray-700 mt-1">
+                        <TruncatedText text={edu.description} length={100} />
+                      </p>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const newEducations = educations.filter((_, i) => i !== index);
-                            setEducations(newEducations);
-                          }}
-                          className="mt-2 text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const newEducations = educations.filter((_, i) => i !== index);
+                          setEducations(newEducations);
+                        }}
+                        className="mt-2 text-red-600 hover:text-red-900"
+                      >
+                        Supprimer
+                      </button>
 
-                        {/* Edit button */}
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedEducation(edu);
-                          }}
-                          className="ml-2 text-blue-600 hover:text-blue-900"
-                        >
-                          Modifier
-                        </button>
-
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      {/* Edit button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedEducation(edu);
+                        }}
+                        className="ml-2 text-blue-600 hover:text-blue-900"
+                      >
+                        Modifier
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                
               </div>
             )}
           </div>
@@ -491,7 +487,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               {/* Skills */}
               <div className="mt-2 shadow-md rounded-md p-2">
                 <p><span className="text-md font-semibold">Compétences:</span></p>
-                {skills.length > 0 && <p className="text-sm">
+                {skills && skills.length > 0 && <p className="text-sm">
                   {skills.map((skill, index) => (
                     <span key={index} className="inline-block bg-gray-200 text-gray-800 rounded-full px-2 py-1 text-xs mr-1 mb-1">
                       #{skill}
@@ -503,7 +499,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               {/* Interests */}
               <div className="mt-2 shadow-md rounded-md p-2">
                 <p><span className="text-md font-semibold">{`Centres d'intérêt:`}</span></p>
-                {interests.length > 0 && <p className="text-sm">
+                {interests && interests.length > 0 && <p className="text-sm">
                   {interests.map((interest, index) => (
                     <span key={index} className="inline-block bg-gray-200 text-gray-800 rounded-full px-2 py-1 text-xs mr-1 mb-1">
                       #{interest}
@@ -513,7 +509,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               </div>
 
               {/* Experiences */}
-              {experiences.length > 0 && (
+              {experiences && experiences.length > 0 && (
                 <div className="mt-2 shadow-md rounded-md p-2">
                   <h5 className="text-sm font-semibold">Expériences professionnelles:</h5>
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
@@ -536,7 +532,7 @@ export default function CVFormEdit({ cv, onClose }: ICvFormEditProps) {
               )}
 
               {/* Educations */}
-              {educations.length > 0 && (
+              {educations && educations.length > 0 && (
                 <div className="mt-2 shadow-md rounded-md p-2">
                   <h5 className="text-sm font-semibold">Formations:</h5>
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-2">
