@@ -2,7 +2,7 @@
 FROM node:24.4.1-alpine3.21 AS dependencies
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Step 2 – build the app
 FROM node:24.4.1-alpine3.21 AS builder
