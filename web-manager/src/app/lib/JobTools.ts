@@ -20,4 +20,23 @@ export class JobTools {
 
     return sourceName;
   }
+
+  // Order jobs by date
+  public static orderJobsByDate(jobs: IJobEntity[], params: { order: 'asc' | 'desc' }): IJobEntity[] {
+    let sortedJobs = [...jobs];
+    sortedJobs = sortedJobs.sort((a, b) => {
+      if (params.order === 'asc') {
+        if (a.date && b.date) return new Date(a.date).getTime() - new Date(b.date).getTime();
+        else if (a.date) return -1;
+        else if (b.date) return 1;
+        return 0;
+      } else {
+        if (b.date && a.date) return new Date(b.date).getTime() - new Date(a.date).getTime();
+        else if (b.date) return -1;
+        else if (a.date) return 1;
+        return 0;
+      }
+    });
+    return sortedJobs;
+  }
 }

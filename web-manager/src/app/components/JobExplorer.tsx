@@ -6,6 +6,7 @@ import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import { IJobEntity } from "@/types/IJobEntity";
 import JobExplorerCard from "./JobExplorerCard";
+import { JobTools } from "../lib/JobTools";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -41,12 +42,7 @@ export default function JobExplorer() {
     // Jobs filtered without newJobs
     const filteredJobs = likedJobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
     // Sort jobs by date, with new jobs
-    const updatedJobList = [...filteredJobs, ...newJobs].sort((a, b) => {
-      if (b.date && a.date) return new Date(b.date).getTime() - new Date(a.date).getTime();
-      else if (b.date) return -1;
-      else if (a.date) return 1;
-      return 0;
-    });
+    const updatedJobList = JobTools.orderJobsByDate([...filteredJobs, ...newJobs], { order: 'desc' });
 
     // Persist in the store
     dispatch(setLikedJobs(updatedJobList));

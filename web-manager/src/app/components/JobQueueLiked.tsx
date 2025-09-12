@@ -11,6 +11,7 @@ import { addAlert } from "../store/alertsReducer";
 import { MessageType } from "@/types/MessageType";
 import JobModal from "./JobModal";
 import FullscreenModal from "./FullscreenModal";
+import { JobTools } from "../lib/JobTools";
 
 const jobRepository = RepositoryFactory.getInstance().getJobRepository();
 
@@ -26,8 +27,11 @@ export default function JobQueueLiked() {
   const addJobs = (newJobs: IJobEntity[]) => {
     // Jobs filtered without newJobs
     const filteredJobs = likedJobs.filter(job => !newJobs.some(newJob => newJob._id === job._id));
+    // Sort jobs by date, with new jobs
+    const updatedJobList = JobTools.orderJobsByDate([...filteredJobs, ...newJobs], { order: 'desc' });
+
     // Persist in the store
-    dispatch(setLikedJobs([...filteredJobs, ...newJobs]));
+    dispatch(setLikedJobs(updatedJobList));
     dispatch(setLikedSkip(skip + newJobs.length));
     // Disable the loader if there are no more jobs from load
     if (newJobs && newJobs.length < limit) {
